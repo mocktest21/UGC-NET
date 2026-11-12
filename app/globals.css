@@ -623,7 +623,7 @@ button, input { font: inherit; }
 /* MockMaster performance analytics dashboard */
 .mm-analytics-content { padding-top:34px; }
 .mm-analytics-heading { display:flex; align-items:flex-end; justify-content:space-between; gap:24px; margin-bottom:22px; }
-.mm-analytics-heading h1 { margin:6px 0 5px; color:#172033; font-family:Georgia,"Times New Roman",serif; font-size:clamp(27px,3vw,36px); font-weight:600; letter-spacing:-.8px; }
+.mm-analytics-heading h1 { margin:6px 0 5px; color:#172033; font-family:Georgia,"Times New Roman",serif; font-size:24px; font-weight:600; letter-spacing:-.35px; }
 .mm-analytics-heading p { max-width:700px; margin:0; color:#64748b; font-size:12px; line-height:1.7; }
 .mm-analytics-primary { display:inline-flex; align-items:center; gap:14px; flex-shrink:0; padding:12px 18px; border-radius:11px; background:#2563EB; color:#fff; font-size:11px; font-weight:700; }
 .mm-analytics-primary:hover { background:#1D4ED8; }
@@ -674,7 +674,7 @@ button, input { font: inherit; }
   .mm-analytics-content { padding-top:20px; }
   .mm-mobile-page-label { display:block; margin-right:auto; margin-left:12px; color:#475569; font-size:11px; font-weight:600; }
   .mm-analytics-heading { align-items:flex-start; flex-direction:column; gap:14px; margin-bottom:16px; }
-  .mm-analytics-heading h1 { font-size:27px; }
+  .mm-analytics-heading h1 { font-size:22px; }
   .mm-analytics-heading p { font-size:10px; }
   .mm-analytics-primary { padding:10px 14px; }
   .mm-analytics-summary { gap:9px; }
