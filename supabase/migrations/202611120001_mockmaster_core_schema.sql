@@ -183,6 +183,7 @@ create table if not exists public.question_versions (
  created_by uuid references auth.users(id) on delete set null,
  created_at timestamptz not null default now(),
  unique(question_id,version_number),
+ unique(question_id,id),
  constraint qv_version_positive check(version_number>0),
  constraint qv_marks_nonnegative check(default_marks>=0 and default_negative_marks>=0),
  constraint qv_prompt_object check(jsonb_typeof(prompt)='object'),
@@ -263,7 +264,7 @@ create table if not exists public.test_questions (
  id uuid primary key default gen_random_uuid(),
  test_id uuid not null references public.tests(id) on delete cascade,
  question_id uuid not null references public.questions(id) on delete restrict,
- question_version_id uuid not null references public.question_versions(id) on delete restrict,
+ question_version_id uuid not null,
  section_title text,
  position integer not null,
  marks numeric(8,2) not null default 2,
@@ -272,6 +273,7 @@ create table if not exists public.test_questions (
  created_at timestamptz not null default now(),
  unique(test_id,question_id),
  unique(test_id,position),
+ foreign key(question_id,question_version_id) references public.question_versions(question_id,id) on delete restrict,
  constraint test_questions_position_positive check(position>0),
  constraint test_questions_marks_nonnegative check(marks>=0 and negative_marks>=0)
 );
