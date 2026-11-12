@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 const examOptions = ["UGC NET", "SSC", "UPSC", "Banking", "Railways"];
 
@@ -11,6 +12,8 @@ export default function AuthForm({ mode }: AuthFormProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [selectedExams, setSelectedExams] = useState<string[]>(["UGC NET"]);
   const [notice, setNotice] = useState("");
+  const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   function toggleExam(exam: string) {
     setSelectedExams((current) =>
@@ -20,11 +23,55 @@ export default function AuthForm({ mode }: AuthFormProps) {
     );
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setNotice(
-      "Your details are ready. Account creation and login will be activated after the secure Supabase connection is configured."
-    );
+    setNotice("");
+    setError("");
+    setIsSubmitting(true);
+
+    const formData = new FormData(event.currentTarget);
+    const mobile = String(formData.get("mobile") ?? "").trim();
+    const password = String(formData.get("password") ?? "");
+    const phone = `+91${mobile}`;
+
+    try {
+      const supabase = createSupabaseBrowserClient();
+
+      if (isSignup) {
+        const fullName = String(formData.get("fullName") ?? "").trim();
+        const { data, error: authError } = await supabase.auth.signUp({
+          phone,
+          password,
+          options: {
+            data: {
+              full_name: fullName,
+              exams: selectedExams,
+              phone_number: phone,
+            },
+          },
+        });
+
+        if (authError) throw authError;
+
+        if (!data.session) {
+          setNotice("Your account request was received. Phone confirmation is enabled in Supabase; complete its verification step before logging in. If you want password-only access without OTP, disable phone confirmation in Supabase Auth settings.");
+        } else {
+          window.location.assign("/dashboard");
+        }
+      } else {
+        const { error: authError } = await supabase.auth.signInWithPassword({
+          phone,
+          password,
+        });
+
+        if (authError) throw authError;
+        window.location.assign("/dashboard");
+      }
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "Something went wrong. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -107,10 +154,11 @@ export default function AuthForm({ mode }: AuthFormProps) {
 
               {!isSignup && <div className="auth-inline-row"><label className="remember-option"><input type="checkbox" /> Remember me</label><a href="/forgot-password">Forgot password?</a></div>}
 
+              {error && <div className="auth-notice" role="alert">{error}</div>}
               {notice && <div className="auth-notice" role="status">{notice}</div>}
 
-              <button className="btn btn-primary auth-submit" type="submit" disabled={isSignup && selectedExams.length === 0}>
-                {isSignup ? "Create account" : "Log in"} <span>→</span>
+              <button className="btn btn-primary auth-submit" type="submit" disabled={isSubmitting || (isSignup && selectedExams.length === 0)}>
+                {isSubmitting ? "Please wait..." : isSignup ? "Create account" : "Log in"} <span>→</span>
               </button>
             </form>
 
