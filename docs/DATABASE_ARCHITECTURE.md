@@ -1,83 +1,171 @@
-# MockMaster database architecture — Module 2
+# MockMaster database architecture — Module 2 (revised)
 
-## Scope
-This migration establishes the shared database foundation for Practice and Live Test. It supports UGC NET Paper 1, Commerce, Management and future exam families.
+## Status and scope
+This is the proposed database foundation for MockMaster. The revised SQL migration is committed to GitHub but **has not been executed in Supabase**. Do not apply it until the schema is reviewed and the app integration plan is ready.
 
-## Files
-- supabase/migrations/202611120001_mockmaster_core_schema.sql — schema, indexes, RLS and profile creation trigger.
-- This document — relationships, payload examples and rollout notes.
+The design is examination-agnostic. UGC NET is the first configured examination; future examinations (SSC, UPSC, Banking and Railways) can use the same taxonomy and test engine.
 
-## Core relationships
-- auth.users → profiles
-- exams → subjects → units → topics
-- questions → question_answer_keys (private answer and evaluation rules)
-- tests → test_questions → questions
-- test_attempts → student_responses → questions
+## 1. Examination and syllabus hierarchy
 
-## Flexible question formats
-The prompt and options use JSONB, while question_type is an explicit enum.
+The canonical hierarchy is:
 
-| Type | Suggested response / answer structure |
-|---|---|
-| single_choice | One selected option ID; answer key has correct_option_id |
-| multiple_choice | Array of selected option IDs; answer key has correct_option_ids |
-| assertion_reason | Assertion and reason in prompt; standard combination options |
-| matching | Map left-side IDs to right-side IDs; answer key stores expected pairs |
-| passage | Shared stimulus/passage plus linked question records |
-| numerical | Numeric response; answer key stores accepted value/range and tolerance |
-| short_answer | Text response; evaluation rules define exact, normalised or manual marking |
-| ordering | Ordered array of item IDs |
-| true_false | Boolean response |
+`exams → papers → subjects → units → topics → questions`
 
-Common prompt example:
+For UGC NET:
+- Paper 1 is a common/compulsory paper for all candidates.
+- Paper 2 is selected by the candidate according to their subject.
+- Paper 1 has one internal subject node named **General Paper**, under which its syllabus units are maintained. This keeps the database hierarchy consistent; the student UI should display Paper 1 directly and should not ask the student to choose General Paper.
+- Paper 2 contains selectable subjects such as Commerce and Management. Additional NET subjects can be added as data, without schema changes.
+- Student preferences store the selected exam and Paper 2 subject. Paper 1 is included automatically by the application logic.
+
+Example:
+```text
+UGC NET
+├── Paper 1 (compulsory)
+│   └── General Paper
+│       └── Units 1–10
+└── Paper 2 (subject-specific)
+    ├── Commerce
+    │   └── Units 1–10
+    ├── Management
+    │   └── Units 1–17
+    └── Other NET subjects
+```
+
+The exact syllabus and unit counts should be loaded from the applicable official syllabus; the example is a hierarchy illustration.
+
+## 2. Master Question Bank
+
+There is one central question record per canonical question. A question is classified by exam, paper, subject, unit, topic, question type, difficulty, language, source and workflow status.
+
+Question lifecycle:
+1. Uploaded / created as draft.
+2. Validated for required fields, answer structure, taxonomy and media references.
+3. Duplicate candidates are flagged for human review using a normalized fingerprint and similarity checks.
+4. Admin reviews and approves the question.
+5. Approved questions become eligible for practice generation and admin test assembly.
+
+Do not silently merge or delete suspected duplicates. The import workflow records the candidate matches for admin review.
+
+### Supported question types
+- `single_choice`
+- `multiple_choice`
+- `assertion_reason`
+- `matching`
+- `passage`
+- `numerical`
+- `short_answer`
+- `ordering`
+- `true_false`
+
+Prompt, options, stimulus, media and explanation are JSONB payloads in `question_versions`. Answer keys are stored separately in protected tables.
+
+Example prompt:
+```json
 {
   "stem": { "text": "Question text", "html": null },
   "instructions": null,
   "assets": []
 }
+```
 
-Common options example:
+Example options:
+```json
 [
   { "id": "A", "text": "Option text" },
   { "id": "B", "text": "Option text" }
 ]
+```
 
-Answer key examples (only in question_answer_keys):
-- Single choice: { "correct_option_id": "B" }
-- Multiple choice: { "correct_option_ids": ["A", "C"] }
-- Matching: { "pairs": [{"left_id":"L1","right_id":"R2"}] }
-- Numerical: { "accepted_value": 42, "tolerance": 0.01 }
-- True/false: { "value": true }
+Answer-key examples (server/admin only):
+- Single choice: `{"correct_option_id":"B"}`
+- Multiple choice: `{"correct_option_ids":["A","C"]}`
+- Matching: `{"pairs":[{"left_id":"L1","right_id":"R2"}]}`
+- Numerical: `{"accepted_value":42,"tolerance":0.01}`
+- True/false: `{"value":true}`
 
-Passage questions should initially be separate question records sharing stimulus JSON. A dedicated passages table can be added if the authoring workflow requires it. test_questions stores test-specific order and marks, allowing a question to be reused across tests.
+Passage-based questions initially use shared stimulus JSON. If passage authoring becomes complex, a dedicated passage entity can be introduced later.
 
-## Security decisions
-1. Correct answers are physically separated into question_answer_keys. Never include answer keys in browser-readable question payloads.
-2. Admin authorization reads the server-controlled JWT claim app_metadata.role = admin. Never use editable user_metadata to grant admin rights.
-3. Students can read their own profile, attempts and responses. Attempt/response writes are intentionally blocked until secure test-engine RPCs exist; this prevents client-side score and timer tampering.
-4. The Supabase service_role key must remain server-only and must never be added to a NEXT_PUBLIC_ variable or committed to GitHub.
-5. Anonymous users can read the active exam/syllabus catalogue only. Question and test content requires authentication.
+## 3. Question versioning and historical integrity
 
-## Apply the migration
-1. Open the MockMaster Supabase project.
-2. Go to SQL Editor → New query.
-3. Open the migration SQL file from this repository and copy its complete contents.
-4. Paste and run it once.
-5. Confirm these tables appear in Table Editor: profiles, exams, subjects, units, topics, questions, question_answer_keys, tests, test_questions, test_attempts, student_responses.
-6. Check that a newly registered user receives a profiles row. Users created before this trigger are not backfilled by this migration; a later safe backfill can populate them.
+`questions` stores stable identity and taxonomy. `question_versions` stores versioned prompt/options/media/explanation/marking metadata. `question_version_answer_keys` stores the matching protected answer key.
 
-This repository commit does not execute SQL in the Supabase project. Run the SQL in the Supabase dashboard before application code uses these tables.
+Every test-question row references an exact `question_version_id`. When a bank question is edited, a new version is created; previously published tests continue to reference the old version. Never update a published version in place.
 
-## Deferred to Module 3
-- Admin role assignment workflow and admin UI.
-- Excel/CSV import staging, validation reports and bulk publish.
-- Secure RPCs for starting attempts, saving responses, timer enforcement, auto-submit and scoring.
-- Live-test concurrency strategy and load tests.
-- Analytics views/materialized aggregates and percentile cohorts.
-- Payment/subscription entitlements.
+For test-specific marking or answer interpretation, `test_question_answer_keys` stores a protected snapshot. The student-facing test query must never select answer-key tables.
 
-## Implementation notes
-- Do not let browsers insert/update test_attempts or student_responses directly. Add narrowly scoped SECURITY DEFINER RPCs when the test rules are finalised.
-- time_spent_seconds is stored per response; average time per question can be derived for submitted attempts.
-- Large imports should use staging tables and batched inserts.
-- Before production, validate payload shape for each question type and test RLS with student, admin and anonymous JWTs.
+## 4. Imports and pre-made tests
+
+`question_import_batches` records each Excel/CSV import. `question_import_items` stores row-level raw data, parsed data, validation errors, duplicate candidates and import status.
+
+For questions uploaded as part of a pre-made test:
+1. Parse and validate the rows.
+2. Match each row to an existing approved question where possible.
+3. Create a new Master Question Bank question only when needed.
+4. Route new questions through review and approval.
+5. Build the fixed test by linking approved question IDs and immutable version IDs.
+
+This prevents separate, disconnected copies of the same question from accumulating. A question can be reused in multiple tests.
+
+## 5. Two test creation paths, one test engine
+
+### Admin-created tests
+Admins create fixed practice tests or scheduled live tests, choose approved question versions, set order/marks/negative marks, duration, availability window, attempt limits and result visibility.
+
+### Student-generated practice tests
+Students choose exam, paper, Paper 2 subject where relevant, units/topics, question count, difficulty and selection strategy. The server-side generator selects eligible questions and creates a generated test instance with a frozen question-version list. This test instance is then handled by the same test engine as an admin-created test.
+
+Selection strategies can include:
+- New / never attempted questions.
+- Incorrectly answered questions.
+- Bookmarked questions.
+- Mixed revision.
+- Exclude previously attempted questions.
+- Balanced difficulty distribution.
+
+The generation operation must be implemented as a secure server-side RPC or trusted server endpoint. Do not grant students direct insert/update access to tests or test_questions.
+
+## 6. Attempts, responses and analytics
+
+- `test_attempts`: one student attempt against one test instance.
+- `student_responses`: one response per test-question within an attempt, including review state, visit state and time spent.
+- `bookmarks` and `personal_notes`: student-owned notebook data.
+- Overall, paper-wise, subject-wise, unit-wise and question-wise analytics should be derived from submitted attempts and responses. Relative standing/percentiles require a defined comparison cohort and should not be shown until enough valid cohort data exists.
+
+Store timestamps and response timing at question level. Average time per question can be derived from completed attempts.
+
+## 7. Security model
+
+1. Admin status is determined only from the server-controlled JWT claim `app_metadata.role = admin`. Never grant admin rights using editable `user_metadata`.
+2. Answer keys are in separate tables with admin-only RLS. Student clients must not receive these rows.
+3. Students can read their own attempts and responses, but cannot directly insert or update them.
+4. Test start, response save, timer validation, auto-submit, scoring and dynamic test generation must be implemented through narrowly scoped secure RPCs or trusted server endpoints.
+5. Do not put Supabase `service_role` in a `NEXT_PUBLIC_` variable or commit it to GitHub.
+6. Import staging and audit logs are admin-only.
+7. Test RLS with anonymous, student and admin identities before production.
+
+## 8. Main table inventory
+
+| Area | Tables |
+|---|---|
+| Identity | `profiles`, `student_exam_preferences` |
+| Taxonomy | `exams`, `papers`, `subjects`, `units`, `topics` |
+| Master bank | `questions`, `question_versions`, `question_answer_keys`, `question_version_answer_keys` |
+| Import pipeline | `question_import_batches`, `question_import_items` |
+| Test delivery | `tests`, `test_questions`, `test_question_answer_keys` |
+| Attempts | `test_attempts`, `student_responses` |
+| Student notebook | `bookmarks`, `personal_notes` |
+| Governance | `admin_audit_logs` |
+
+## 9. Rollout plan
+
+1. Review the SQL migration and validate it in a disposable Supabase project first.
+2. Seed UGC NET, Paper 1, Paper 2, General Paper, and Paper 2 subject taxonomy from the official syllabus.
+3. Build admin question bank and import validation.
+4. Build admin test builder and publication workflow.
+5. Implement secure test-engine RPCs for starting attempts, saving responses, timer enforcement, submission and evaluation.
+6. Implement student-generated practice tests through a secure generator.
+7. Build analytics from real attempts.
+8. Load-test and security-test before allowing high concurrency.
+
+**This GitHub commit does not execute SQL in Supabase.** When the schema is approved, copy the migration into Supabase SQL Editor and run it there. Do not run the previous version of this migration.
