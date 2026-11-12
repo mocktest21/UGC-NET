@@ -116,7 +116,6 @@ export default function DashboardPage() {
       <div className="mm-main">
         <header className="mm-topbar">
           <button className="mm-menu-toggle" aria-label="Open navigation" onClick={() => setMenuOpen(true)}>☰</button>
-          <div className="mm-breadcrumb">Student workspace <span>/</span> Overview</div>
           <div className="mm-topbar-right">
             <span className="mm-topbar-greeting">Welcome back</span>
             <div className="mm-avatar" aria-label={student.name}>{initials || "S"}</div>
