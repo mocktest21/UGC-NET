@@ -117,7 +117,7 @@ export default function DashboardPage() {
         <header className="mm-topbar">
           <button className="mm-menu-toggle" aria-label="Open navigation" onClick={() => setMenuOpen(true)}>☰</button>
           <div className="mm-topbar-right">
-            <button className="mm-profile-pill" onClick={handleSignOut} aria-label={`Log out ${student.name}`} title="Click to log out"><span className="mm-avatar">{initials || "S"}</span><span>{student.name.split(" ")[0]}</span><small>⌄</small></button>
+            <div className="mm-profile-pill" aria-label={`Signed in as ${student.name}`}><span className="mm-avatar">{initials || "S"}</span><span>{student.name.split(" ")[0]}</span></div>
           </div>
         </header>
 
