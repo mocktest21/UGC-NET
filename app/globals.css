@@ -606,8 +606,6 @@ button, input { font: inherit; }
 
 /* Desktop-specific navigation for the student workspace */
 .mm-desktop-nav { display:none; }
-.mm-nav-disabled { display:flex; flex-direction:column; align-items:center; justify-content:center; line-height:1.15; cursor:not-allowed; opacity:.58; }
-.mm-nav-disabled small { margin-top:3px; color:#8b95a5; font-family:"Poppins",Arial,sans-serif; font-size:8px; font-weight:500; }
 @media(min-width:761px) {
   .mm-side-nav { display:none; }
   .mm-desktop-nav { display:flex; flex:1; align-items:center; justify-content:center; gap:8px; margin-left:4px; }
