@@ -66,7 +66,7 @@ export default function StudentSectionPage({ section }: { section: Section }) {
         <a className="mm-brand" href="/"><span className="mm-brand-mark">M</span><span>MockMaster</span></a>
         <nav aria-label="Main navigation" className="mm-workspace-nav">
           {links.map((link) => (
-            <a key={link.href} href={link.href} target="_blank" rel="noopener noreferrer" className={link.href === "/" + section ? "active" : ""}>{link.label}</a>
+            <a key={link.href} href={link.href} className={link.href === "/" + section ? "active" : ""}>{link.label}</a>
           ))}
         </nav>
         <span className="mm-workspace-user">Hey, {name}!</span>
