@@ -110,7 +110,8 @@ export default function DashboardPage() {
   }
 
   const initials = student.name.split(" ").filter(Boolean).slice(0, 2).map((part) => part[0]).join("").toUpperCase();
-  const firstName = student.name.split(" ")[0] || "Student";
+  const firstNameRaw = student.name.trim().split(/\s+/)[0] || "Student";
+  const firstName = firstNameRaw.charAt(0).toUpperCase() + firstNameRaw.slice(1).toLowerCase();
 
   return (
     <div className="mm-dashboard">
@@ -160,6 +161,7 @@ export default function DashboardPage() {
           <section className="mm-analytics-heading">
             <div>
               <h1>Hey, {firstName}!</h1>
+              <p>Let’s analyse your progress and see where you can improve.</p>
             </div>
           </section>
 
