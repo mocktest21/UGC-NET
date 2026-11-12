@@ -46,6 +46,7 @@ const summaryStats = [
   { label: "Total questions", icon: "▦", note: "In your selected question banks" },
   { label: "Unique questions attempted", icon: "◉", note: "Distinct questions attempted at least once" },
   { label: "Relative standing", icon: "🏆", note: "Your percentile among comparable students" },
+  { label: "Average time per question", icon: "◷", note: "Average time spent on each attempted question" },
 ];
 
 function EmptyAnalytics({ title, detail }: { title: string; detail: string }) {
