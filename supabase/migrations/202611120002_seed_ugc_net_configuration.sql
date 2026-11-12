@@ -70,8 +70,8 @@ insert into public.units(subject_id,unit_number,code,name,description,is_active,
 select s.id,u.unit_number,'UNIT_'||lpad(u.unit_number::text,2,'0'),u.name,'UGC-NET Paper 1 syllabus unit.',true,u.unit_number
 from public.exams e
 join public.papers p on p.exam_id=e.id and p.code='PAPER_1'
-join public.subjects s on s.paper_id=p.id and s.code='00'
 join unit_seed u on true
+join public.subjects s on s.paper_id=p.id and s.code='00'
 where e.code='UGC_NET'
 on conflict(subject_id,unit_number) do update set
  code=excluded.code,name=excluded.name,description=excluded.description,is_active=true,display_order=excluded.display_order;
@@ -94,8 +94,8 @@ insert into public.units(subject_id,unit_number,code,name,description,is_active,
 select s.id,u.unit_number,'UNIT_'||lpad(u.unit_number::text,2,'0'),u.name,'UGC-NET Commerce Paper 2 syllabus unit.',true,u.unit_number
 from public.exams e
 join public.papers p on p.exam_id=e.id and p.code='PAPER_2'
-join public.subjects s on s.paper_id=p.id and s.code=u.subject_code
 join unit_seed u on true
+join public.subjects s on s.paper_id=p.id and s.code=u.subject_code
 where e.code='UGC_NET'
 on conflict(subject_id,unit_number) do update set
  code=excluded.code,name=excluded.name,description=excluded.description,is_active=true,display_order=excluded.display_order;
