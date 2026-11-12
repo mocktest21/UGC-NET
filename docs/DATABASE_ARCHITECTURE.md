@@ -1,7 +1,7 @@
 # MockMaster database architecture — Module 2 (revised)
 
 ## Status and scope
-This is the proposed database foundation for MockMaster. The revised SQL migration is committed to GitHub but **has not been executed in Supabase**. Do not apply it until the schema is reviewed and the app integration plan is ready.
+This is the approved database foundation for MockMaster. The individual core and seed migrations remain available for reference. For the currently existing Supabase project, use `supabase/RESET_AND_INSTALL_MOCKMASTER.sql` as the single clean-rebuild script. It drops only the known MockMaster application tables and related enum/helper objects in `public`, then recreates the core schema, seeds UGC NET and runs verification. It preserves Supabase-managed schemas and `auth.users`. **The script has been committed to GitHub but has not been executed in Supabase.**
 
 The design is examination-agnostic. UGC NET is the first configured examination; future examinations (SSC, UPSC, Banking and Railways) can use the same taxonomy and test engine.
 
