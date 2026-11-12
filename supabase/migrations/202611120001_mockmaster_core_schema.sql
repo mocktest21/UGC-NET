@@ -37,6 +37,15 @@ end; $$;
 drop trigger if exists on_auth_user_created_mockmaster on auth.users;
 create trigger on_auth_user_created_mockmaster after insert on auth.users for each row execute function public.handle_new_user();
 
+-- Backfill accounts that were registered before this migration was installed.
+insert into public.profiles(id,full_name,phone_number)
+select
+  u.id,
+  coalesce(u.raw_user_meta_data ->> 'full_name',''),
+  u.raw_user_meta_data ->> 'phone_number'
+from auth.users u
+on conflict(id) do nothing;
+
 create or replace function public.is_mockmaster_admin()
 returns boolean language sql stable set search_path = ''
 as $$ select coalesce((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin',false); $$;
