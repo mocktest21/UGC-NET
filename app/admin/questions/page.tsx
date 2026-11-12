@@ -222,8 +222,8 @@ export default function AdminQuestionsPage() {
   return (
     <main className="aq-shell">
       <header className="aq-header">
-        <a className="aq-brand" href="/"><span>M</span> MockMaster <small>ADMIN</small></a>
-        <div className="aq-header-right"><a href="/dashboard">Student site ↗</a><button onClick={async () => { await supabase.auth.signOut(); router.replace("/login"); }}>Sign out</button></div>
+        <a className="aq-brand" href="/admin"><span>M</span> MockMaster <small>ADMIN</small></a>
+        <div className="aq-header-right"><a href="/admin">Admin overview</a><a href="/dashboard">Student site ↗</a><button onClick={async () => { await supabase.auth.signOut(); router.replace("/login"); }}>Sign out</button></div>
       </header>
       <div className="aq-layout">
         <aside className="aq-sidebar">
