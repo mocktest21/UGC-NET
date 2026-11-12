@@ -557,6 +557,7 @@ button, input { font: inherit; }
   .mm-nav-link:hover { background:#eee8dc; color:#2563eb; }
   .mm-nav-active { background:transparent; color:#2563eb; }
   .mm-sidebar-bottom { margin-left:12px; }
+  .mm-sidebar-bottom .mm-logout { display:none; }
   .mm-logout { min-height:44px; padding:0 16px; border:1px solid #e5dfd2; border-radius:999px; background:#fff; color:#302d29; font-size:13px; }
   .mm-logout:hover { background:#fff1f0; }
   .mm-topbar { height:0; padding:0; border:0; background:transparent; }
