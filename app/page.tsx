@@ -23,7 +23,7 @@ export default function Home() {
     <header className="site-header"><div className="container nav">
       <a className="brand" href="/"><span className="brand-mark">M</span>MockMaster</a>
       <nav className="nav-links"><a href="/">Home</a><a href="/exams">Exams</a><a href="/mock-tests">Mock Tests</a><a href="/pyq">PYQs</a><a href="/about">About</a></nav>
-      <div className="nav-actions"><a className="btn btn-outline" href="/login">Log in</a><a className="btn btn-primary" href="/signup">Sign up <span>→</span></a><a className="btn btn-outline mobile-menu" href="/exams">Menu</a></div>
+      <div className="nav-actions"><a className="btn btn-outline desktop-login" href="/login">Log in</a><a className="btn btn-primary desktop-signup" href="/signup">Sign up <span>→</span></a><details className="mobile-nav"><summary aria-label="Open navigation menu">☰ <span>Menu</span></summary><div className="mobile-nav-panel"><a href="/exams">Examinations</a><a href="/mock-tests">Mock Tests</a><a href="/pyq">Previous-year questions</a><a href="/about">About</a><a href="/login">Log in</a><a className="mobile-nav-cta" href="/signup">Create free account →</a></div></details></div>
     </div></header>
     <main>
       <section className="hero"><div className="container hero-grid">
