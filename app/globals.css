@@ -737,3 +737,12 @@ button, input { font: inherit; }
   .mm-workspace-cards { grid-template-columns:1fr; }
   .mm-workspace-footer { gap:12px; flex-wrap:wrap; }
 }
+
+
+/* Keep primary navigation immediate: page links open in separate tabs without slide animation */
+.mm-desktop-nav .mm-nav-link,
+.mm-side-nav .mm-nav-link,
+.mm-bottom-nav .mm-bottom-link { transition:none !important; transform:none !important; }
+.mm-desktop-nav .mm-nav-link:hover,
+.mm-side-nav .mm-nav-link:hover,
+.mm-bottom-nav .mm-bottom-link:hover { transform:none !important; }
