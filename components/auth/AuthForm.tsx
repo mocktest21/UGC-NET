@@ -30,23 +30,24 @@ export default function AuthForm({ mode }: AuthFormProps) {
     setIsSubmitting(true);
 
     const formData = new FormData(event.currentTarget);
-    const mobile = String(formData.get("mobile") ?? "").trim();
+    const email = String(formData.get("email") ?? "").trim().toLowerCase();
     const password = String(formData.get("password") ?? "");
-    const phone = `+91${mobile}`;
 
     try {
       const supabase = createSupabaseBrowserClient();
 
       if (isSignup) {
         const fullName = String(formData.get("fullName") ?? "").trim();
+        const mobile = String(formData.get("mobile") ?? "").trim();
         const { data, error: authError } = await supabase.auth.signUp({
-          phone,
+          email,
           password,
           options: {
+            emailRedirectTo: `${window.location.origin}/dashboard`,
             data: {
               full_name: fullName,
               exams: selectedExams,
-              phone_number: phone,
+              phone_number: mobile ? `+91${mobile}` : null,
             },
           },
         });
@@ -54,13 +55,13 @@ export default function AuthForm({ mode }: AuthFormProps) {
         if (authError) throw authError;
 
         if (!data.session) {
-          setNotice("Your account request was received. Phone confirmation is enabled in Supabase; complete its verification step before logging in. If you want password-only access without OTP, disable phone confirmation in Supabase Auth settings.");
+          setNotice("Your account has been created. Check your email for a confirmation link, then return here to log in.");
         } else {
           window.location.assign("/dashboard");
         }
       } else {
         const { error: authError } = await supabase.auth.signInWithPassword({
-          phone,
+          email,
           password,
         });
 
@@ -104,8 +105,8 @@ export default function AuthForm({ mode }: AuthFormProps) {
             <h2>{isSignup ? "Create your account" : "Log in to MockMaster"}</h2>
             <p className="auth-intro">
               {isSignup
-                ? "Set up your account and choose the exams you are preparing for."
-                : "Enter your registered mobile number and password to continue."}
+                ? "Create your account with an email address and choose the exams you are preparing for."
+                : "Enter your registered email address and password to continue."}
             </p>
 
             <form className="auth-form" onSubmit={handleSubmit}>
@@ -117,12 +118,19 @@ export default function AuthForm({ mode }: AuthFormProps) {
               )}
 
               <label className="auth-field">
-                <span>Mobile number</span>
-                <div className="phone-input">
-                  <span className="country-code">+91</span>
-                  <input name="mobile" type="tel" inputMode="numeric" placeholder="10-digit mobile number" autoComplete="tel-national" pattern="[6-9][0-9]{9}" maxLength={10} minLength={10} required />
-                </div>
+                <span>Email address</span>
+                <input name="email" type="email" placeholder="you@example.com" autoComplete="email" required />
               </label>
+
+              {isSignup && (
+                <label className="auth-field">
+                  <span>Mobile number <small>(Optional)</small></span>
+                  <div className="phone-input">
+                    <span className="country-code">+91</span>
+                    <input name="mobile" type="tel" inputMode="numeric" placeholder="10-digit mobile number" autoComplete="tel-national" pattern="[6-9][0-9]{9}" maxLength={10} />
+                  </div>
+                </label>
+              )}
 
               <label className="auth-field">
                 <span>Password</span>
@@ -152,7 +160,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
                 </fieldset>
               )}
 
-              {!isSignup && <div className="auth-inline-row"><label className="remember-option"><input type="checkbox" /> Remember me</label><a href="/forgot-password">Forgot password?</a></div>}
+              {!isSignup && <div className="auth-inline-row"><span /> <a href="/forgot-password">Forgot password?</a></div>}
 
               {error && <div className="auth-notice" role="alert">{error}</div>}
               {notice && <div className="auth-notice" role="status">{notice}</div>}
