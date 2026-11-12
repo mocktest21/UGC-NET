@@ -117,16 +117,16 @@ export default function DashboardPage() {
         <header className="mm-topbar">
           <button className="mm-menu-toggle" aria-label="Open navigation" onClick={() => setMenuOpen(true)}>☰</button>
           <div className="mm-topbar-right">
-            <div className="mm-avatar" aria-label={student.name}>{initials || "S"}</div>
+            <button className="mm-profile-pill" onClick={handleSignOut} aria-label={`Log out ${student.name}`} title="Click to log out"><span className="mm-avatar">{initials || "S"}</span><span>{student.name.split(" ")[0]}</span><small>⌄</small></button>
           </div>
         </header>
 
         <main className="mm-content" id="overview">
           <section className="mm-welcome">
             <div>
-              <span className="mm-eyebrow"><i /> YOUR LEARNING SPACE</span>
-              <h1>Hello, {student.name.split(" ")[0]}! <span>👋</span></h1>
+              <div className="mm-welcome-title-row"><h1>Hello, {student.name.split(" ")[0]}</h1><span className="mm-new-here">✳ New here</span></div>
               <p>Your preparation starts here. Choose an exam and build your practice routine.</p>
+              <a className="mm-new-test" href="#practice">New test <span>→</span></a>
             </div>
             <div className="mm-welcome-art" aria-hidden="true">
               <div className="mm-art-sheet"><span>✓</span><i /><i /><i /></div>
