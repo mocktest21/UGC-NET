@@ -123,14 +123,14 @@ export default function DashboardPage() {
         <div className="mm-side-label">STUDENT WORKSPACE</div>
         <nav className="mm-side-nav" aria-label="Student navigation">
           {navigation.map((item, index) => (
-            <a key={item.label} className={index === 0 ? "mm-nav-link mm-nav-active" : "mm-nav-link"} href={item.label === "Practice centre" ? "/practice" : item.label === "My examinations" ? "/dashboard#examinations" : item.label === "Performance" ? "/dashboard#performance" : "/dashboard"} target="_blank" rel="noopener noreferrer" onClick={() => setMenuOpen(false)}>
+            <a key={item.label} className={index === 0 ? "mm-nav-link mm-nav-active" : "mm-nav-link"} href={item.label === "Practice centre" ? "/practice" : item.label === "My examinations" ? "/dashboard#examinations" : item.label === "Performance" ? "/dashboard#performance" : "/dashboard"} onClick={() => setMenuOpen(false)}>
               <span className="mm-nav-icon">{item.icon}</span>{item.label}
             </a>
           ))}
         </nav>
         <nav className="mm-desktop-nav" aria-label="Main navigation">
           {desktopNavigation.map((item, index) => (
-            <a key={item.label} className={index === 0 ? "mm-nav-link mm-nav-active" : "mm-nav-link"} href={item.href} target="_blank" rel="noopener noreferrer">{item.label}</a>
+            <a key={item.label} className={index === 0 ? "mm-nav-link mm-nav-active" : "mm-nav-link"} href={item.href}>{item.label}</a>
           ))}
         </nav>
         <div className="mm-sidebar-profile">
@@ -264,7 +264,7 @@ export default function DashboardPage() {
 
       <nav className="mm-bottom-nav" aria-label="Mobile navigation">
         {navigation.slice(0, 4).map((item, index) => (
-          <a key={item.label} className={index === 0 ? "mm-bottom-link mm-bottom-active" : "mm-bottom-link"} href={item.label === "Practice centre" ? "/practice" : item.label === "My examinations" ? "/dashboard#examinations" : item.label === "Performance" ? "/dashboard#performance" : "/dashboard"} target="_blank" rel="noopener noreferrer">
+          <a key={item.label} className={index === 0 ? "mm-bottom-link mm-bottom-active" : "mm-bottom-link"} href={item.label === "Practice centre" ? "/practice" : item.label === "My examinations" ? "/dashboard#examinations" : item.label === "Performance" ? "/dashboard#performance" : "/dashboard"}>
             <span>{item.icon}</span><small>{index === 0 ? "Home" : index === 1 ? "Exams" : index === 2 ? "Practice" : "Progress"}</small>
           </a>
         ))}
