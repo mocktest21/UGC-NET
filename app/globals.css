@@ -347,3 +347,16 @@ button, input { font: inherit; }
   .auth-form-side { padding-inline:16px; }
   .exam-choice-grid { grid-template-columns:1fr; }
 }
+
+.dashboard-shell { display:block; min-height:540px; padding:30px; }
+.dashboard-account { display:flex; align-items:center; justify-content:space-between; gap:16px; }
+.dashboard-account-content { max-width:650px; margin:75px auto; }
+.dashboard-account-content h1 { margin:10px 0; font-size:clamp(30px,5vw,42px); }
+.dashboard-account-content > p { color:var(--muted); line-height:1.8; }
+.dashboard-account-content h2 { margin-top:30px; font-size:17px; }
+.dashboard-exam-list { display:flex; flex-wrap:wrap; gap:9px; margin:14px 0 25px; }
+.dashboard-exam-chip { padding:8px 13px; border-radius:999px; background:#eff6ff; color:#1d4ed8; font-size:12px; font-weight:700; }
+@media(max-width:760px) {
+  .dashboard-shell { padding:22px; }
+  .dashboard-account-content { margin:65px auto 30px; }
+}
