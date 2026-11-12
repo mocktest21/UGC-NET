@@ -25,10 +25,10 @@ const navigation = [
 ];
 
 const desktopNavigation = [
-  { label: "Dashboard", href: "#overview" },
-  { label: "Practice", href: "#practice" },
-  { label: "Live Test", href: "#live-test" },
-  { label: "Personal Notebook", href: "#personal-notebook" },
+  { label: "Dashboard", href: "/dashboard" },
+  { label: "Practice", href: "/practice" },
+  { label: "Live Test", href: "/live-test" },
+  { label: "Personal Notebook", href: "/personal-notebook" },
   { label: "About Us", href: "/About" },
 ];
 
@@ -120,14 +120,14 @@ export default function DashboardPage() {
         <div className="mm-side-label">STUDENT WORKSPACE</div>
         <nav className="mm-side-nav" aria-label="Student navigation">
           {navigation.map((item, index) => (
-            <a key={item.label} className={index === 0 ? "mm-nav-link mm-nav-active" : "mm-nav-link"} href={item.href} onClick={() => setMenuOpen(false)}>
+            <a key={item.label} className={index === 0 ? "mm-nav-link mm-nav-active" : "mm-nav-link"} href={item.label === "Practice centre" ? "/practice" : item.label === "My examinations" ? "/dashboard#examinations" : item.label === "Performance" ? "/dashboard#performance" : "/dashboard"} target="_blank" rel="noopener noreferrer" onClick={() => setMenuOpen(false)}>
               <span className="mm-nav-icon">{item.icon}</span>{item.label}
             </a>
           ))}
         </nav>
         <nav className="mm-desktop-nav" aria-label="Main navigation">
           {desktopNavigation.map((item, index) => (
-            <a key={item.label} className={index === 0 ? "mm-nav-link mm-nav-active" : "mm-nav-link"} href={item.href}>{item.label}</a>
+            <a key={item.label} className={index === 0 ? "mm-nav-link mm-nav-active" : "mm-nav-link"} href={item.href} target="_blank" rel="noopener noreferrer">{item.label}</a>
           ))}
         </nav>
         <div className="mm-sidebar-profile">
@@ -255,28 +255,13 @@ export default function DashboardPage() {
             </article>
           </section>
 
-          <section className="mm-section mm-practice-section" id="practice">
-            <div className="mm-section-heading">
-              <div><span className="mm-section-kicker">CONTINUE PREPARING</span><h2>Practice centre</h2><p>Choose an area to continue your preparation.</p></div>
-            </div>
-            <div className="mm-practice-grid">
-              {practiceOptions.map((option) => (
-                <article className="mm-practice-card" key={option.title}>
-                  <div className="mm-practice-card-top"><span className="mm-practice-icon">{option.icon}</span><span className="mm-practice-tag">{option.tag}</span></div>
-                  <h3>{option.title}</h3><p>{option.detail}</p>
-                  <div className="mm-practice-card-foot"><span>Practice library</span><span className="mm-arrow">→</span></div>
-                </article>
-              ))}
-            </div>
-          </section>
-
           <footer className="mm-footer"><span>© {new Date().getFullYear()} MockMaster</span><span>Practice. Improve. Achieve.</span></footer>
         </main>
       </div>
 
       <nav className="mm-bottom-nav" aria-label="Mobile navigation">
         {navigation.slice(0, 4).map((item, index) => (
-          <a key={item.label} className={index === 0 ? "mm-bottom-link mm-bottom-active" : "mm-bottom-link"} href={item.href}>
+          <a key={item.label} className={index === 0 ? "mm-bottom-link mm-bottom-active" : "mm-bottom-link"} href={item.label === "Practice centre" ? "/practice" : item.label === "My examinations" ? "/dashboard#examinations" : item.label === "Performance" ? "/dashboard#performance" : "/dashboard"} target="_blank" rel="noopener noreferrer">
             <span>{item.icon}</span><small>{index === 0 ? "Home" : index === 1 ? "Exams" : index === 2 ? "Practice" : "Progress"}</small>
           </a>
         ))}
