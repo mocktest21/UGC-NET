@@ -269,3 +269,83 @@ button, input { font: inherit; }
   .exam-card { min-height:0; }
   .mini-tile span { font-size:9px; }
 }
+
+
+/* Consistent mobile button system */
+.btn,
+button.btn,
+.search-box button,
+.mobile-nav summary {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.btn:focus-visible,
+button:focus-visible,
+.mobile-nav summary:focus-visible,
+.mobile-nav-panel a:focus-visible {
+  outline: 3px solid #93c5fd;
+  outline-offset: 3px;
+}
+.btn:active,
+.mobile-nav-panel a:active {
+  transform: scale(.985);
+}
+@media(max-width:640px) {
+  .btn {
+    min-height: 50px;
+    padding: 12px 16px;
+    border-radius: 12px;
+    font-size: 14px;
+    line-height: 1.25;
+    font-weight: 700;
+  }
+  .btn-primary {
+    box-shadow: 0 5px 14px rgba(37,99,235,.20);
+  }
+  .hero-actions .btn,
+  .cta-band .btn,
+  .search-box .btn {
+    width: 100%;
+    min-height: 52px;
+    justify-content: center;
+  }
+  .search-box .btn {
+    font-size: 15px;
+    border-radius: 10px;
+  }
+  .mobile-nav summary {
+    min-width: 46px;
+    min-height: 46px;
+    justify-content: center;
+    border-radius: 11px;
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .mobile-nav-panel {
+    padding: 9px;
+    border-radius: 15px;
+  }
+  .mobile-nav-panel a {
+    min-height: 46px;
+    display: flex;
+    align-items: center;
+    padding: 11px 13px;
+    font-size: 14px;
+    border-radius: 10px;
+  }
+  .mobile-nav-panel .mobile-nav-cta {
+    min-height: 50px;
+    justify-content: center;
+    font-weight: 700;
+  }
+  .test-bottom a,
+  .card-arrow {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+}
+@media(max-width:360px) {
+  .btn { padding-inline: 12px; font-size: 13px; }
+  .mobile-nav summary { min-width: 44px; }
+}
