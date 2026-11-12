@@ -269,3 +269,81 @@ button, input { font: inherit; }
   .exam-card { min-height:0; }
   .mini-tile span { font-size:9px; }
 }
+
+
+/* Authentication screens — mobile-first */
+.auth-page { min-height:100svh; padding:28px; display:grid; place-items:center; background:var(--cream); }
+.auth-shell { width:min(100%,1060px); min-height:690px; display:grid; grid-template-columns:.92fr 1.08fr; overflow:hidden; border:1px solid var(--border); border-radius:24px; background:var(--surface); box-shadow:0 24px 70px #17203312; }
+.auth-aside { display:flex; flex-direction:column; justify-content:space-between; padding:38px; color:white; background:linear-gradient(145deg,#1e40af,#2563eb 58%,#1d4ed8); }
+.auth-brand { color:white; }
+.auth-aside-copy { max-width:390px; padding:55px 0; }
+.auth-kicker { display:block; color:#2563eb; font-size:11px; font-weight:800; letter-spacing:1.3px; }
+.auth-aside .auth-kicker { color:#bfdbfe; }
+.auth-aside h1 { margin:14px 0; font-size:clamp(36px,4vw,49px); line-height:1.12; letter-spacing:-2px; }
+.auth-aside h1 span { color:#bfdbfe; }
+.auth-aside-copy > p { color:#dbeafe; font-size:14px; line-height:1.8; }
+.auth-benefits { display:grid; gap:15px; margin-top:30px; color:#eff6ff; font-size:13px; }
+.auth-benefits span { display:inline-grid; width:22px; height:22px; margin-right:8px; place-items:center; border-radius:50%; background:#ffffff20; }
+.auth-aside-foot { margin:0; color:#bfdbfe; font-size:12px; }
+.auth-form-side { display:flex; align-items:center; justify-content:center; padding:45px 54px; }
+.auth-form-wrap { width:100%; max-width:410px; }
+.auth-back { display:inline-block; margin-bottom:30px; color:var(--muted); font-size:12px; font-weight:600; }
+.auth-form-wrap h2 { margin:9px 0 7px; font-size:29px; line-height:1.25; letter-spacing:-.8px; }
+.auth-intro { margin:0 0 25px; color:var(--muted); font-size:13px; line-height:1.7; }
+.auth-form { display:grid; gap:17px; }
+.auth-field { display:grid; gap:7px; color:var(--ink); font-size:12px; font-weight:700; }
+.auth-field input { width:100%; min-width:0; height:48px; padding:0 13px; border:1px solid var(--border); border-radius:10px; outline:none; background:var(--surface); color:var(--ink); font-size:13px; font-weight:400; }
+.auth-field input:focus { border-color:var(--blue); box-shadow:0 0 0 3px #2563eb18; }
+.auth-field input::placeholder { color:#94a3b8; }
+.auth-field small { color:#64748b; font-size:10px; font-weight:400; }
+.phone-input, .password-input { display:flex; align-items:center; border:1px solid var(--border); border-radius:10px; background:var(--surface); }
+.phone-input:focus-within, .password-input:focus-within { border-color:var(--blue); box-shadow:0 0 0 3px #2563eb18; }
+.phone-input input, .password-input input { border:0; box-shadow:none !important; background:transparent; }
+.country-code { padding:0 12px; border-right:1px solid var(--border); color:var(--muted); font-size:13px; }
+.password-toggle { flex-shrink:0; margin-right:9px; padding:7px; border:0; background:transparent; color:var(--blue); font-size:11px; font-weight:700; cursor:pointer; }
+.exam-picker { min-width:0; margin:0; padding:0; border:0; }
+.exam-picker legend { padding:0; color:var(--ink); font-size:12px; font-weight:700; }
+.exam-picker > p { margin:3px 0 10px; color:var(--muted); font-size:11px; }
+.exam-choice-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+.exam-choice { display:flex; align-items:center; gap:8px; min-height:43px; padding:8px 10px; border:1px solid var(--border); border-radius:9px; color:var(--muted); font-size:11px; cursor:pointer; }
+.exam-choice.selected { border-color:#93c5fd; background:#eff6ff; color:#1d4ed8; font-weight:700; }
+.exam-choice input { position:absolute; opacity:0; width:1px; height:1px; }
+.choice-check { display:grid; width:17px; height:17px; flex-shrink:0; place-items:center; border:1px solid #cbd5e1; border-radius:5px; font-size:11px; }
+.exam-choice.selected .choice-check { border-color:var(--blue); background:var(--blue); color:white; }
+.field-error { display:block; margin-top:7px; color:#dc2626; font-size:11px; }
+.auth-inline-row { display:flex; align-items:center; justify-content:space-between; gap:10px; font-size:11px; }
+.auth-inline-row a, .auth-switch a, .auth-legal a { color:var(--blue); font-weight:700; }
+.remember-option { display:flex; align-items:center; gap:6px; color:var(--muted); }
+.auth-submit { width:100%; min-height:49px; margin-top:2px; }
+.auth-submit:disabled { cursor:not-allowed; opacity:.5; }
+.auth-switch { margin:22px 0 0; text-align:center; color:var(--muted); font-size:12px; }
+.auth-legal { margin:19px 0 0; text-align:center; color:#94a3b8; font-size:10px; line-height:1.6; }
+.auth-notice { padding:11px 12px; border:1px solid #fcd34d; border-radius:9px; background:#fffbeb; color:#92400e; font-size:11px; line-height:1.6; }
+.auth-mobile-brand { display:none; }
+.auth-form-side-full { grid-column:1/-1; min-height:540px; }
+@media(prefers-color-scheme:dark) {
+  .auth-shell { background:#131e31; border-color:#2a3850; }
+  .auth-field input, .phone-input, .password-input { background:#111a2a; border-color:#34445f; }
+  .exam-choice { border-color:#34445f; }
+  .exam-choice.selected { background:#1c3154; border-color:#3b82f6; color:#bfdbfe; }
+  .auth-notice { background:#3b2c12; border-color:#8b641f; color:#fde68a; }
+}
+@media(max-width:760px) {
+  .auth-page { display:block; padding:0; }
+  .auth-shell { display:block; min-height:100svh; border:0; border-radius:0; box-shadow:none; }
+  .auth-aside { display:none; }
+  .auth-form-side { display:block; padding:25px 22px 35px; }
+  .auth-mobile-brand { display:block; margin-bottom:35px; }
+  .auth-form-wrap { max-width:480px; margin:0 auto; }
+  .auth-back { margin-bottom:25px; }
+  .auth-form-wrap h2 { font-size:26px; }
+  .auth-form { gap:16px; }
+  .auth-field input { height:51px; font-size:16px; }
+  .phone-input input, .password-input input { height:49px; }
+  .exam-choice { min-height:47px; font-size:12px; }
+  .auth-submit { min-height:52px; font-size:15px; }
+}
+@media(max-width:360px) {
+  .auth-form-side { padding-inline:16px; }
+  .exam-choice-grid { grid-template-columns:1fr; }
+}
