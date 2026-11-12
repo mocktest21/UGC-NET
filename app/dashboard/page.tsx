@@ -111,6 +111,8 @@ export default function DashboardPage() {
 
   const initials = student.name.split(" ").filter(Boolean).slice(0, 2).map((part) => part[0]).join("").toUpperCase();
   const firstName = student.name.split(" ")[0] || "Student";
+  const currentHour = new Date().getHours();
+  const greeting = currentHour < 12 ? "Good morning" : currentHour < 17 ? "Good afternoon" : "Good evening";
 
   return (
     <div className="mm-dashboard">
@@ -160,8 +162,7 @@ export default function DashboardPage() {
           <section className="mm-analytics-heading">
             <div>
               <span className="mm-section-kicker">STUDENT PERFORMANCE</span>
-              <h1>Your preparation at a glance</h1>
-              <p>Understand your performance, track improvement and identify the units that need more attention.</p>
+              <h1>{greeting}, {firstName}</h1>
             </div>
             <a className="mm-analytics-primary" href="#practice">Explore practice <span>→</span></a>
           </section>
