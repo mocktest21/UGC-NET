@@ -159,10 +159,8 @@ export default function DashboardPage() {
         <main className="mm-content mm-analytics-content" id="overview">
           <section className="mm-analytics-heading">
             <div>
-              <span className="mm-section-kicker">STUDENT PERFORMANCE</span>
               <h1>Hey, {firstName}!</h1>
             </div>
-            <a className="mm-analytics-primary" href="#practice">Explore practice <span>→</span></a>
           </section>
 
           <section className="mm-analytics-summary" aria-label="Overall performance statistics">
