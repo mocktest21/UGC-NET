@@ -25,6 +25,14 @@ const navigation = [
   { label: "Performance", icon: "↗", href: "#performance" },
 ];
 
+const desktopNavigation = [
+  { label: "Dashboard", href: "#overview", available: true },
+  { label: "Practice", href: "#practice", available: true },
+  { label: "Live Test", href: "#live-test", available: false },
+  { label: "Personal Notebook", href: "#personal-notebook", available: false },
+  { label: "About Us", href: "/About", available: true },
+];
+
 const practiceOptions = [
   { title: "UGC NET Paper 1", detail: "Teaching & Research Aptitude", tag: "Common paper", icon: "📘" },
   { title: "Commerce", detail: "UGC NET Paper 2 · Subject code 08", tag: "Paper 2", icon: "📊" },
@@ -97,6 +105,13 @@ export default function DashboardPage() {
             <a key={item.label} className={index === 0 ? "mm-nav-link mm-nav-active" : "mm-nav-link"} href={item.href} onClick={() => setMenuOpen(false)}>
               <span className="mm-nav-icon">{item.icon}</span>{item.label}
             </a>
+          ))}
+        </nav>
+        <nav className="mm-desktop-nav" aria-label="Main navigation">
+          {desktopNavigation.map((item, index) => item.available ? (
+            <a key={item.label} className={index === 0 ? "mm-nav-link mm-nav-active" : "mm-nav-link"} href={item.href}>{item.label}</a>
+          ) : (
+            <span key={item.label} className="mm-nav-link mm-nav-disabled" aria-disabled="true" title="Coming soon">{item.label}<small>Coming soon</small></span>
           ))}
         </nav>
         <div className="mm-sidebar-profile">
