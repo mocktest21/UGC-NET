@@ -699,3 +699,41 @@ button, input { font: inherit; }
   .mm-analytics-stat { align-items:flex-start; flex-direction:column; }
   .mm-analytics-stat-copy strong { font-size:20px; }
 }
+
+
+/* Dedicated student workspace pages */
+.mm-workspace-page { min-height:100vh; background:#fff9ee; color:#172033; }
+.mm-workspace-header { min-height:72px; display:flex; align-items:center; justify-content:space-between; gap:24px; padding:0 5.5%; border-bottom:1px solid #e9e1d4; background:#fffdf8; }
+.mm-workspace-header .mm-brand { display:flex; align-items:center; gap:10px; color:#172033; font-family:Georgia,"Times New Roman",serif; font-size:20px; font-weight:700; text-decoration:none; white-space:nowrap; }
+.mm-workspace-header .mm-brand-mark { display:grid; width:34px; height:34px; place-items:center; border-radius:10px; background:#2563eb; color:white; font-family:Arial,sans-serif; }
+.mm-workspace-nav { display:flex; align-items:center; justify-content:center; gap:clamp(12px,2.2vw,30px); }
+.mm-workspace-nav a { color:#475569; font-size:12px; font-weight:600; text-decoration:none; white-space:nowrap; transition:none; }
+.mm-workspace-nav a:hover,.mm-workspace-nav a.active { color:#2563eb; }
+.mm-workspace-user { color:#334155; font-size:12px; font-weight:600; white-space:nowrap; }
+.mm-workspace-content { width:min(1120px,89%); min-height:calc(100vh - 132px); margin:0 auto; padding:54px 0 70px; }
+.mm-workspace-intro { margin-bottom:30px; }
+.mm-workspace-intro>span { color:#2563eb; font-size:10px; font-weight:800; letter-spacing:1.3px; }
+.mm-workspace-intro h1 { margin:9px 0 8px; font-family:Georgia,"Times New Roman",serif; font-size:30px; font-weight:600; letter-spacing:-.4px; }
+.mm-workspace-intro p { margin:0; color:#64748b; font-size:13px; line-height:1.7; }
+.mm-workspace-cards { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:18px; }
+.mm-workspace-cards article { min-height:210px; padding:22px; border:1px solid #e9e1d4; border-radius:16px; background:#fffefa; }
+.mm-workspace-cards article>span { display:grid; width:44px; height:44px; place-items:center; margin-bottom:18px; border-radius:12px; background:#edf3ff; font-size:22px; }
+.mm-workspace-cards small { color:#2563eb; font-size:9px; font-weight:800; letter-spacing:.7px; }
+.mm-workspace-cards h2 { margin:8px 0 5px; font-size:18px; }
+.mm-workspace-cards p { margin:0; color:#64748b; font-size:12px; }
+.mm-workspace-cards article>div { display:flex; justify-content:space-between; margin-top:24px; padding-top:13px; border-top:1px solid #eee8dd; color:#64748b; font-size:11px; }
+.mm-workspace-cards article>div b { color:#2563eb; font-size:16px; }
+.mm-workspace-empty { display:flex; min-height:250px; flex-direction:column; align-items:center; justify-content:center; padding:30px; border:1px dashed #d8d2c7; border-radius:16px; background:#fffefa; text-align:center; }
+.mm-workspace-empty>span { display:grid; width:48px; height:48px; place-items:center; margin-bottom:14px; border-radius:14px; background:#edf3ff; color:#2563eb; font-size:24px; }
+.mm-workspace-empty h2 { margin:0 0 8px; font-size:17px; }
+.mm-workspace-empty p { margin:0; color:#64748b; font-size:12px; }
+.mm-workspace-footer { display:flex; justify-content:space-between; padding:18px 5.5%; border-top:1px solid #e9e1d4; color:#94a3b8; font-size:10px; }
+@media(max-width:800px) {
+  .mm-workspace-header { flex-wrap:wrap; justify-content:space-between; padding:14px 5%; }
+  .mm-workspace-nav { order:3; width:100%; justify-content:flex-start; overflow-x:auto; padding:8px 0 2px; }
+  .mm-workspace-nav a { font-size:11px; }
+  .mm-workspace-content { padding-top:34px; }
+  .mm-workspace-intro h1 { font-size:25px; }
+  .mm-workspace-cards { grid-template-columns:1fr; }
+  .mm-workspace-footer { gap:12px; flex-wrap:wrap; }
+}
