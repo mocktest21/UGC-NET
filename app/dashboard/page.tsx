@@ -43,6 +43,9 @@ const summaryStats = [
   { label: "Average score", icon: "↗", note: "Across completed tests" },
   { label: "Accuracy", icon: "◎", note: "Correct answers ÷ attempted" },
   { label: "Units mastered", icon: "✓", note: "Based on unit performance" },
+  { label: "Total questions", icon: "▦", note: "In your selected question banks" },
+  { label: "Unique questions attempted", icon: "◉", note: "Distinct questions attempted at least once" },
+  { label: "Relative standing", icon: "🏆", note: "Your percentile among comparable students" },
 ];
 
 function EmptyAnalytics({ title, detail }: { title: string; detail: string }) {
