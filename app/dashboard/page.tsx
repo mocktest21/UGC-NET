@@ -28,8 +28,8 @@ const navigation = [
 const desktopNavigation = [
   { label: "Dashboard", href: "#overview", available: true },
   { label: "Practice", href: "#practice", available: true },
-  { label: "Live Test", href: "#live-test", available: false },
-  { label: "Personal Notebook", href: "#personal-notebook", available: false },
+  { label: "Live Test", href: "#live-test", available: true },
+  { label: "Personal Notebook", href: "#personal-notebook", available: true },
   { label: "About Us", href: "/About", available: true },
 ];
 
@@ -108,10 +108,8 @@ export default function DashboardPage() {
           ))}
         </nav>
         <nav className="mm-desktop-nav" aria-label="Main navigation">
-          {desktopNavigation.map((item, index) => item.available ? (
+          {desktopNavigation.map((item, index) => (
             <a key={item.label} className={index === 0 ? "mm-nav-link mm-nav-active" : "mm-nav-link"} href={item.href}>{item.label}</a>
-          ) : (
-            <span key={item.label} className="mm-nav-link mm-nav-disabled" aria-disabled="true" title="Coming soon">{item.label}<small>Coming soon</small></span>
           ))}
         </nav>
         <div className="mm-sidebar-profile">
