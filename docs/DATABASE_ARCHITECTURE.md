@@ -34,6 +34,21 @@ UGC NET
 
 The exact syllabus and unit counts should be loaded from the applicable official syllabus; the example is a hierarchy illustration.
 
+## 1A. Initial UGC NET seed configuration
+
+The seed migration configures:
+- Exam: UGC-NET.
+- Paper 1: compulsory common paper; internal subject node `General Paper`, code `00`.
+- Paper 2: compulsory subject-specific paper; students select one subject.
+- Paper 2 subjects initially seeded: Commerce (NTA June 2026 code `008`, legacy UGC syllabus code `08`) and Management (NTA June 2026 code `017`, legacy UGC syllabus code `17`).
+- Ten unit headings each for Paper 1, Commerce and Management.
+
+The subject codes are stored as text to preserve leading zeros. Additional Paper 2 subjects should be added through seed/configuration data, not schema changes. The current seed deliberately starts with Commerce and Management rather than creating all listed NET subjects before their syllabi and content are ready.
+
+The seed is idempotent and uses upserts. Run it only after the core schema migration. The verification script checks the two papers, both initial Paper 2 subjects and the expected ten units for each seeded syllabus.
+
+Syllabus headings are based on the UGC-NET Bureau updated syllabus index (applicable from June 2019 onward). Subject-code labels follow the NTA June 2026 subject list. Always check the latest NTA bulletin and UGC syllabus index before publishing a new examination cycle; do not assume a historical syllabus is permanently current.
+
 ## 2. Master Question Bank
 
 There is one central question record per canonical question. A question is classified by exam, paper, subject, unit, topic, question type, difficulty, language, source and workflow status.
@@ -159,8 +174,10 @@ Store timestamps and response timing at question level. Average time per questio
 
 ## 9. Rollout plan
 
-1. Review the SQL migration and validate it in a disposable Supabase project first.
-2. Seed UGC NET, Paper 1, Paper 2, General Paper, and Paper 2 subject taxonomy from the official syllabus.
+1. Review both SQL migrations and validate them in a disposable Supabase project first.
+2. Run the UGC NET seed migration after the core schema migration.
+3. Run `supabase/verification/verify_ugc_net_seed.sql` and inspect the hierarchy output.
+4. Confirm the Paper 1 compulsory flag, Paper 2 subject selection and the seeded syllabus titles.
 3. Build admin question bank and import validation.
 4. Build admin test builder and publication workflow.
 5. Implement secure test-engine RPCs for starting attempts, saving responses, timer enforcement, submission and evaluation.
