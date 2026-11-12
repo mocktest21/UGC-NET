@@ -99,6 +99,10 @@ export default function DashboardPage() {
             </a>
           ))}
         </nav>
+        <div className="mm-sidebar-profile">
+          <span className="mm-avatar">{initials || "S"}</span>
+          <span>{student.name.split(" ")[0]}</span>
+        </div>
         <div className="mm-sidebar-bottom">
           <div className="mm-help-card">
             <span className="mm-help-icon">✦</span>
