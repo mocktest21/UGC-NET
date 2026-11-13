@@ -67,6 +67,7 @@ export default function DashboardPage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [profileDialogOpen, setProfileDialogOpen] = useState(false);
+  const [analytics,setAnalytics]=useState({tests:0,average:"—",accuracy:"—",totalQuestions:0,uniqueQuestions:0,recent:[] as any[]});
 
   useEffect(() => {
     let active = true;
@@ -88,6 +89,19 @@ export default function DashboardPage() {
           exams: Array.isArray(profile.exams) ? profile.exams : [],
           phone: profile.phone_number,
         });
+        const {data:attemptRows}=await supabase.from("test_attempts")
+          .select("id,score,max_score,accuracy,questions_attempted,correct_count,incorrect_count,unanswered_count,status,started_at")
+          .eq("student_id",data.user.id).in("status",["submitted","auto_submitted"]).order("started_at",{ascending:false}).limit(200);
+        const attempts=(attemptRows||[]) as any[];
+        const scored=attempts.filter(a=>a.score!==null&&a.max_score!==null&&Number(a.max_score)>0);
+        const avg=scored.length?scored.reduce((sum,a)=>sum+(Number(a.score)/Number(a.max_score))*100,0)/scored.length:null;
+        const correct=attempts.reduce((sum,a)=>sum+Number(a.correct_count||0),0);
+        const attempted=attempts.reduce((sum,a)=>sum+Number(a.questions_attempted||0),0);
+        const accuracyRows=attempts.filter(a=>a.accuracy!==null);
+        const accuracy=accuracyRows.length?accuracyRows.reduce((sum,a)=>sum+Number(a.accuracy),0)/accuracyRows.length*100:(attempted?correct/attempted*100:null);
+        const total=attempts.reduce((sum,a)=>sum+Number(a.questions_attempted||0)+Number(a.unanswered_count||0),0);
+        if(active)setAnalytics({tests:attempts.length,average:avg===null?"—":avg.toFixed(1)+"%",accuracy:accuracy===null?"—":accuracy.toFixed(1)+"%",totalQuestions:total,uniqueQuestions:attempted,recent:attempts.slice(0,5).map(a=>({id:a.id,score:a.score===null?null:Number(a.score),max_score:a.max_score===null?null:Number(a.max_score),started_at:a.started_at,questions_attempted:Number(a.questions_attempted||0)}))});
+
       } catch {
         router.replace("/login");
       } finally {
@@ -187,7 +201,7 @@ export default function DashboardPage() {
                 <span className="mm-analytics-stat-icon">{stat.icon}</span>
                 <div className="mm-analytics-stat-copy">
                   <span>{stat.label}</span>
-                  <strong>—</strong>
+                  <strong>{stat.label==="Tests attempted"?analytics.tests:stat.label==="Average score"?analytics.average:stat.label==="Accuracy"?analytics.accuracy:stat.label==="Total questions"?analytics.totalQuestions:stat.label==="Unique questions attempted"?analytics.uniqueQuestions:"—"}</strong>
                   <small>{stat.note}</small>
                 </div>
               </article>
@@ -199,7 +213,7 @@ export default function DashboardPage() {
               <div><span className="mm-section-kicker">PROGRESS TRACKER</span><h2>Performance trends</h2><p>Your scores and accuracy will be plotted as you complete tests.</p></div>
               <span className="mm-analytics-filter">All time</span>
             </div>
-            <EmptyAnalytics title="Your performance trend will appear here" detail="Complete your first mock test to start tracking score and accuracy trends over time." />
+            {analytics.recent.length?<div className="mm-dashboard-recent-tests">{analytics.recent.map((test,index)=><div key={test.id}><span>Test {analytics.tests-index}</span><b>{test.score!==null&&test.max_score?((test.score/test.max_score)*100).toFixed(1)+"%":"Submitted"}</b><small>{test.questions_attempted} questions attempted · {new Date(test.started_at).toLocaleDateString("en-IN")}</small></div>)}</div>:<EmptyAnalytics title="Your performance trend will appear here" detail="Complete a test to start tracking your score and accuracy trends over time." />}
           </section>
 
           <section className="mm-analytics-panel" id="examinations">
