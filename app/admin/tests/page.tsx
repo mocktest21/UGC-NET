@@ -21,7 +21,8 @@ const fmtDuration = (seconds:number) => {
 
 export default function AdminTestBuilderPage() {
   const router=useRouter();
-  const [supabase]=useState(()=>typeof window==="undefined"?null:createSupabaseBrowserClient());\n const db=supabase!;
+  const [supabase]=useState(()=>typeof window==="undefined"?null:createSupabaseBrowserClient());
+ const db=supabase!;
   const [checking,setChecking]=useState(true);
   const [admin,setAdmin]=useState(false);
   const [tab,setTab]=useState<"builder"|"tests">("builder");
