@@ -36,7 +36,8 @@ export default function StudentBuildTestPage(){
   if(!exam){if(live)setLoading(false);return;}setExamId(exam.id);
   const {data:paperRows}=await db.from("papers").select("id,name,code").eq("exam_id",exam.id).eq("is_active",true).order("display_order");
   const {data:preference}=await db.from("student_exam_preferences").select("selected_subject_id").eq("student_id",data.user.id).eq("exam_id",exam.id).maybeSingle();
-  const preferred=window.sessionStorage.getItem("mm-practice-subject")||preference?.selected_subject_id||"";\n  const preferredPaperId=window.sessionStorage.getItem("mm-practice-paper")||"";
+  const preferred=window.sessionStorage.getItem("mm-practice-subject")||preference?.selected_subject_id||"";
+  const preferredPaperId=window.sessionStorage.getItem("mm-practice-paper")||"";
   let preferredSubject:any=null;
   if(preferred){const {data:subject}=await db.from("subjects").select("id,paper_id").eq("id",preferred).maybeSingle();preferredSubject=subject;}
   const allowed=(paperRows||[]).filter((p:any)=>/paper\s*1|common/i.test(p.name+" "+p.code)||(preferredSubject&&p.id===preferredSubject.paper_id));
@@ -46,7 +47,8 @@ export default function StudentBuildTestPage(){
 
  useEffect(()=>{if(!supabase||!paperId){setSubjects([]);setSubjectId("");return;}void(async()=>{
   const {data}=await db.from("subjects").select("id,name,code").eq("paper_id",paperId).eq("is_active",true).order("display_order");
-  setSubjects((data||[]) as Row[]);const preferred=window.sessionStorage.getItem("mm-practice-subject");if(preferred&&(data||[]).some((s:any)=>s.id===preferred)){setSubjectId(preferred);window.sessionStorage.removeItem("mm-practice-subject");}else setSubjectId("");
+  const preferred=window.sessionStorage.getItem("mm-practice-subject")||preference?.selected_subject_id||"";
+  const preferredPaperId=window.sessionStorage.getItem("mm-practice-paper")||"";
  })();},[paperId,supabase]);
  useEffect(()=>{if(!supabase||!subjectId){setUnits([]);setUnitId("all");return;}void(async()=>{
   const {data}=await db.from("units").select("id,name,unit_number").eq("subject_id",subjectId).eq("is_active",true).order("display_order");
