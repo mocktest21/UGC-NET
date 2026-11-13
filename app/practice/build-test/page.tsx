@@ -69,8 +69,15 @@ export default function StudentBuildTestPage(){
  const canStart=!!paperId&&available>0&&actualCount>0&&minutes>0;
  const summary=useMemo(()=>({paper:selectedPaper?.name||"Select a paper",subject:selectedSubject?.name||"All subjects",unit:unitId==="all"?"All units":selectedUnit?.name||"Selected unit"}),[selectedPaper,selectedSubject,selectedUnit,unitId]);
  async function start(){
-  if(!canStart)return;setBusy(true);setError("");
-  const params=new URLSearchParams({paper:paperId,subject:subjectId,unit:unitId,questions:String(actualCount),minutes:String(minutes),language,source});
+  if(!canStart||!supabase)return;setBusy(true);setError("");
+  const {data,error}=await db.rpc("student_start_practice_test",{
+   p_exam_id:examId,p_paper_id:paperId,p_subject_id:subjectId||null,
+   p_unit_id:unitId==="all"?null:unitId,p_question_count:actualCount,
+   p_duration_seconds:minutes*60,p_language_code:language,p_source:source
+  });
+  if(error){setError(error.message);setBusy(false);return;}
+  const result=data as {test_id:string;attempt_id:string;question_count:number};
+  const params=new URLSearchParams({test:result.test_id,attempt:result.attempt_id,minutes:String(minutes)});
   router.push("/practice/session?"+params.toString());
  }
  if(loading)return <main className="sb-state">Loading your practice builder…</main>;
