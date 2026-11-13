@@ -65,6 +65,8 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [signingOut, setSigningOut] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [profileDialogOpen, setProfileDialogOpen] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -117,6 +119,23 @@ export default function DashboardPage() {
   const firstNameRaw = student.name.trim().split(/\s+/)[0] || "Student";
   const firstName = firstNameRaw.charAt(0).toUpperCase() + firstNameRaw.slice(1).toLowerCase();
 
+  const profileMenu = (
+    <div className="mm-profile-menu-wrap" onBlur={(event) => {
+      if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setProfileOpen(false);
+    }}>
+      <button type="button" className="mm-profile-trigger" aria-haspopup="menu" aria-expanded={profileOpen} aria-label="Open account menu" onClick={() => setProfileOpen((open) => !open)}>
+        <span className="mm-avatar">{initials || "S"}</span><span>{firstName}</span><span className="mm-profile-chevron" aria-hidden="true">⌄</span>
+      </button>
+      {profileOpen && (
+        <div className="mm-profile-dropdown" role="menu">
+          <div className="mm-profile-dropdown-heading"><strong>{student.name}</strong><span>{student.email}</span></div>
+          <button type="button" role="menuitem" onClick={() => { setProfileOpen(false); setProfileDialogOpen(true); }}><span aria-hidden="true">♙</span> View profile</button>
+          <button type="button" role="menuitem" className="mm-profile-logout" disabled={signingOut} onClick={() => void handleSignOut()}><span aria-hidden="true">↪</span> {signingOut ? "Logging out..." : "Log out"}</button>
+        </div>
+      )}
+    </div>
+  );
+
   return (
     <div className="mm-dashboard">
       <aside className={menuOpen ? "mm-sidebar mm-sidebar-open" : "mm-sidebar"}>
@@ -134,19 +153,14 @@ export default function DashboardPage() {
             <a key={item.label} className={index === 0 ? "mm-nav-link mm-nav-active" : "mm-nav-link"} href={item.href}>{item.label}</a>
           ))}
         </nav>
-        <div className="mm-sidebar-profile">
-          <span className="mm-avatar">{initials || "S"}</span>
-          <span>{firstName}</span>
-        </div>
+        <div className="mm-sidebar-profile">{profileMenu}</div>
         <div className="mm-sidebar-bottom">
           <div className="mm-help-card">
             <span className="mm-help-icon">✦</span>
             <strong>Keep your momentum</strong>
             <p>Consistent practice builds measurable progress.</p>
           </div>
-          <button className="mm-logout" onClick={handleSignOut} disabled={signingOut}>
-            <span>↪</span>{signingOut ? "Logging out..." : "Log out"}
-          </button>
+
         </div>
       </aside>
 
@@ -156,9 +170,7 @@ export default function DashboardPage() {
         <header className="mm-topbar">
           <button className="mm-menu-toggle" aria-label="Open navigation" onClick={() => setMenuOpen(true)}>☰</button>
           <div className="mm-mobile-page-label">Performance dashboard</div>
-          <div className="mm-topbar-right">
-            <div className="mm-profile-pill" aria-label={`Signed in as ${student.name}`}><span className="mm-avatar">{initials || "S"}</span><span>{firstName}</span></div>
-          </div>
+          <div className="mm-topbar-right">{profileMenu}</div>
         </header>
 
         <main className="mm-content mm-analytics-content" id="overview">
@@ -262,6 +274,22 @@ export default function DashboardPage() {
           <footer className="mm-footer"><span>© {new Date().getFullYear()} MockMaster</span><span>Practice. Improve. Achieve.</span></footer>
         </main>
       </div>
+
+      {profileDialogOpen && (
+        <div className="mm-profile-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setProfileDialogOpen(false); }}>
+          <section className="mm-profile-modal" role="dialog" aria-modal="true" aria-labelledby="mm-profile-title">
+            <div className="mm-profile-modal-heading"><div><span className="mm-section-kicker">ACCOUNT DETAILS</span><h2 id="mm-profile-title">My profile</h2></div><button type="button" aria-label="Close profile" onClick={() => setProfileDialogOpen(false)}>×</button></div>
+            <div className="mm-profile-identity"><span className="mm-avatar">{initials || "S"}</span><div><strong>{student.name}</strong><span>{student.email}</span></div></div>
+            <dl className="mm-profile-details">
+              <div><dt>Full name</dt><dd>{student.name}</dd></div>
+              <div><dt>Email address</dt><dd>{student.email}</dd></div>
+              <div><dt>Mobile number</dt><dd>{student.phone || "Not provided"}</dd></div>
+              <div><dt>Selected examinations</dt><dd>{student.exams.length ? student.exams.join(", ") : "None selected"}</dd></div>
+            </dl>
+            <button type="button" className="mm-profile-close" onClick={() => setProfileDialogOpen(false)}>Close</button>
+          </section>
+        </div>
+      )}
 
       <nav className="mm-bottom-nav" aria-label="Mobile navigation">
         {navigation.slice(0, 4).map((item, index) => (
