@@ -786,3 +786,7 @@ button, input { font: inherit; }
   .mm-profile-dropdown { right:0; }
   .mm-profile-details>div { grid-template-columns:110px minmax(0,1fr); }
 }
+
+
+/* Student practice test builder entry point */
+.mm-practice-builder-cta{display:flex;align-items:center;justify-content:space-between;gap:14px;max-width:680px;margin-top:20px;padding:15px 18px;border:1px solid #bfdbfe;border-radius:12px;background:#eff6ff;color:#1d4ed8;font-size:13px;font-weight:700}.mm-practice-builder-cta span{font-size:10px;font-weight:500;color:#526b91;text-align:right}@media(max-width:600px){.mm-practice-builder-cta{align-items:flex-start;flex-direction:column}.mm-practice-builder-cta span{text-align:left}}
