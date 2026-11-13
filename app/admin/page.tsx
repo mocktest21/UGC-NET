@@ -19,6 +19,7 @@ export default function AdminDashboardPage(){
   const router=useRouter();
   const [supabase]=useState(()=>createSupabaseBrowserClient());
   const [loading,setLoading]=useState(true);
+  const [isAdmin,setIsAdmin]=useState(false);
   const [adminName,setAdminName]=useState("Administrator");
   const [counts,setCounts]=useState<Counts>({questions:0,approved:0,drafts:0,imports:0,tests:0,students:0});
   const [error,setError]=useState("");
@@ -29,7 +30,8 @@ export default function AdminDashboardPage(){
       const {data,error:authError}=await supabase.auth.getUser();
       if(!active)return;
       if(authError||!data.user){router.replace("/login");return;}
-      if(data.user.app_metadata?.role!=="admin"){setLoading(false);return;}
+      if(data.user.app_metadata?.role!=="admin"){setIsAdmin(false);setLoading(false);return;}
+      setIsAdmin(true);
       const fullName=String(data.user.user_metadata?.full_name||"Administrator");
       setAdminName(fullName.trim().split(/\s+/)[0]||"Administrator");
       const [allQ,approvedQ,draftQ,importsQ,testsQ,studentsQ]=await Promise.all([
@@ -53,6 +55,7 @@ export default function AdminDashboardPage(){
   async function signOut(){await supabase.auth.signOut();router.replace("/login");}
 
   if(loading)return <main className="aw-state">Loading administrator workspace…</main>;
+  if(!isAdmin)return <main className="aw-state"><section style={{maxWidth:480,margin:"12vh auto",padding:32,background:"#fff",borderRadius:18,textAlign:"center"}}><h1>Administrator access required</h1><p>This workspace is restricted to authorised MockMaster administrators.</p><button onClick={()=>router.replace("/dashboard")}>Return to student dashboard</button></section></main>;
   if(error && !counts.questions && !counts.students) { /* Show the workspace with a visible data warning. */ }
   return (
     <main className="aw-shell">
