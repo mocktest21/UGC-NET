@@ -9,7 +9,7 @@ type Counts = { questions:number; approved:number; drafts:number; imports:number
 const modules = [
   { title:"Question Bank", description:"Create, classify, review and approve questions.", href:"/admin/questions", icon:"▦", status:"Available" },
   { title:"Excel Imports", description:"Upload workbooks and review staged question rows.", href:"/admin/questions?tab=import", icon:"⇧", status:"Available" },
-  { title:"Test Builder", description:"Create practice tests and schedule live examinations.", href:"#", icon:"▤", status:"Coming next" },
+  { title:"Test Builder", description:"Create practice tests and schedule live examinations.", href:"/admin/tests", icon:"▤", status:"Available" },
   { title:"Student Management", description:"View registrations, profiles and exam preferences.", href:"#", icon:"♙", status:"Coming next" },
   { title:"Analytics & Reports", description:"Monitor attempts, scores and question performance.", href:"#", icon:"⌁", status:"Coming next" },
   { title:"Syllabus Manager", description:"Maintain examinations, papers, subjects and units.", href:"#", icon:"☷", status:"Coming next" },
@@ -66,7 +66,7 @@ export default function AdminDashboardPage(){
         <div className="aw-nav-label">CONTENT</div>
         <a className="aw-nav" href="/admin/questions"><i>▦</i>Question Bank</a>
         <a className="aw-nav" href="/admin/questions?tab=import"><i>⇧</i>Excel Imports</a>
-        <a className="aw-nav disabled" aria-disabled="true"><i>▤</i>Test Builder <em>Next</em></a>
+        <a className="aw-nav" href="/admin/tests"><i>▤</i>Test Builder</a>
         <div className="aw-nav-label">MANAGEMENT</div>
         <a className="aw-nav disabled" aria-disabled="true"><i>♙</i>Students <em>Next</em></a>
         <a className="aw-nav disabled" aria-disabled="true"><i>⌁</i>Analytics <em>Next</em></a>
