@@ -21,7 +21,7 @@ const fmtDuration = (seconds:number) => {
 
 export default function AdminTestBuilderPage() {
   const router=useRouter();
-  const [supabase]=useState(()=>createSupabaseBrowserClient());
+  const [supabase]=useState(()=>typeof window==="undefined"?null:createSupabaseBrowserClient());
   const [checking,setChecking]=useState(true);
   const [admin,setAdmin]=useState(false);
   const [tab,setTab]=useState<"builder"|"tests">("builder");
@@ -103,7 +103,7 @@ export default function AdminTestBuilderPage() {
   useEffect(()=>{void loadQuestions();},[loadQuestions]);
 
   const loadTests=useCallback(async()=>{
-    if(!admin)return;setLoadingTests(true);
+    if(!supabase||!admin)return;setLoadingTests(true);
     const {data,error}=await supabase.from("tests").select("id,title,mode,status,duration_seconds,total_marks,created_at").order("created_at",{ascending:false}).limit(100);
     if(error)setError(error.message);else setTests((data||[]) as TestRow[]);
     setLoadingTests(false);
