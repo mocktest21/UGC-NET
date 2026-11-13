@@ -98,7 +98,7 @@ export default function DashboardPage() {
         const correct=attempts.reduce((sum,a)=>sum+Number(a.correct_count||0),0);
         const attempted=attempts.reduce((sum,a)=>sum+Number(a.questions_attempted||0),0);
         const accuracyRows=attempts.filter(a=>a.accuracy!==null);
-        const accuracy=accuracyRows.length?accuracyRows.reduce((sum,a)=>sum+Number(a.accuracy),0)/accuracyRows.length*100:(attempted?correct/attempted*100:null);
+        const accuracy=accuracyRows.length?accuracyRows.reduce((sum,a)=>sum+Number(a.accuracy),0)/accuracyRows.length*100:null;
         const total=attempts.reduce((sum,a)=>sum+Number(a.questions_attempted||0)+Number(a.unanswered_count||0),0);
         if(active)setAnalytics({tests:attempts.length,average:avg===null?"—":avg.toFixed(1)+"%",accuracy:accuracy===null?"—":accuracy.toFixed(1)+"%",totalQuestions:total,uniqueQuestions:attempted,recent:attempts.slice(0,5).map(a=>({id:a.id,score:a.score===null?null:Number(a.score),max_score:a.max_score===null?null:Number(a.max_score),started_at:a.started_at,questions_attempted:Number(a.questions_attempted||0)}))});
 
@@ -201,7 +201,7 @@ export default function DashboardPage() {
                 <span className="mm-analytics-stat-icon">{stat.icon}</span>
                 <div className="mm-analytics-stat-copy">
                   <span>{stat.label}</span>
-                  <strong>{stat.label==="Tests attempted"?analytics.tests:stat.label==="Average score"?analytics.average:stat.label==="Accuracy"?analytics.accuracy:stat.label==="Total questions"?analytics.totalQuestions:stat.label==="Unique questions attempted"?analytics.uniqueQuestions:"—"}</strong>
+                  <strong>{stat.label==="Tests attempted"?analytics.tests:stat.label==="Average score"?analytics.average:stat.label==="Accuracy"?analytics.accuracy:stat.label==="Total questions"?analytics.totalQuestions:stat.label==="Questions attempted"?analytics.uniqueQuestions:"—"}</strong>
                   <small>{stat.note}</small>
                 </div>
               </article>
