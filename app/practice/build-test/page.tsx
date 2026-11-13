@@ -33,13 +33,13 @@ export default function StudentBuildTestPage(){
   const {data:exam}=await db.from("exams").select("id").eq("code","UGC_NET").eq("is_active",true).maybeSingle();
   if(!exam){if(live)setLoading(false);return;}setExamId(exam.id);
   const {data:paperRows}=await db.from("papers").select("id,name,code").eq("exam_id",exam.id).eq("is_active",true).order("display_order");
-  if(live){setPapers((paperRows||[]) as Row[]);const preferred=window.sessionStorage.getItem("mm-practice-subject");if(preferred){const {data:subject}=await db.from("subjects").select("id,paper_id").eq("id",preferred).maybeSingle();if(subject){setPaperId(subject.paper_id);setSubjectId(subject.id);}window.sessionStorage.removeItem("mm-practice-subject");}}
+  if(live){setPapers((paperRows||[]) as Row[]);const preferred=window.sessionStorage.getItem("mm-practice-subject");if(preferred){const {data:subject}=await db.from("subjects").select("id,paper_id").eq("id",preferred).maybeSingle();if(subject){setPaperId(subject.paper_id);setSubjectId(subject.id);}}}
   if(live)setLoading(false);
  })();return()=>{live=false;};},[router,supabase]);
 
  useEffect(()=>{if(!supabase||!paperId){setSubjects([]);setSubjectId("");return;}void(async()=>{
   const {data}=await db.from("subjects").select("id,name,code").eq("paper_id",paperId).eq("is_active",true).order("display_order");
-  setSubjects((data||[]) as Row[]);if(!window.sessionStorage.getItem("mm-practice-subject"))setSubjectId("");
+  setSubjects((data||[]) as Row[]);const preferred=window.sessionStorage.getItem("mm-practice-subject");if(preferred&&(data||[]).some((s:any)=>s.id===preferred)){setSubjectId(preferred);window.sessionStorage.removeItem("mm-practice-subject");}else setSubjectId("");
  })();},[paperId,supabase]);
  useEffect(()=>{if(!supabase||!subjectId){setUnits([]);setUnitId("all");return;}void(async()=>{
   const {data}=await db.from("units").select("id,name,unit_number").eq("subject_id",subjectId).eq("is_active",true).order("display_order");
