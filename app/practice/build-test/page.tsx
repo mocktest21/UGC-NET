@@ -9,7 +9,8 @@ type Row={id:string;name:string;code?:string|null;unit_number?:number|null};
 type PaperCount={id:string;name:string;count:number};
 export default function StudentBuildTestPage(){
  const router=useRouter();
- const [supabase]=useState(()=>typeof window==="undefined"?null:createSupabaseBrowserClient());\n const db=supabase!;
+ const [supabase]=useState(()=>typeof window==="undefined"?null:createSupabaseBrowserClient());
+ const db=supabase!;
  const [loading,setLoading]=useState(true);
  const [examId,setExamId]=useState("");
  const [papers,setPapers]=useState<Row[]>([]);
