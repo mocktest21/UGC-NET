@@ -17,7 +17,7 @@ const modules = [
 
 export default function AdminDashboardPage(){
   const router=useRouter();
-  const [supabase]=useState(()=>createSupabaseBrowserClient());
+  const [supabase]=useState(() => (typeof window === "undefined" ? null : createSupabaseBrowserClient()) as ReturnType<typeof createSupabaseBrowserClient>);
   const [loading,setLoading]=useState(true);
   const [isAdmin,setIsAdmin]=useState(false);
   const [adminName,setAdminName]=useState("Administrator");
