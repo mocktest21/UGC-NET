@@ -143,7 +143,14 @@ export default function AdminQuestionsPage() {
     });
   }
 
-  async function changeQuestionStatus(questionId: string, nextStatus: string) {\n    setMessage("");\n    const { error } = await supabase.rpc("admin_set_question_status", { p_question_id: questionId, p_status: nextStatus });\n    if (error) setMessage(error.message);\n    else { setMessage(`Question moved to ${nextStatus.replaceAll("_", " ")}.`); await loadQuestions(); }\n  }\n\n  async function createQuestion(event: FormEvent<HTMLFormElement>) {
+  async function changeQuestionStatus(questionId: string, nextStatus: string) {
+    setMessage("");
+    const { error } = await supabase.rpc("admin_set_question_status", { p_question_id: questionId, p_status: nextStatus });
+    if (error) setMessage(error.message);
+    else { setMessage(`Question moved to ${nextStatus.replaceAll("_", " ")}.`); await loadQuestions(); }
+  }
+
+  async function createQuestion(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setMessage("");
     let answerKey: Record<string, unknown>;
@@ -187,6 +194,7 @@ export default function AdminQuestionsPage() {
       const workbook = XLSX.read(buffer, { type: "array" });
       const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
       const rawRows = XLSX.utils.sheet_to_json<ImportRow>(firstSheet, { defval: "", raw: false });\n      const rows = rawRows.map((row) => Object.fromEntries(Object.entries(row).map(([key, value]) => [key.trim().toLowerCase(), value])) as ImportRow);
+      const rows = rawRows.map((row) => Object.fromEntries(Object.entries(row).map(([key, value]) => [key.trim().toLowerCase(), value])) as ImportRow);
       const required = ["question", "correct_answer"];
       const headers = rows[0] ? Object.keys(rows[0]).map((h) => h.trim().toLowerCase()) : [];
       const errors: string[] = [];
