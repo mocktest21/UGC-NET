@@ -68,7 +68,7 @@ export default function PracticeSessionPage(){
  const optionId=(o:Option,i:number)=>String(o.id??o.value??i);
  const optionText=(o:Option)=>String(o.text??o.label??o.value??"");
  const selected=(id:string)=>answers[q.id];
- const isChoice=["single_choice","assertion_reason"].includes(q?.type);
+ const isChoice=["single_choice","assertion_reason"].includes(q?.type)||(q?.type==="passage"&&options.length>0);
  const isMulti=q?.type==="multiple_choice";
  const renderChoice=()=> <div className="ps-options">{options.map((o,i)=>{const id=optionId(o,i),value=selected(q.id);const active=isMulti?Array.isArray(value)&&value.includes(id):value===id;return <button key={id} className={active?"selected":""} onClick={()=>{if(isMulti){const next=Array.isArray(value)?value.slice():[];updateAnswer(q.id,next.includes(id)?next.filter(x=>x!==id):[...next,id]);}else updateAnswer(q.id,id);}}><i>{String.fromCharCode(65+i)}</i><span>{optionText(o)}</span>{active&&<b>✓</b>}</button>;})}</div>;
  if(loading)return <main className="ps-state">Preparing your test…</main>;
