@@ -6,7 +6,7 @@ import * as XLSX from "xlsx";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import "./admin-questions.css";
 
-type Taxonomy = { id: string; code: string | null; name: string; paper_id?: string; subject_id?: string; unit_number?: number | null };
+type Taxonomy = { id: string; code?: string | null; name: string; paper_id?: string; subject_id?: string; unit_id?: string; unit_number?: number | null };
 type QuestionRow = { id: string; status: string; question_type: string; difficulty: string | null; created_at: string };
 type ImportRow = Record<string, unknown>;
 
