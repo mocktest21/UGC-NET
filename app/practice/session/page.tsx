@@ -1,29 +1,29 @@
 "use client";
 
 import {useCallback,useEffect,useMemo,useState} from "react";
-import {useRouter,useSearchParams} from "next/navigation";
+import {useRouter} from "next/navigation";
 import {createSupabaseBrowserClient} from "@/lib/supabase/client";
 import "./session.css";
 
 type Option={id?:string;value?:string;text?:string;label?:string};
 type Q={id:string;prompt:any;options:Option[];marks:number;negative:number;section:string};
 export default function PracticeSessionPage(){
- const router=useRouter();const params=useSearchParams();
+ const router=useRouter();const [params,setParams]=useState<URLSearchParams|null>(null);\n useEffect(()=>{setParams(new URLSearchParams(window.location.search));},[]);
  const [db]=useState(()=>typeof window==="undefined"?null:createSupabaseBrowserClient());
  const [questions,setQuestions]=useState<Q[]>([]);
  const [answers,setAnswers]=useState<Record<string,string>>({});
  const [review,setReview]=useState<string[]>([]);
  const [current,setCurrent]=useState(0);
- const [seconds,setSeconds]=useState(Math.max(1,Number(params.get("minutes")||50))*60);
+ const [seconds,setSeconds]=useState(Math.max(1,Number(params?.get("minutes")||50))*60);
  const [loading,setLoading]=useState(true);const [error,setError]=useState("");
  const [submitted,setSubmitted]=useState(false);const [confirm,setConfirm]=useState(false);
  const [student,setStudent]=useState("Student");
- const paper=params.get("paper")||"",subject=params.get("subject")||"",unit=params.get("unit")||"all";
- const requested=Math.max(1,Math.min(300,Number(params.get("questions")||50)));
- const language=params.get("language")||"en",source=params.get("source")||"all";
+ const paper=params?.get("paper")||"",subject=params?.get("subject")||"",unit=params?.get("unit")||"all";
+ const requested=Math.max(1,Math.min(300,Number(params?.get("questions")||50)));
+ const language=params?.get("language")||"en",source=params?.get("source")||"all";
  const fmt=(n:number)=>String(Math.floor(n/3600)).padStart(2,"0")+":"+String(Math.floor(n%3600/60)).padStart(2,"0")+":"+String(n%60).padStart(2,"0");
 
- useEffect(()=>{if(!db)return;let live=true;void(async()=>{
+ useEffect(()=>{if(!db||!params)return;let live=true;void(async()=>{
   const {data:auth,error:authError}=await db.auth.getUser();if(authError||!auth.user){router.replace("/login");return;}
   if(live)setStudent((auth.user.user_metadata?.full_name as string)||"Student");
   if(!paper){setError("Test configuration is missing. Return to the builder and select your test.");setLoading(false);return;}
@@ -42,7 +42,7 @@ export default function PracticeSessionPage(){
   const latest=new Map<string,any>();for(const v of versions||[])if(!latest.has(v.question_id))latest.set(v.question_id,v);
   const built=shuffled.flatMap((item:any)=>{const v=latest.get(item.id);if(!v)return[];return[{id:item.id,prompt:v.prompt,options:Array.isArray(v.options)?v.options:[],marks:Number(v.default_marks||2),negative:Number(v.default_negative_marks||0),section:"Practice"} as Q];});
   if(live){setQuestions(built);setLoading(false);if(!built.length)setError("Question content is not available yet.");}
- })();return()=>{live=false;};},[db,router,paper,subject,unit,requested,language,source]);
+ })();return()=>{live=false;};},[db,router,params,paper,subject,unit,requested,language,source]);
 
  const finish=useCallback(()=>setSubmitted(true),[]);
  useEffect(()=>{if(loading||submitted||questions.length===0)return;const timer=window.setInterval(()=>setSeconds(s=>{if(s<=1){window.clearInterval(timer);finish();return 0;}return s-1;}),1000);return()=>window.clearInterval(timer);},[loading,submitted,questions.length,finish]);
