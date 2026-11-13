@@ -64,7 +64,7 @@ export default function DashboardPage() {
   const [student, setStudent] = useState<Student | null>(null);
   const [loading, setLoading] = useState(true);
   const [signingOut, setSigningOut] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);\n  const [isAdmin, setIsAdmin] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -79,7 +79,7 @@ export default function DashboardPage() {
         }
 
         if (!active) return;
-        setIsAdmin(data.user.app_metadata?.role === "admin");\n        const profile = data.user.user_metadata as StudentProfile;
+        const profile = data.user.user_metadata as StudentProfile;
         setStudent({
           name: profile.full_name || "Student",
           email: data.user.email || "",
