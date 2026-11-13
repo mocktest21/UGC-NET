@@ -229,10 +229,18 @@ export default function AdminQuestionsPage() {
     setImporting(true);setMessage("");
     let added=0,duplicates=0,existingSkipped=0;const errors:string[]=[];const seen=new Set<string>();
     try {
-      const existingIds=new Set<string>();
+      const existingIds=new Set<string>(), existingFingerprints=new Set<string>();
+      const bankRows:any[]=[];
       for(let from=0;;from+=1000){
-        const {data,error}=await supabase.from("questions").select("id").range(from,from+999);
-        if(error)throw error;(data||[]).forEach(q=>existingIds.add(q.id));if(!data||data.length<1000)break;
+        const {data,error}=await supabase.from("questions").select("id,exam_id,paper_id,subject_id,unit_id").range(from,from+999);
+        if(error)throw error;(data||[]).forEach(q=>{existingIds.add(q.id);bankRows.push(q);});if(!data||data.length<1000)break;
+      }
+      for(let i=0;i<bankRows.length;i+=500){
+        const chunk=bankRows.slice(i,i+500), ids=chunk.map(q=>q.id);
+        const {data,error}=await supabase.from("question_versions").select("question_id,prompt").in("question_id",ids).order("version_number",{ascending:false});
+        if(error)throw error;
+        const latest=new Map<string,any>();(data||[]).forEach(v=>{if(!latest.has(v.question_id))latest.set(v.question_id,v);});
+        chunk.forEach(q=>{const prompt=latest.get(q.id)?.prompt;const stem=prompt?.stem?.text||prompt?.text||"";const normal=(v:unknown)=>String(v??"").toLowerCase().replace(/\\s+/g," ").trim();existingFingerprints.add([q.exam_id,q.paper_id,q.subject_id,q.unit_id,stem].map(normal).join("|"));});
       }
       for(let index=0;index<importRows.length;index++){
         const row=importRows[index], rowNo=index+2;
@@ -240,7 +248,7 @@ export default function AdminQuestionsPage() {
         if(id&&existingIds.has(id)){existingSkipped++;continue;}
         const normal=(v:unknown)=>String(v??"").toLowerCase().replace(/\\s+/g," ").trim();
         const fingerprint=[row.exam_id,row.paper_id,row.subject_id,row.unit_id,row.question].map(normal).join("|");
-        if(seen.has(fingerprint)){duplicates++;continue;} seen.add(fingerprint);
+        if(seen.has(fingerprint)||existingFingerprints.has(fingerprint)){duplicates++;continue;} seen.add(fingerprint);
         const options=parseJsonCell(row.options_json,["option_a","option_b","option_c","option_d"].filter(k=>String(row[k]||"").trim()).map((k,i)=>({id:String.fromCharCode(65+i),text:String(row[k])})));
         let answer=parseJsonCell(row.answer_key_json,null);
         if(!answer){const a=String(row.correct_answer||"").trim();answer=a.startsWith("{")?parseJsonCell(a,{}):{correct_option_id:a.toUpperCase()};}
