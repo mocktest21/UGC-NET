@@ -186,3 +186,13 @@ Store timestamps and response timing at question level. Average time per questio
 8. Load-test and security-test before allowing high concurrency.
 
 **This GitHub commit does not execute SQL in Supabase.** When the schema is approved, copy the migration into Supabase SQL Editor and run it there. Do not run the previous version of this migration.
+
+## Student practice and live-test question lifecycle (2026-11-13)
+
+The question bank remains the single source of truth. Practice and live tests reference immutable question versions; they do not copy question content into a second bank.
+
+- **Question formats:** the existing `question_type` enum is the supported format catalogue: single choice, multiple choice, assertion–reason, matching, passage, numerical, short answer, ordering, and true/false. The student practice renderer supports option selection, multi-selection, boolean, numeric/text, and structured JSON responses for matching/ordering and other structured formats.
+- **Unseen-first selection:** `student_start_practice_test` selects eligible approved questions not previously presented in a submitted/auto-submitted attempt first. If the unseen pool is smaller than the requested test size, it fills the remaining places from previously presented questions. The generated test and attempt are persisted in `tests`, `test_questions`, `test_attempts`, and `student_responses`.
+- **Automatic live release:** a question already in the central bank is temporarily withheld from generated practice while it belongs to a published live test whose `ends_at` is still in the future. Once the live window closes, the same question record/version becomes eligible automatically. No question duplication or manual transfer job is used.
+- **Security:** student writes go through authenticated security-definer RPCs. Answer-key snapshots remain in the existing protected table and are not selected by the practice UI.
+- **Migration:** apply `supabase/migrations/202611130004_student_practice_unseen_live_transfer.sql` in Supabase SQL Editor after the existing core schema and test-builder migrations. This is additive and does not drop or reset existing data.
