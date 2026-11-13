@@ -46,8 +46,10 @@ export default function StudentBuildTestPage(){
 
  useEffect(()=>{if(!supabase||!paperId){setSubjects([]);setSubjectId("");return;}void(async()=>{
   const {data}=await db.from("subjects").select("id,name,code").eq("paper_id",paperId).eq("is_active",true).order("display_order");
-  const preferred=window.sessionStorage.getItem("mm-practice-subject")||preference?.selected_subject_id||"";
-  const preferredPaperId=window.sessionStorage.getItem("mm-practice-paper")||"";
+  setSubjects((data||[]) as Row[]);
+  const preferred=window.sessionStorage.getItem("mm-practice-subject")||"";
+  if(preferred&&(data||[]).some((s:any)=>s.id===preferred)){setSubjectId(preferred);window.sessionStorage.removeItem("mm-practice-subject");}
+  else setSubjectId("");
  })();},[paperId,supabase]);
  useEffect(()=>{if(!supabase||!subjectId){setUnits([]);setUnitId("all");return;}void(async()=>{
   const {data}=await db.from("units").select("id,name,unit_number").eq("subject_id",subjectId).eq("is_active",true).order("display_order");
