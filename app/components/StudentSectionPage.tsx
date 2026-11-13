@@ -73,7 +73,7 @@ export default function StudentSectionPage({ section }: { section: Section }) {
       </header>
 
       <section className="mm-workspace-content">
-        <div className="mm-workspace-intro"><span>MOCKMASTER WORKSPACE</span><h1>{page.title}</h1><p>{page.subtitle}</p></div>
+        <div className="mm-workspace-intro"><span>MOCKMASTER WORKSPACE</span><h1>{page.title}</h1><p>{page.subtitle}</p>{section === "practice" && <a className="mm-practice-builder-cta" href="/practice/build-test">＋ Build your own test <span>Choose paper, subject, units, questions and time →</span></a>}</div>
         {section === "practice" && (
           <div className="mm-workspace-cards">
             <article><span>📘</span><small>COMMON PAPER</small><h2>UGC NET Paper 1</h2><p>Teaching and Research Aptitude</p><div>Practice material <b>→</b></div></article>
