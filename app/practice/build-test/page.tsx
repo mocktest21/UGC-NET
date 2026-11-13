@@ -40,7 +40,7 @@ export default function StudentBuildTestPage(){
   const preferredPaperId=window.sessionStorage.getItem("mm-practice-paper")||"";
   let preferredSubject:any=null;
   if(preferred){const {data:subject}=await db.from("subjects").select("id,paper_id").eq("id",preferred).maybeSingle();preferredSubject=subject;}
-  const allowed=(paperRows||[]).filter((p:any)=>/paper\s*1|common/i.test(p.name+" "+p.code)||(preferredSubject&&p.id===preferredSubject.paper_id));
+  const allowed=(paperRows||[]).filter((p:any)=>/paper\\s*1|common/i.test(p.name+" "+p.code)||(preferredSubject&&p.id===preferredSubject.paper_id)||(preferredPaperId&&p.id===preferredPaperId));
   if(live){setPapers(allowed as Row[]);if(preferredSubject&&(!preferredPaperId||preferredPaperId===preferredSubject.paper_id)){setPaperId(preferredSubject.paper_id);setSubjectId(preferredSubject.id);window.sessionStorage.setItem("mm-practice-subject",preferredSubject.id);}else if(preferredPaperId&&allowed.some((p:any)=>p.id===preferredPaperId)){setPaperId(preferredPaperId);window.sessionStorage.removeItem("mm-practice-subject");}else if(allowed[0])setPaperId(allowed[0].id);window.sessionStorage.removeItem("mm-practice-paper");}
   if(live)setLoading(false);
  })();return()=>{live=false;};},[router,supabase]);
