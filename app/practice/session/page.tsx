@@ -8,7 +8,8 @@ import "./session.css";
 type Option={id?:string;value?:string;text?:string;label?:string};
 type Q={id:string;prompt:any;options:Option[];marks:number;negative:number;section:string};
 export default function PracticeSessionPage(){
- const router=useRouter();const [params,setParams]=useState<URLSearchParams|null>(null);\n useEffect(()=>{setParams(new URLSearchParams(window.location.search));},[]);
+ const router=useRouter();const [params,setParams]=useState<URLSearchParams|null>(null);
+ useEffect(()=>{setParams(new URLSearchParams(window.location.search));},[]);
  const [db]=useState(()=>typeof window==="undefined"?null:createSupabaseBrowserClient());
  const [questions,setQuestions]=useState<Q[]>([]);
  const [answers,setAnswers]=useState<Record<string,string>>({});
