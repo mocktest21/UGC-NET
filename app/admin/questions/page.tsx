@@ -20,7 +20,7 @@ const EMPTY_JSON = "{}";
 
 export default function AdminQuestionsPage() {
   const router = useRouter();
-  const [supabase] = useState(() => createSupabaseBrowserClient());
+  const [supabase] = useState(() => (typeof window === "undefined" ? null : createSupabaseBrowserClient()) as ReturnType<typeof createSupabaseBrowserClient>);
   const [checking, setChecking] = useState(true);
   const [admin, setAdmin] = useState(false);
   const [tab, setTab] = useState<"bank" | "create" | "import">("bank");
