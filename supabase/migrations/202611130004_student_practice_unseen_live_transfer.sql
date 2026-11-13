@@ -28,7 +28,7 @@ begin
   if p_duration_seconds < 60 or p_duration_seconds > 21600 then raise exception 'Duration must be between 1 minute and 6 hours'; end if;
   if p_source not in ('all','pyq','expected') then raise exception 'Invalid question source'; end if;
 
-  create temporary table if not exists pg_temp.mm_practice_pool(question_id uuid primary key, version_id uuid, marks numeric, negative_marks numeric, pick_order integer) on commit drop;
+  create temporary table if not exists mm_practice_pool(question_id uuid primary key, version_id uuid, marks numeric, negative_marks numeric, pick_order integer) on commit drop;
   truncate pg_temp.mm_practice_pool;
 
   insert into pg_temp.mm_practice_pool(question_id,version_id,marks,negative_marks,pick_order)
