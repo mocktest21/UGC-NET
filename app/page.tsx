@@ -22,8 +22,8 @@ export default function Home() {
   return <>
     <header className="site-header"><div className="container nav">
       <a className="brand" href="/"><span className="brand-mark">M</span>MockMaster</a>
-      <nav className="nav-links"><a href="/">Home</a><a href="/exams">Exams</a><a href="/mock-tests">Mock Tests</a><a href="/pyq">PYQs</a><a href="/about">About</a></nav>
-      <div className="nav-actions"><a className="btn btn-outline desktop-login" href="/login">Log in</a><a className="btn btn-primary desktop-signup" href="/signup">Sign up <span>→</span></a><details className="mobile-nav"><summary aria-label="Open navigation menu">☰ <span>Menu</span></summary><div className="mobile-nav-panel"><a href="/exams">Examinations</a><a href="/mock-tests">Mock Tests</a><a href="/pyq">Previous-year questions</a><a href="/about">About</a><a href="/login">Log in</a><a className="mobile-nav-cta" href="/signup">Create free account →</a></div></details></div>
+      <nav className="nav-links"><a href="/">Home</a><a href="/exams">Exams</a><a href="/mock-tests">Mock Tests</a><a href="/pyq">PYQs</a><a href="/About">About</a></nav>
+      <div className="nav-actions"><a className="btn btn-outline desktop-login" href="/login">Log in</a><a className="btn btn-primary desktop-signup" href="/signup">Sign up <span>→</span></a><details className="mobile-nav"><summary aria-label="Open navigation menu">☰ <span>Menu</span></summary><div className="mobile-nav-panel"><a href="/exams">Examinations</a><a href="/mock-tests">Mock Tests</a><a href="/pyq">Previous-year questions</a><a href="/About">About</a><a href="/login">Log in</a><a className="mobile-nav-cta" href="/signup">Create free account →</a></div></details></div>
     </div></header>
     <main>
       <section className="hero"><div className="container hero-grid">
@@ -53,9 +53,9 @@ export default function Home() {
     </main>
     <footer className="site-footer"><div className="container"><div className="footer-grid">
       <div className="footer-brand"><a className="brand" href="/" style={{color:"white"}}><span className="brand-mark">M</span>MockMaster</a><p>Practice with purpose. Discover mock tests and previous-year questions for your competitive examination journey.</p></div>
-      <div className="footer-col"><h4>Explore</h4><a href="/exams">All examinations</a><a href="/mock-tests">Mock tests</a><a href="/pyq">Previous-year questions</a><a href="/about">About MockMaster</a></div>
+      <div className="footer-col"><h4>Explore</h4><a href="/exams">All examinations</a><a href="/mock-tests">Mock tests</a><a href="/pyq">Previous-year questions</a><a href="/About">About MockMaster</a></div>
       <div className="footer-col"><h4>Examinations</h4>{exams.map(e=><a href={e.href} key={e.name}>{e.name}</a>)}</div>
-      <div className="footer-col"><h4>Information</h4><a href="/privacy">Privacy policy</a><a href="/terms">Terms & conditions</a><a href="/cookies">Cookie policy</a><a href="/disclaimer">Disclaimer</a><a href="/contact">Contact</a></div>
+      <div className="footer-col"><h4>Information</h4><a href="/privacy">Privacy policy</a><a href="/terms">Terms & conditions</a><a href="/cookies">Cookie policy</a><a href="/disclaimer">Disclaimer</a><a href="/Contact">Contact</a></div>
     </div><div className="footer-bottom"><span>© {new Date().getFullYear()} MockMaster. All rights reserved.</span><span>Practice. Improve. Achieve.</span></div></div></footer>
   </>;
 }
