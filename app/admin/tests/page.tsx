@@ -21,7 +21,7 @@ const fmtDuration = (seconds:number) => {
 
 export default function AdminTestBuilderPage() {
   const router=useRouter();
-  const [supabase]=useState(()=>typeof window==="undefined"?null:createSupabaseBrowserClient());
+  const [supabase]=useState(()=>typeof window==="undefined"?null:createSupabaseBrowserClient());\n const db=supabase!;
   const [checking,setChecking]=useState(true);
   const [admin,setAdmin]=useState(false);
   const [tab,setTab]=useState<"builder"|"tests">("builder");
@@ -55,12 +55,12 @@ export default function AdminTestBuilderPage() {
   useEffect(()=>{
     let active=true;
     void (async()=>{
-      const {data,error}=await supabase.auth.getUser();
+      const {data,error}=await db.auth.getUser();
       if(!active)return;
       if(error||!data.user){router.replace("/admin/login");return;}
       if(data.user.app_metadata?.role!=="admin"){setChecking(false);return;}
       setAdmin(true);
-      const {data:rows}=await supabase.from("exams").select("id,name,code").eq("is_active",true).order("display_order");
+      const {data:rows}=await db.from("exams").select("id,name,code").eq("is_active",true).order("display_order");
       if(active){const list=(rows||[]) as Taxonomy[];setExams(list);if(list[0])setExamId(list[0].id);setChecking(false);}
     })();
     return()=>{active=false;};
@@ -68,25 +68,25 @@ export default function AdminTestBuilderPage() {
 
   useEffect(()=>{
     if(!admin||!examId){setPapers([]);return;}
-    void (async()=>{const {data}=await supabase.from("papers").select("id,name,code").eq("exam_id",examId).eq("is_active",true).order("display_order");setPapers((data||[]) as Taxonomy[]);setPaperId("");setSubjectId("");})();
+    void (async()=>{const {data}=await db.from("papers").select("id,name,code").eq("exam_id",examId).eq("is_active",true).order("display_order");setPapers((data||[]) as Taxonomy[]);setPaperId("");setSubjectId("");})();
   },[admin,examId,supabase]);
 
   useEffect(()=>{
     if(!admin||!paperId){setSubjects([]);return;}
-    void (async()=>{const {data}=await supabase.from("subjects").select("id,name,code").eq("paper_id",paperId).eq("is_active",true).order("display_order");setSubjects((data||[]) as Taxonomy[]);setSubjectId("");})();
+    void (async()=>{const {data}=await db.from("subjects").select("id,name,code").eq("paper_id",paperId).eq("is_active",true).order("display_order");setSubjects((data||[]) as Taxonomy[]);setSubjectId("");})();
   },[admin,paperId,supabase]);
 
   const loadQuestions=useCallback(async()=>{
     if(!admin||!examId||!paperId)return;
     setLoadingQuestions(true);
-    const {data:base,error:baseError}=await supabase.from("questions")
+    const {data:base,error:baseError}=await db.from("questions")
       .select("id,question_type,difficulty,created_at,subject_id")
       .eq("status","approved").eq("exam_id",examId).eq("paper_id",paperId)
       .order("created_at",{ascending:false}).limit(500);
     if(baseError){setError(baseError.message);setLoadingQuestions(false);return;}
     const ids=(base||[]).map((q:any)=>q.id);
     if(!ids.length){setQuestions([]);setLoadingQuestions(false);return;}
-    const {data:versions,error:versionError}=await supabase.from("question_versions")
+    const {data:versions,error:versionError}=await db.from("question_versions")
       .select("question_id,prompt,options,default_marks,default_negative_marks,version_number")
       .in("question_id",ids).order("version_number",{ascending:false});
     if(versionError){setError(versionError.message);setLoadingQuestions(false);return;}
@@ -104,7 +104,7 @@ export default function AdminTestBuilderPage() {
 
   const loadTests=useCallback(async()=>{
     if(!supabase||!admin)return;setLoadingTests(true);
-    const {data,error}=await supabase.from("tests").select("id,title,mode,status,duration_seconds,total_marks,created_at").order("created_at",{ascending:false}).limit(100);
+    const {data,error}=await db.from("tests").select("id,title,mode,status,duration_seconds,total_marks,created_at").order("created_at",{ascending:false}).limit(100);
     if(error)setError(error.message);else setTests((data||[]) as TestRow[]);
     setLoadingTests(false);
   },[admin,supabase]);
@@ -139,7 +139,7 @@ export default function AdminTestBuilderPage() {
       instructions:["Read each question carefully.","Submit your test before the timer ends."]
     };
     const questionPayload=selected.map(q=>({question_id:q.id,section_title:q.section_title||"General",marks:q.selected_marks,negative_marks:q.selected_negative,is_compulsory:true}));
-    const {data,error}=await supabase.rpc("admin_create_test",{p_test:payload,p_questions:questionPayload,p_publish:publish});
+    const {data,error}=await db.rpc("admin_create_test",{p_test:payload,p_questions:questionPayload,p_publish:publish});
     setSaving(false);
     if(error){setError(error.message);return;}
     setMessage(publish?"Test created and published successfully.":"Test saved as draft successfully.");
@@ -149,7 +149,7 @@ export default function AdminTestBuilderPage() {
 
   async function publishTest(id:string){
     setError("");setMessage("");
-    const {error}=await supabase.rpc("admin_publish_test",{p_test_id:id});
+    const {error}=await db.rpc("admin_publish_test",{p_test_id:id});
     if(error)setError(error.message);else{setMessage("Test published successfully.");await loadTests();}
   }
 
@@ -157,7 +157,7 @@ export default function AdminTestBuilderPage() {
   if(!admin)return <main className="tb-state"><div className="tb-denied"><h1>Administrator access required</h1><p>Sign in using the dedicated administrator login.</p><button onClick={()=>router.replace("/admin/login")}>Admin login</button></div></main>;
 
   return <main className="tb-shell">
-    <header className="tb-header"><a href="/admin" className="tb-brand"><span>M</span> MockMaster <small>ADMIN</small></a><nav><a href="/admin">Overview</a><a href="/admin/questions">Question Bank</a><a className="active" href="/admin/tests">Test Builder</a><button onClick={async()=>{await supabase.auth.signOut();router.replace("/admin/login");}}>Sign out</button></nav></header>
+    <header className="tb-header"><a href="/admin" className="tb-brand"><span>M</span> MockMaster <small>ADMIN</small></a><nav><a href="/admin">Overview</a><a href="/admin/questions">Question Bank</a><a className="active" href="/admin/tests">Test Builder</a><button onClick={async()=>{await db.auth.signOut();router.replace("/admin/login");}}>Sign out</button></nav></header>
     <div className="tb-content">
       <div className="tb-heading"><div><span>ASSESSMENT MANAGEMENT</span><h1>Test Builder</h1><p>Create practice tests and schedule live examinations using approved questions.</p></div><button className="tb-primary" onClick={()=>setTab("builder")}>＋ Create test</button></div>
       {message&&<div className="tb-message">{message}</div>}{error&&<div className="tb-error">{error}</div>}
