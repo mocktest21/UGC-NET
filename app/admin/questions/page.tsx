@@ -225,13 +225,13 @@ export default function AdminQuestionsPage() {
   }
 
   if (checking) return <main className="aq-state">Checking administrator access…</main>;
-  if (!admin) return <main className="aq-state"><div className="aq-denied"><span>403</span><h1>Administrator access required</h1><p>This area is restricted to authorised MockMaster administrators.</p><button onClick={() => router.replace("/dashboard")}>Return to dashboard</button></div></main>;
+  if (!admin) return <main className="aq-state"><div className="aq-denied"><span>403</span><h1>Administrator access required</h1><p>This area is restricted to authorised MockMaster administrators.</p><button onClick={async () => { await supabase.auth.signOut(); router.replace("/admin/login"); }}>Go to admin login</button><button onClick={() => router.replace("/dashboard")}>Return to dashboard</button></div></main>;
 
   return (
     <main className="aq-shell">
       <header className="aq-header">
         <a className="aq-brand" href="/admin"><span>M</span> MockMaster <small>ADMIN</small></a>
-        <div className="aq-header-right"><a href="/admin">Admin overview</a><a href="/dashboard">Student site ↗</a><button onClick={async () => { await supabase.auth.signOut(); router.replace("/login"); }}>Sign out</button></div>
+        <div className="aq-header-right"><a href="/admin">Admin overview</a><a href="/dashboard">Student site ↗</a><button onClick={async () => { await supabase.auth.signOut(); router.replace("/admin/login"); }}>Sign out</button></div>
       </header>
       <div className="aq-layout">
         <aside className="aq-sidebar">
