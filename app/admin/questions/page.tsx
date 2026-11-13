@@ -60,7 +60,7 @@ export default function AdminQuestionsPage() {
     async function initialise() {
       const { data, error } = await supabase.auth.getUser();
       if (!alive) return;
-      if (error || !data.user) { router.replace("/login"); return; }
+      if (error || !data.user) { router.replace("/admin/login"); return; }
       if (data.user.app_metadata?.role !== "admin") {
         setChecking(false);
         setAdmin(false);
