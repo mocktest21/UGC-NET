@@ -29,7 +29,7 @@ export default function AdminDashboardPage(){
     async function load(){
       const {data,error:authError}=await supabase.auth.getUser();
       if(!active)return;
-      if(authError||!data.user){router.replace("/login");return;}
+      if(authError||!data.user){router.replace("/admin/login");return;}
       if(data.user.app_metadata?.role!=="admin"){setIsAdmin(false);setLoading(false);return;}
       setIsAdmin(true);
       const fullName=String(data.user.user_metadata?.full_name||"Administrator");
@@ -55,7 +55,7 @@ export default function AdminDashboardPage(){
   async function signOut(){await supabase.auth.signOut();router.replace("/login");}
 
   if(loading)return <main className="aw-state">Loading administrator workspace…</main>;
-  if(!isAdmin)return <main className="aw-state"><section style={{maxWidth:480,margin:"12vh auto",padding:32,background:"#fff",borderRadius:18,textAlign:"center"}}><h1>Administrator access required</h1><p>This workspace is restricted to authorised MockMaster administrators.</p><button onClick={()=>router.replace("/dashboard")}>Return to student dashboard</button></section></main>;
+  if(!isAdmin)return <main className="aw-state"><section style={{maxWidth:480,margin:"12vh auto",padding:32,background:"#fff",borderRadius:18,textAlign:"center"}}><h1>Administrator access required</h1><p>This workspace is restricted to authorised MockMaster administrators. Sign in with your administrator account to continue.</p><div style={{display:"flex",gap:10,justifyContent:"center",flexWrap:"wrap",marginTop:20}}><button onClick={async()=>{await supabase.auth.signOut();router.replace("/admin/login");}}>Go to admin login</button><button onClick={()=>router.replace("/dashboard")}>Return to student dashboard</button></div></section></main>;
   if(error && !counts.questions && !counts.students) { /* Show the workspace with a visible data warning. */ }
   return (
     <main className="aw-shell">
