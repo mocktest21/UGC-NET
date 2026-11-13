@@ -19,6 +19,7 @@ export default function StudentBuildTestPage(){
  const [subjectId,setSubjectId]=useState("");
  const [units,setUnits]=useState<Row[]>([]);
  const [unitCounts,setUnitCounts]=useState<Record<string,number>>({});
+ const [unitCounts,setUnitCounts]=useState<Record<string,number>>({});
  const [unitId,setUnitId]=useState("all");
  const [count,setCount]=useState(50);
  const [minutes,setMinutes]=useState(50);
