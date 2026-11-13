@@ -9,7 +9,7 @@ type Row={id:string;name:string;code?:string|null;unit_number?:number|null};
 type PaperCount={id:string;name:string;count:number};
 export default function StudentBuildTestPage(){
  const router=useRouter();
- const [supabase]=useState(()=>createSupabaseBrowserClient());
+ const [supabase]=useState(()=>typeof window==="undefined"?null:createSupabaseBrowserClient());
  const [loading,setLoading]=useState(true);
  const [examId,setExamId]=useState("");
  const [papers,setPapers]=useState<Row[]>([]);
@@ -27,7 +27,7 @@ export default function StudentBuildTestPage(){
  const [source,setSource]=useState("all");
  const [busy,setBusy]=useState(false);
 
- useEffect(()=>{let live=true;(async()=>{
+ useEffect(()=>{if(!supabase)return;let live=true;(async()=>{
   const {data,error}=await supabase.auth.getUser();if(error||!data.user){router.replace("/login");return;}
   const {data:exam}=await supabase.from("exams").select("id").eq("code","UGC_NET").eq("is_active",true).maybeSingle();
   if(!exam){if(live)setLoading(false);return;}setExamId(exam.id);
@@ -36,22 +36,22 @@ export default function StudentBuildTestPage(){
   if(live)setLoading(false);
  })();return()=>{live=false;};},[router,supabase]);
 
- useEffect(()=>{if(!paperId){setSubjects([]);setSubjectId("");return;}void(async()=>{
+ useEffect(()=>{if(!supabase||!paperId){setSubjects([]);setSubjectId("");return;}void(async()=>{
   const {data}=await supabase.from("subjects").select("id,name,code").eq("paper_id",paperId).eq("is_active",true).order("display_order");
   setSubjects((data||[]) as Row[]);setSubjectId("");
  })();},[paperId,supabase]);
- useEffect(()=>{if(!subjectId){setUnits([]);setUnitId("all");return;}void(async()=>{
+ useEffect(()=>{if(!supabase||!subjectId){setUnits([]);setUnitId("all");return;}void(async()=>{
   const {data}=await supabase.from("units").select("id,name,unit_number").eq("subject_id",subjectId).eq("is_active",true).order("display_order");
   setUnits((data||[]) as Row[]);setUnitId("all");
  })();},[subjectId,supabase]);
 
- useEffect(()=>{if(!examId||!papers.length)return;let live=true;void(async()=>{
+ useEffect(()=>{if(!supabase||!examId||!papers.length)return;let live=true;void(async()=>{
   const rows:PaperCount[]=[];
   for(const p of papers){const {count}=await supabase.from("questions").select("id",{count:"exact",head:true}).eq("exam_id",examId).eq("paper_id",p.id).eq("status","approved");rows.push({id:p.id,name:p.name,count:count||0});}
   if(live)setPool(rows);
  })();return()=>{live=false;};},[examId,papers,supabase]);
 
- useEffect(()=>{if(!examId||!paperId)return;let live=true;void(async()=>{
+ useEffect(()=>{if(!supabase||!examId||!paperId)return;let live=true;void(async()=>{
   let q=supabase.from("questions").select("id",{count:"exact",head:true}).eq("exam_id",examId).eq("paper_id",paperId).eq("status","approved");
   if(subjectId)q=q.eq("subject_id",subjectId);
   if(unitId!=="all")q=q.eq("unit_id",unitId);
