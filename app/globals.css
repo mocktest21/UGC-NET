@@ -969,3 +969,17 @@ button, a, summary { touch-action: manipulation; }
     white-space: nowrap;
   }
 }
+
+
+/* Enforce mobile navigation rule across every student page, including practice builder */
+@media screen and (max-width: 800px) {
+  .sb-header > nav,
+  header.sb-header nav,
+  .mm-workspace-header > .mm-workspace-nav,
+  .mm-desktop-nav {
+    display: none !important;
+    visibility: hidden !important;
+    max-height: 0 !important;
+    overflow: hidden !important;
+  }
+}
