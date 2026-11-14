@@ -902,3 +902,32 @@ button, a, summary { touch-action: manipulation; }
     font-size:18px;
   }
 }
+
+
+/* Persistent three-item mobile student navigation */
+@media(max-width:760px) {
+  .mm-bottom-nav {
+    position:fixed;
+    inset:auto 0 0;
+    z-index:90;
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    padding:7px 12px max(7px,env(safe-area-inset-bottom));
+    border-top:1px solid #e8ebf2;
+    background:rgba(255,255,255,.97);
+    backdrop-filter:blur(14px);
+  }
+  .mm-bottom-link {
+    display:flex;
+    min-height:52px;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:3px;
+    color:#94a3b8;
+  }
+  .mm-bottom-link span { font-size:19px; line-height:1.2; }
+  .mm-bottom-link small { font-size:10px; font-weight:700; }
+  .mm-bottom-active { color:#2563eb; }
+  .mm-main { padding-bottom:76px; }
+}
