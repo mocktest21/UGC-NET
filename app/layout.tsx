@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import StudentOnboardingGate from "@/components/auth/StudentOnboardingGate";
 
 export const metadata: Metadata = {
   title: "MockMaster — Practice. Improve. Achieve.",
@@ -13,7 +14,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body><StudentOnboardingGate>{children}</StudentOnboardingGate></body>
     </html>
   );
 }
