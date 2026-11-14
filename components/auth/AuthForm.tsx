@@ -3,25 +3,14 @@
 import { FormEvent, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
-const examOptions = ["UGC NET", "SSC", "UPSC", "Banking", "Railways"];
-
 type AuthFormProps = { mode: "login" | "signup" };
 
 export default function AuthForm({ mode }: AuthFormProps) {
   const isSignup = mode === "signup";
   const [showPassword, setShowPassword] = useState(false);
-  const [selectedExams, setSelectedExams] = useState<string[]>(["UGC NET"]);
   const [notice, setNotice] = useState("");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  function toggleExam(exam: string) {
-    setSelectedExams((current) =>
-      current.includes(exam)
-        ? current.filter((item) => item !== exam)
-        : [...current, exam]
-    );
-  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -46,7 +35,6 @@ export default function AuthForm({ mode }: AuthFormProps) {
             emailRedirectTo: `${window.location.origin}/dashboard`,
             data: {
               full_name: fullName,
-              exams: selectedExams,
               phone_number: mobile ? `+91${mobile}` : null,
             },
           },
@@ -105,7 +93,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
             <h2>{isSignup ? "Create your account" : "Log in to MockMaster"}</h2>
             <p className="auth-intro">
               {isSignup
-                ? "Create your account with an email address and choose the exams you are preparing for."
+                ? "Create your account to get started. You’ll add your exam details after your first login."
                 : "Enter your registered email address and password to continue."}
             </p>
 
@@ -143,29 +131,12 @@ export default function AuthForm({ mode }: AuthFormProps) {
                 {isSignup && <small>Use at least 8 characters.</small>}
               </label>
 
-              {isSignup && (
-                <fieldset className="exam-picker">
-                  <legend>Which exams are you preparing for?</legend>
-                  <p>You can select more than one.</p>
-                  <div className="exam-choice-grid">
-                    {examOptions.map((exam) => (
-                      <label className={selectedExams.includes(exam) ? "exam-choice selected" : "exam-choice"} key={exam}>
-                        <input type="checkbox" checked={selectedExams.includes(exam)} onChange={() => toggleExam(exam)} />
-                        <span className="choice-check">{selectedExams.includes(exam) ? "✓" : ""}</span>
-                        {exam}
-                      </label>
-                    ))}
-                  </div>
-                  {selectedExams.length === 0 && <small className="field-error">Select at least one examination.</small>}
-                </fieldset>
-              )}
-
               {!isSignup && <div className="auth-inline-row"><span /> <a href="/forgot-password">Forgot password?</a></div>}
 
               {error && <div className="auth-notice" role="alert">{error}</div>}
               {notice && <div className="auth-notice" role="status">{notice}</div>}
 
-              <button className="btn btn-primary auth-submit" type="submit" disabled={isSubmitting || (isSignup && selectedExams.length === 0)}>
+              <button className="btn btn-primary auth-submit" type="submit" disabled={isSubmitting}>
                 {isSubmitting ? "Please wait..." : isSignup ? "Create account" : "Log in"} <span>→</span>
               </button>
             </form>
