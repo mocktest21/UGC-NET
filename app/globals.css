@@ -1106,3 +1106,47 @@ button, a, summary { touch-action: manipulation; }
     pointer-events: none !important;
   }
 }
+
+
+/* Keep the MockMaster mark and wordmark on one horizontal line on phones */
+@media screen and (max-width: 760px) {
+  header.mm-topbar {
+    min-height: 70px !important;
+    height: 70px !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    flex-wrap: nowrap !important;
+    gap: 14px !important;
+    padding: 0 26px !important;
+    overflow: visible !important;
+  }
+  header.mm-topbar > a.mm-mobile-topbar-brand {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 10px !important;
+    width: max-content !important;
+    min-width: max-content !important;
+    max-width: none !important;
+    white-space: nowrap !important;
+    line-height: 1 !important;
+  }
+  header.mm-topbar > a.mm-mobile-topbar-brand > .mm-brand-mark {
+    display: grid !important;
+    flex: 0 0 40px !important;
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px !important;
+    min-height: 40px !important;
+  }
+  header.mm-topbar > a.mm-mobile-topbar-brand > span:last-child {
+    display: inline-block !important;
+    flex: 0 0 auto !important;
+    width: auto !important;
+    white-space: nowrap !important;
+  }
+}
