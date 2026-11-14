@@ -15,11 +15,12 @@ export default function StudentBuildTestPage(){
  const [examId,setExamId]=useState("");
  const [papers,setPapers]=useState<Row[]>([]);
  const [paperId,setPaperId]=useState("");
- const [subjects,setSubjects]=useState<Row[]>([]);
+ const [preferredSubjectId,setPreferredSubjectId]=useState("");
+ const [preferredSubjectPaperId,setPreferredSubjectPaperId]=useState("");
  const [subjectId,setSubjectId]=useState("");
  const [units,setUnits]=useState<Row[]>([]);
  const [unitCounts,setUnitCounts]=useState<Record<string,number>>({});
- const [unitId,setUnitId]=useState("all");
+ const [unitIds,setUnitIds]=useState<string[]>([]);
  const [count,setCount]=useState(50);
  const [minutes,setMinutes]=useState(50);
  const [pool,setPool]=useState<PaperCount[]>([]);
@@ -38,22 +39,16 @@ export default function StudentBuildTestPage(){
   const preferred=window.sessionStorage.getItem("mm-practice-subject")||preference?.selected_subject_id||"";
   const preferredPaperId=window.sessionStorage.getItem("mm-practice-paper")||"";
   let preferredSubject:any=null;
-  if(preferred){const {data:subject}=await db.from("subjects").select("id,paper_id").eq("id",preferred).maybeSingle();preferredSubject=subject;}
+  if(preferred){const {data:subject}=await db.from("subjects").select("id,paper_id").eq("id",preferred).maybeSingle();preferredSubject=subject;if(subject&&live){setPreferredSubjectId(subject.id);setPreferredSubjectPaperId(subject.paper_id);}}
   const allowed=(paperRows||[]) as Row[];
-  if(live){setPapers(allowed as Row[]);if(preferredSubject&&(!preferredPaperId||preferredPaperId===preferredSubject.paper_id)){setPaperId(preferredSubject.paper_id);setSubjectId(preferredSubject.id);window.sessionStorage.setItem("mm-practice-subject",preferredSubject.id);}else if(preferredPaperId&&allowed.some((p:any)=>p.id===preferredPaperId)){setPaperId(preferredPaperId);window.sessionStorage.removeItem("mm-practice-subject");}else if(allowed[0])setPaperId(allowed[0].id);window.sessionStorage.removeItem("mm-practice-paper");}
+  if(live){setPapers(allowed as Row[]);if(preferredSubject&&(!preferredPaperId||preferredPaperId===preferredSubject.paper_id)){setPaperId(preferredSubject.paper_id);setSubjectId(preferredSubject.id);}else if(preferredPaperId&&allowed.some((p:any)=>p.id===preferredPaperId)){setPaperId(preferredPaperId);setSubjectId(preferredSubject?.paper_id===preferredPaperId?preferredSubject.id:"");}else if(allowed[0]){setPaperId(allowed[0].id);setSubjectId(preferredSubject?.paper_id===allowed[0].id?preferredSubject.id:"");}window.sessionStorage.removeItem("mm-practice-paper");}
   if(live)setLoading(false);
  })();return()=>{live=false;};},[router,supabase]);
 
- useEffect(()=>{if(!supabase||!paperId){setSubjects([]);setSubjectId("");return;}void(async()=>{
-  const {data}=await db.from("subjects").select("id,name,code").eq("paper_id",paperId).eq("is_active",true).order("display_order");
-  setSubjects((data||[]) as Row[]);
-  const preferred=window.sessionStorage.getItem("mm-practice-subject")||"";
-  if(preferred&&(data||[]).some((s:any)=>s.id===preferred)){setSubjectId(preferred);window.sessionStorage.removeItem("mm-practice-subject");}
-  else setSubjectId("");
- })();},[paperId,supabase]);
- useEffect(()=>{if(!supabase||!subjectId){setUnits([]);setUnitId("all");return;}void(async()=>{
+ useEffect(()=>{if(!supabase||!paperId){setSubjectId("");return;}setSubjectId(paperId===preferredSubjectPaperId?preferredSubjectId:"");},[paperId,preferredSubjectId,preferredSubjectPaperId,supabase]);
+ useEffect(()=>{if(!supabase||!subjectId){setUnits([]);setUnitIds([]);return;}void(async()=>{
   const {data}=await db.from("units").select("id,name,unit_number").eq("subject_id",subjectId).eq("is_active",true).order("display_order");
-  setUnits((data||[]) as Row[]);setUnitId("all");
+  setUnits((data||[]) as Row[]);setUnitIds([]);
  })();},[subjectId,supabase]);
 
  useEffect(()=>{if(!supabase||!examId||!papers.length)return;let live=true;void(async()=>{
@@ -71,24 +66,24 @@ export default function StudentBuildTestPage(){
  useEffect(()=>{if(!supabase||!examId||!paperId)return;let live=true;void(async()=>{
   let q=db.from("questions").select("id",{count:"exact",head:true}).eq("exam_id",examId).eq("paper_id",paperId).eq("status","approved");
   if(subjectId)q=q.eq("subject_id",subjectId);
-  if(unitId!=="all")q=q.eq("unit_id",unitId);
+  if(unitIds.length)q=q.in("unit_id",unitIds);
   if(language)q=q.eq("language_code",language);
   if(source==="pyq")q=q.eq("source_type","previous_year");
   if(source==="expected")q=q.eq("source_type","admin_created");
   const {count,error}=await q;if(live){setAvailable(count||0);if(error)setError(error.message);}
- })();return()=>{live=false;};},[examId,paperId,subjectId,unitId,language,source,supabase]);
+ })();return()=>{live=false;};},[examId,paperId,subjectId,unitIds,language,source,supabase]);
 
  const selectedPaper=papers.find(p=>p.id===paperId);
  const selectedSubject=subjects.find(s=>s.id===subjectId);
- const selectedUnit=units.find(u=>u.id===unitId);
+ const selectedUnits=units.filter(u=>unitIds.includes(u.id));
  const actualCount=Math.min(count,available);
  const canStart=!!paperId&&available>0&&actualCount>0&&minutes>0;
- const summary=useMemo(()=>({paper:selectedPaper?.name||"Select a paper",subject:selectedSubject?.name||"All subjects",unit:unitId==="all"?"All units":selectedUnit?.name||"Selected unit"}),[selectedPaper,selectedSubject,selectedUnit,unitId]);
+ const summary=useMemo(()=>({paper:selectedPaper?.name||"Select a paper",subject:selectedSubject?.name||"All subjects",unit:unitIds.length?selectedUnits.map(u=>u.name).join(", "):"All units"}),[selectedPaper,selectedSubject,selectedUnit,unitId]);
  async function start(){
   if(!canStart||!supabase)return;setBusy(true);setError("");
   const {data,error}=await db.rpc("student_start_practice_test",{
    p_exam_id:examId,p_paper_id:paperId,p_subject_id:subjectId||null,
-   p_unit_id:unitId==="all"?null:unitId,p_question_count:actualCount,
+   p_unit_ids:unitIds,p_question_count:actualCount,
    p_duration_seconds:minutes*60,p_language_code:language,p_source:source
   });
   if(error){setError(error.message);setBusy(false);return;}
@@ -100,12 +95,11 @@ export default function StudentBuildTestPage(){
  return <main className="sb-page">
   <header className="sb-header"><a className="sb-brand" href="/dashboard"><span>M</span>MockMaster</a><nav><a href="/dashboard">Dashboard</a><a className="active" href="/practice">Practice</a><a href="/live-test">Live Test</a><a href="/personal-notebook">My Stuff</a></nav><a className="sb-account" href="/dashboard">My Dashboard ↗</a></header>
   <div className="sb-layout"><section className="sb-main">
-   <div className="sb-title"><div><span>PERSONALISED PRACTICE</span><h1>Build your test</h1><p>Choose your paper, subject, units, question count and time. Your practice set is tailored to your selection.</p></div><span className="sb-exam">UGC NET ▾</span></div>
+   <div className="sb-title"><div><span>PERSONALISED PRACTICE</span><h1>Build your test</h1><p>Choose your paper, units, question count and time. Your practice set is tailored to your selection.</p></div><span className="sb-exam">UGC NET ▾</span></div>
    <div className="sb-rule"/>
    <div className="sb-fields">
-    <section className="sb-field"><label>Paper</label><div className="sb-choice-grid">{papers.map(p=><button key={p.id} className={paperId===p.id?"chosen":""} onClick={()=>{setPaperId(p.id);setSubjectId("");}}><b>{p.name}</b><small>{(pool.find(x=>x.id===p.id)?.count??0).toLocaleString("en-IN")} approved questions</small><span>{paperId===p.id?"✓ Selected":"Choose →"}</span></button>)}</div></section>
-    <section className="sb-field"><label>Subject</label><select value={subjectId} onChange={e=>setSubjectId(e.target.value)} disabled={!paperId}><option value="">All subjects in selected paper</option>{subjects.map(s=><option key={s.id} value={s.id}>{s.name}</option>)}</select><p>For Paper 2, choose your subject. Paper 1 includes the common syllabus.</p></section>
-    <section className="sb-field"><div className="sb-label-row"><label>Units</label><span>{units.length} available</span></div><div className="sb-unit-options"><button className={unitId==="all"?"chosen":""} onClick={()=>setUnitId("all")} disabled={!subjectId}>All units</button>{units.map(u=><button key={u.id} className={unitId===u.id?"chosen":""} onClick={()=>setUnitId(u.id)}>{u.name} <small>{(unitCounts[u.id]??0).toLocaleString("en-IN")} questions</small></button>)}</div><p>{unitId==="all"?"Questions can be drawn from every unit in this subject.":selectedUnit?.name+" · "+(unitCounts[unitId]??0).toLocaleString("en-IN")+" approved questions available"}</p><p className="sb-live-release-note">Questions used in a scheduled Live Test join the Practice pool automatically after that test window closes. Unseen questions are selected first.</p></section>
+    <section className="sb-field"><label>Paper</label><div className="sb-choice-grid">{papers.map(p=><button key={p.id} className={paperId===p.id?"chosen":""} onClick={()=>{setPaperId(p.id);setSubjectId(p.id===preferredSubjectPaperId?preferredSubjectId:"");setUnitIds([]);}}><b>{p.name}</b><small>{(pool.find(x=>x.id===p.id)?.count??0).toLocaleString("en-IN")} questions</small><span>{paperId===p.id?"✓ Selected":"Choose →"}</span></button>)}</div></section>
+    <section className="sb-field"><div className="sb-label-row"><label>Units</label><span>{units.length?`${units.length} available`:"Select Paper 2 to view your subject units"}</span></div><div className="sb-unit-options"><button className={!unitIds.length?"chosen":""} onClick={()=>setUnitIds([])} disabled={!subjectId}>All units</button>{units.map(u=><button key={u.id} className={unitIds.includes(u.id)?"chosen":""} onClick={()=>setUnitIds(old=>old.includes(u.id)?old.filter(id=>id!==u.id):[...old,u.id])}>{u.name} <small>{(unitCounts[u.id]??0).toLocaleString("en-IN")} questions</small></button>)}</div><p>{unitIds.length?`${selectedUnits.map(u=>u.name).join(", ")} · ${selectedUnits.reduce((n,u)=>n+(unitCounts[u.id]??0),0).toLocaleString("en-IN")} questions`:"Questions can be drawn from all units in your selected subject."}</p></section>
     <div className="sb-two-col"><section className="sb-field"><label>Question source</label><div className="sb-pills"><button className={source==="all"?"chosen":""} onClick={()=>setSource("all")}>All</button><button className={source==="pyq"?"chosen":""} onClick={()=>setSource("pyq")}>PYQ only</button><button className={source==="expected"?"chosen":""} onClick={()=>setSource("expected")}>Expected only</button></div></section><section className="sb-field"><label>Language</label><div className="sb-pills"><button className={language==="hi"?"chosen":""} onClick={()=>setLanguage("hi")}>हिन्दी</button><button className={language==="en"?"chosen":""} onClick={()=>setLanguage("en")}>English</button></div></section></div>
     <section className="sb-field"><div className="sb-label-row"><label>Number of questions</label><span>{available.toLocaleString("en-IN")} available</span></div><div className="sb-count-options">{[10,25,50,100].map(n=><button key={n} className={count===n?"chosen":""} onClick={()=>setCount(n)}>{n}</button>)}<button className={count===available?"chosen":""} onClick={()=>setCount(Math.max(1,available))} disabled={!available}>All available</button></div>{available>0&&count>available&&<p className="sb-warning">Only {available} questions match your filters. Your test will use {available}.</p>}</section>
     <section className="sb-field"><div className="sb-label-row"><label>Time limit</label><span>Minutes</span></div><div className="sb-count-options">{[10,25,50,90,120,180].map(n=><button key={n} className={minutes===n?"chosen":""} onClick={()=>setMinutes(n)}>{n} min</button>)}</div><div className="sb-custom-time"><label htmlFor="custom-time">Custom time</label><input id="custom-time" type="number" min="1" max="360" value={minutes} onChange={e=>setMinutes(Math.max(1,Math.min(360,Number(e.target.value)||1)))}/><span>minutes</span></div></section>
