@@ -105,4 +105,7 @@ $$;
 revoke all on function public.student_start_practice_test(uuid,uuid,uuid,uuid[],integer,integer,text,text) from public,anon;
 grant execute on function public.student_start_practice_test(uuid,uuid,uuid,uuid[],integer,integer,text,text) to authenticated;
 
+-- Refresh PostgREST so the new UUID[] RPC signature is immediately discoverable.
+notify pgrst, 'reload schema';
+
 commit;
