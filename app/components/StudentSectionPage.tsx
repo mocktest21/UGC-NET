@@ -20,8 +20,6 @@ export default function StudentSectionPage({section}:{section:Section}){
   if(section==="practice"){
    const {data:exam}=await db.from("exams").select("id,name").eq("code","UGC_NET").eq("is_active",true).maybeSingle();
    if(exam){
-    const {data:prefs,error:prefError}=await db.from("student_exam_preferences").select("selected_subject_id").eq("student_id",auth.user.id).eq("exam_id",exam.id).maybeSingle();
-    if(prefError&&active)setError(prefError.message);
     // Completed live tests become ready-made practice tests after their scheduled end.
     const {data:liveRows,error:liveError}=await db.from("tests")
       .select("id,title,description,duration_seconds,total_marks,ends_at")
