@@ -940,3 +940,32 @@ button, a, summary { touch-action: manipulation; }
 @media(max-width:760px) {
   .mm-bottom-nav { grid-template-columns:repeat(4,minmax(0,1fr)); }
 }
+
+
+/* Mobile-only navigation correction: no desktop links and one-row four-tab bar */
+@media screen and (max-width: 800px) {
+  header.mm-workspace-header > nav.mm-workspace-nav {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    max-height: 0 !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: 0 !important;
+  }
+}
+@media screen and (max-width: 760px) {
+  nav.mm-bottom-nav {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    grid-auto-flow: row;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  nav.mm-bottom-nav > a.mm-bottom-link {
+    min-width: 0;
+    width: 100%;
+    white-space: nowrap;
+  }
+}
