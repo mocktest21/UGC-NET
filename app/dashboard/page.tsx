@@ -198,6 +198,7 @@ export default function DashboardPage() {
         </nav>
         <div className="mm-sidebar-profile">{profileMenu}</div>
         <div className="mm-sidebar-bottom">
+          <div className="mm-mobile-account-menu">{profileMenu}</div>
           <div className="mm-help-card">
             <span className="mm-help-icon">✦</span>
             <strong>Keep your momentum</strong>
@@ -212,7 +213,6 @@ export default function DashboardPage() {
       <div className="mm-main">
         <header className="mm-topbar">
           <button className="mm-menu-toggle" aria-label="Open navigation" onClick={() => setMenuOpen(true)}>☰</button>
-          <div className="mm-mobile-page-label">Performance dashboard</div>
           <div className="mm-topbar-right">{profileMenu}</div>
         </header>
 
