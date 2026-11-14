@@ -1282,3 +1282,178 @@ button, a, summary { touch-action: manipulation; }
     opacity:1 !important;
   }
 }
+
+
+/* Practice centre — dedicated phone layout; desktop rules remain unchanged */
+@media screen and (max-width:760px) {
+  .mm-workspace-page {
+    min-height:100dvh;
+    padding-bottom:0;
+  }
+  .mm-workspace-header {
+    min-height:62px !important;
+    height:62px !important;
+    flex-wrap:nowrap !important;
+    justify-content:flex-start !important;
+    gap:10px !important;
+    padding:0 18px !important;
+  }
+  .mm-workspace-header .mm-brand {
+    gap:9px !important;
+    font-size:19px !important;
+  }
+  .mm-workspace-header .mm-brand-mark {
+    width:36px !important;
+    height:36px !important;
+    flex:0 0 36px;
+    border-radius:10px;
+    font-size:18px;
+  }
+  .mm-workspace-user { display:none !important; }
+  .mm-workspace-content {
+    width:auto !important;
+    min-height:calc(100dvh - 62px) !important;
+    margin:0 !important;
+    padding:24px 16px 96px !important;
+  }
+  .mm-workspace-intro {
+    margin:0 0 25px !important;
+  }
+  .mm-workspace-intro>span {
+    font-size:9px !important;
+    letter-spacing:1.15px !important;
+  }
+  .mm-workspace-intro h1 {
+    margin:7px 0 6px !important;
+    font-family:inherit !important;
+    font-size:27px !important;
+    line-height:1.15 !important;
+    letter-spacing:-.8px !important;
+  }
+  .mm-workspace-intro>p {
+    max-width:34rem;
+    font-size:13px !important;
+    line-height:1.55 !important;
+  }
+  .mm-practice-builder-cta {
+    display:flex !important;
+    flex-direction:row !important;
+    align-items:center !important;
+    justify-content:space-between !important;
+    gap:10px !important;
+    margin-top:18px !important;
+    padding:15px 14px !important;
+    border-radius:14px !important;
+    box-shadow:0 5px 16px rgba(37,99,235,.06);
+  }
+  .mm-practice-builder-cta strong {
+    font-size:13px !important;
+    line-height:1.35;
+  }
+  .mm-practice-builder-cta span {
+    max-width:44%;
+    font-size:10px !important;
+    line-height:1.4;
+    text-align:right !important;
+  }
+  .mm-practice-dashboard {
+    margin-top:28px !important;
+  }
+  .mm-practice-section-heading {
+    display:grid !important;
+    grid-template-columns:minmax(0,1fr) auto;
+    align-items:start !important;
+    gap:8px 10px !important;
+    margin-bottom:14px !important;
+  }
+  .mm-practice-section-heading>div { min-width:0; }
+  .mm-practice-section-heading>div>span {
+    font-size:9px !important;
+    letter-spacing:1px !important;
+  }
+  .mm-practice-section-heading h2 {
+    margin:5px 0 4px !important;
+    font-size:19px !important;
+    line-height:1.2 !important;
+    letter-spacing:-.55px !important;
+  }
+  .mm-practice-section-heading p {
+    max-width:30rem;
+    font-size:11px !important;
+    line-height:1.45 !important;
+  }
+  .mm-practice-count {
+    margin-top:0;
+    padding:7px 9px !important;
+    font-size:10px !important;
+  }
+  .mm-workspace-cards {
+    display:grid !important;
+    grid-template-columns:minmax(0,1fr) !important;
+    gap:12px !important;
+  }
+  .mm-practice-course-card {
+    display:flex;
+    min-height:0 !important;
+    flex-direction:column;
+    padding:16px !important;
+    border-radius:15px !important;
+    box-shadow:0 3px 12px rgba(23,32,51,.035);
+  }
+  .mm-practice-course-card:hover { transform:none !important; }
+  .mm-course-top {
+    display:flex !important;
+    align-items:center !important;
+    justify-content:space-between !important;
+    gap:8px !important;
+    margin:0 0 13px !important;
+  }
+  .mm-course-icon {
+    width:36px !important;
+    height:36px !important;
+    flex:0 0 36px;
+    border-radius:11px !important;
+    font-size:18px !important;
+  }
+  .mm-course-tag {
+    font-size:8px !important;
+    letter-spacing:.55px !important;
+    text-align:right;
+  }
+  .mm-practice-course-card>small {
+    font-size:10px !important;
+    line-height:1.3;
+  }
+  .mm-practice-course-card h2 {
+    margin:4px 0 3px !important;
+    font-size:20px !important;
+    line-height:1.2 !important;
+  }
+  .mm-practice-course-card>p {
+    font-size:11px !important;
+    line-height:1.45 !important;
+  }
+  .mm-course-bank {
+    display:flex !important;
+    align-items:center !important;
+    justify-content:flex-start !important;
+    gap:9px !important;
+    margin-top:13px !important;
+    padding:11px 0 !important;
+  }
+  .mm-course-bank strong {
+    font-size:21px !important;
+    line-height:1;
+  }
+  .mm-course-bank span {
+    font-size:10px !important;
+  }
+  .mm-practice-course-card>a {
+    min-height:42px;
+    margin-top:0;
+    padding-top:10px !important;
+    font-size:12px !important;
+  }
+  .mm-practice-course-card>a b { font-size:17px !important; }
+  .mm-workspace-footer { display:none !important; }
+}
