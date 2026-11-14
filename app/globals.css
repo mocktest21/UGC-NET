@@ -1087,3 +1087,22 @@ button, a, summary { touch-action: manipulation; }
     display:none !important;
   }
 }
+
+
+/* Final mobile dashboard header and drawer state */
+@media screen and (max-width: 760px) {
+  .mm-topbar .mm-mobile-topbar-brand {
+    display: inline-flex !important;
+    visibility: visible !important;
+    flex: 0 0 auto;
+  }
+  .mm-topbar .mm-menu-toggle {
+    display: grid !important;
+    flex: 0 0 44px;
+  }
+  body:has(aside.mm-sidebar-open) nav.mm-bottom-nav {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+  }
+}
