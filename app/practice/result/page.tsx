@@ -1,7 +1,7 @@
 "use client";
 
 import {useCallback,useEffect,useState} from "react";
-import {useRouter,useSearchParams} from "next/navigation";
+import {useRouter} from "next/navigation";
 import {createSupabaseBrowserClient} from "@/lib/supabase/client";
 import "./result.css";
 
@@ -17,10 +17,10 @@ const responseText=(v:any,options:any[])=>{
  return vals.map(x=>{const opt=options.find((o:any)=>String(o.id??o.value??"")===String(x));return opt?String(opt.text??opt.label??x):typeof x==="object"?JSON.stringify(x):String(x)}).join(", ");
 };
 export default function PracticeResultPage(){
- const router=useRouter(),params=useSearchParams(),attemptId=params.get("attempt")||"";
+ const router=useRouter();\n const [attemptId,setAttemptId]=useState("");\n useEffect(()=>{setAttemptId(new URLSearchParams(window.location.search).get("attempt")||"");},[]);
  const [data,setData]=useState<ResultData|null>(null),[loading,setLoading]=useState(true),[error,setError]=useState(""),[busy,setBusy]=useState(false),[showAnalysis,setShowAnalysis]=useState(true);
- const load=useCallback(async()=>{if(!attemptId){setError("Attempt ID is missing.");setLoading(false);return;}const db=createSupabaseBrowserClient();const {data,error}=await db.rpc("student_get_attempt_result",{p_attempt_id:attemptId});if(error){setError(error.message);setLoading(false);return;}setData(data as ResultData);setLoading(false);},[attemptId]);
- useEffect(()=>{void load();},[load]);
+ const load=useCallback(async()=>{if(!attemptId)return;const db=createSupabaseBrowserClient();const {data,error}=await db.rpc("student_get_attempt_result",{p_attempt_id:attemptId});if(error){setError(error.message);setLoading(false);return;}setData(data as ResultData);setLoading(false);},[attemptId]);
+ useEffect(()=>{if(attemptId)void load();},[attemptId,load]);
  const reattempt=async()=>{if(!data)return;setBusy(true);setError("");const db=createSupabaseBrowserClient();const {data:next,error}=await db.rpc("student_reattempt_test",{p_attempt_id:data.attempt.id});setBusy(false);if(error){setError(error.message);return;}const n=next as {test_id:string;attempt_id:string;duration_seconds:number};router.push("/practice/session?"+new URLSearchParams({test:n.test_id,attempt:n.attempt_id,minutes:String(Math.ceil(n.duration_seconds/60))}));};
  if(loading)return <main className="mr-state">Preparing your result…</main>;
  if(error&&!data)return <main className="mr-state"><div><h2>Result unavailable</h2><p>{error}</p><button onClick={()=>router.push("/dashboard")}>Go to dashboard</button></div></main>;
