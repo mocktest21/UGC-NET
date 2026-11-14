@@ -1043,3 +1043,47 @@ button, a, summary { touch-action: manipulation; }
 @media(min-width:761px) {
   .mm-mobile-account-menu { display:none; }
 }
+
+
+/* Mobile topbar branding beside the hamburger */
+.mm-mobile-topbar-brand { display:none; }
+@media(max-width:760px) {
+  .mm-topbar {
+    display:flex;
+    align-items:center;
+    justify-content:flex-start;
+    gap:14px;
+    height:70px;
+    padding:0 26px;
+    border-bottom:1px solid #e8ebf2;
+    background:#fffaf1;
+  }
+  .mm-mobile-topbar-brand {
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    color:#172033;
+    font-family:Georgia,"Times New Roman",serif;
+    font-size:22px;
+    font-weight:700;
+    letter-spacing:-.5px;
+    text-decoration:none;
+  }
+  .mm-mobile-topbar-brand .mm-brand-mark {
+    display:grid;
+    width:40px;
+    height:40px;
+    place-items:center;
+    border-radius:12px;
+    background:#2563eb;
+    color:#fff;
+    font-family:Arial,sans-serif;
+    font-size:23px;
+    font-weight:800;
+    box-shadow:0 7px 18px #2563eb25;
+  }
+  .mm-menu-toggle { flex:0 0 42px; width:42px; height:42px; }
+  body:has(.mm-sidebar-open) .mm-bottom-nav {
+    display:none !important;
+  }
+}
