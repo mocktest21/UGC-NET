@@ -3,13 +3,14 @@
 import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 type Subject = { id: string; name: string; code: string | null };
 const targetAttempts = ["December 2026", "June 2027", "December 2027", "June 2028"];
 
 export default function OnboardingPage() {
   const router = useRouter();
-  const [supabase] = useState(() => createSupabaseBrowserClient());
+  const [supabase, setSupabase] = useState<SupabaseClient | null>(null);
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [subjectId, setSubjectId] = useState("");
   const [targetAttempt, setTargetAttempt] = useState("June 2027");
@@ -20,29 +21,38 @@ export default function OnboardingPage() {
   useEffect(() => {
     let active = true;
     void (async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { router.replace("/login"); return; }
-      if (user.user_metadata?.onboarding_completed === true) { router.replace("/dashboard"); return; }
+      try {
+        const client = createSupabaseBrowserClient();
+        if (!active) return;
+        setSupabase(client);
+        const { data: { user } } = await client.auth.getUser();
+        if (!active) return;
+        if (!user) { router.replace("/login"); return; }
+        if (user.user_metadata?.onboarding_completed === true) { router.replace("/dashboard"); return; }
 
-      const { data: exam, error: examError } = await supabase.from("exams").select("id").eq("code", "UGC_NET").maybeSingle();
-      if (examError || !exam) { if (active) { setError(examError?.message || "UGC NET exam setup was not found."); setLoading(false); } return; }
-      const { data: paper, error: paperError } = await supabase.from("papers").select("id").eq("exam_id", exam.id).or("code.ilike.%2%,name.ilike.%Paper 2%").eq("is_active", true).maybeSingle();
-      if (paperError || !paper) { if (active) { setError(paperError?.message || "UGC NET Paper 2 setup was not found."); setLoading(false); } return; }
-      const { data: subjectRows, error: subjectError } = await supabase.from("subjects").select("id,name,code").eq("paper_id", paper.id).eq("is_active", true).order("display_order");
-      if (!active) return;
-      if (subjectError) setError(subjectError.message);
-      const list = (subjectRows || []) as Subject[];
-      setSubjects(list);
-      const savedSubject = user.user_metadata?.paper2_subject_id;
-      setSubjectId(list.some(s => s.id === savedSubject) ? savedSubject : list[0]?.id || "");
-      setLoading(false);
+        const { data: exam, error: examError } = await client.from("exams").select("id").eq("code", "UGC_NET").maybeSingle();
+        if (examError || !exam) { setError(examError?.message || "UGC NET exam setup was not found."); setLoading(false); return; }
+        const { data: paper, error: paperError } = await client.from("papers").select("id").eq("exam_id", exam.id).or("code.ilike.%2%,name.ilike.%Paper 2%").eq("is_active", true).maybeSingle();
+        if (paperError || !paper) { setError(paperError?.message || "UGC NET Paper 2 setup was not found."); setLoading(false); return; }
+        const { data: subjectRows, error: subjectError } = await client.from("subjects").select("id,name,code").eq("paper_id", paper.id).eq("is_active", true).order("display_order");
+        if (!active) return;
+        if (subjectError) setError(subjectError.message);
+        const list = (subjectRows || []) as Subject[];
+        setSubjects(list);
+        const savedSubject = user.user_metadata?.paper2_subject_id;
+        setSubjectId(list.some(s => s.id === savedSubject) ? savedSubject : list[0]?.id || "");
+        setLoading(false);
+      } catch (e) {
+        if (active) { setError(e instanceof Error ? e.message : "Unable to initialise your profile."); setLoading(false); }
+      }
     })();
     return () => { active = false; };
-  }, [router, supabase]);
+  }, [router]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
+    if (!supabase) { setError("Supabase is not available. Please refresh and try again."); return; }
     if (!subjectId) { setError("Please select your Paper 2 subject."); return; }
     setSaving(true);
     const { data: { user }, error: userError } = await supabase.auth.getUser();
@@ -86,7 +96,7 @@ export default function OnboardingPage() {
             {targetAttempts.map(attempt => <option key={attempt} value={attempt}>{attempt}</option>)}
           </select>
           {error && <p className="mm-onboarding-error" role="alert">{error}</p>}
-          <button className="mm-onboarding-submit" type="submit" disabled={saving || !subjects.length}>{saving ? "Saving your details…" : "Save and continue →"}</button>
+          <button className="mm-onboarding-submit" type="submit" disabled={saving || !subjects.length || !supabase}>{saving ? "Saving your details…" : "Save and continue →"}</button>
         </form>
         <small className="mm-onboarding-foot">You can update these details later from your profile.</small>
       </section>
