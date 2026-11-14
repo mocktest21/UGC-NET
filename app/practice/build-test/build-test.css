@@ -218,3 +218,38 @@
 @media(prefers-reduced-motion:reduce) {
   .sb-choice-grid button,.sb-unit-options button,.sb-pills button,.sb-count-options button,.sb-start {transition:none}
 }
+
+
+/* Compact paper selector: concise card with selection indicator on the right */
+.sb-choice-grid button {
+  min-height:68px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  padding:13px 16px;
+}
+.sb-choice-grid b {font-size:14px}
+.sb-choice-grid button .sb-paper-check {
+  flex:0 0 22px;
+  width:22px;
+  height:22px;
+  display:grid;
+  place-items:center;
+  margin:0;
+  border:1.5px solid #cbd5e1;
+  border-radius:6px;
+  color:transparent;
+  background:#fff;
+  font-size:14px;
+  line-height:1;
+  font-weight:800;
+}
+.sb-choice-grid button.chosen .sb-paper-check {
+  border-color:#2563eb;
+  background:#2563eb;
+  color:#fff;
+}
+@media(max-width:600px) {
+  .sb-choice-grid button {min-height:64px;padding:12px 14px}
+}
