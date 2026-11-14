@@ -212,7 +212,8 @@ export default function DashboardPage() {
 
       <div className="mm-main">
         <header className="mm-topbar">
-          <button className="mm-menu-toggle" aria-label="Open navigation" onClick={() => setMenuOpen(true)}>☰</button>
+          <button className="mm-menu-toggle" aria-label="Open navigation" aria-expanded={menuOpen} onClick={() => setMenuOpen((open) => !open)}>☰</button>
+          <a className="mm-mobile-topbar-brand" href="/dashboard"><span className="mm-brand-mark">M</span><span>MockMaster</span></a>
           <div className="mm-topbar-right">{profileMenu}</div>
         </header>
 
