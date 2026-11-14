@@ -873,3 +873,32 @@ button, a, summary { touch-action: manipulation; }
 .mm-onboarding-error{padding:10px 12px;border-radius:9px;background:#fff1f2;color:#be123c;font-size:12px}
 .mm-onboarding-foot{display:block;margin-top:15px;text-align:center;color:#8b95a5;font-size:10px;line-height:1.5}
 @media(max-width:480px){.mm-onboarding-page{padding:14px}.mm-onboarding-card{padding:24px 19px;border-radius:17px}}
+
+
+/* Mobile drawer mirrors the full desktop primary navigation */
+.mm-mobile-main-label,
+.mm-mobile-main-nav { display:none; }
+@media(max-width:760px) {
+  .mm-mobile-main-label {
+    display:block;
+    margin:30px 10px 12px;
+    color:#94a3b8;
+    font-size:10px;
+    font-weight:800;
+    letter-spacing:1.1px;
+  }
+  .mm-mobile-main-nav {
+    display:grid;
+    gap:6px;
+    padding-bottom:16px;
+    border-bottom:1px solid #eee8dc;
+  }
+  .mm-mobile-main-nav .mm-nav-link {
+    min-height:48px;
+    font-size:13px;
+  }
+  .mm-mobile-main-nav .mm-nav-icon {
+    width:24px;
+    font-size:18px;
+  }
+}
