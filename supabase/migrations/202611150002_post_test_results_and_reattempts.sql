@@ -24,7 +24,9 @@ begin
 end;
 $$;
 
-create or replace function public.student_submit_practice_test(p_attempt_id uuid)
+drop function if exists public.student_submit_practice_test(uuid);
+
+create function public.student_submit_practice_test(p_attempt_id uuid)
 returns jsonb
 language plpgsql
 security definer
