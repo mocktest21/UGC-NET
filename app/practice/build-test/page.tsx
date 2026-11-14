@@ -6,7 +6,6 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import "./build-test.css";
 
 type Row={id:string;name:string;code?:string|null;unit_number?:number|null};
-type PaperCount={id:string;name:string;count:number};
 export default function StudentBuildTestPage(){
  const router=useRouter();
  const [supabase]=useState(()=>typeof window==="undefined"?null:createSupabaseBrowserClient());
@@ -21,9 +20,8 @@ export default function StudentBuildTestPage(){
  const [units,setUnits]=useState<Row[]>([]);
  const [unitCounts,setUnitCounts]=useState<Record<string,number>>({});
  const [unitIds,setUnitIds]=useState<string[]>([]);
- const [count,setCount]=useState(50);
+ const count=50;
  const [minutes,setMinutes]=useState(50);
- const [pool,setPool]=useState<PaperCount[]>([]);
  const [available,setAvailable]=useState(0);
  const [error,setError]=useState("");
  const [language,setLanguage]=useState("en");
@@ -60,11 +58,7 @@ export default function StudentBuildTestPage(){
   setUnits((data||[]) as Row[]);setUnitIds([]);
  })();},[subjectId,supabase]);
 
- useEffect(()=>{if(!supabase||!examId||!papers.length)return;let live=true;void(async()=>{
-  const rows:PaperCount[]=[];
-  for(const p of papers){const {count}=await db.from("questions").select("id",{count:"exact",head:true}).eq("exam_id",examId).eq("paper_id",p.id).eq("status","approved");rows.push({id:p.id,name:p.name,count:count||0});}
-  if(live)setPool(rows);
- })();return()=>{live=false;};},[examId,papers,supabase]);
+
 
  useEffect(()=>{if(!supabase||!subjectId||!units.length)return;let live=true;void(async()=>{
   const counts:Record<string,number>={};
