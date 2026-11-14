@@ -131,8 +131,17 @@ begin
   ) order by a.attempt_number),'[]'::jsonb)
   into v_history
   from public.test_attempts a
-  where a.student_id=v_student and a.test_id=v_attempt.test_id
-    and a.status in ('submitted','auto_submitted');
+  where a.student_id=v_student
+    and a.status in ('submitted','auto_submitted')
+    and (
+      a.test_id=v_attempt.test_id
+      or a.test_id=v_test.source_live_test_id
+      or exists (
+        select 1 from public.tests linked
+        where linked.id=a.test_id
+          and linked.source_live_test_id=coalesce(v_test.source_live_test_id,v_test.id)
+      )
+    );
 
   return jsonb_build_object(
     'attempt',jsonb_build_object('id',v_attempt.id,'test_id',v_attempt.test_id,
