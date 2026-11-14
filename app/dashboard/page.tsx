@@ -198,7 +198,18 @@ export default function DashboardPage() {
         </nav>
         <div className="mm-sidebar-profile">{profileMenu}</div>
         <div className="mm-sidebar-bottom">
-          <div className="mm-mobile-account-menu">{profileMenu}</div>
+          <div className="mm-mobile-account-menu">
+            <div className="mm-mobile-account-heading">
+              <span className="mm-avatar">{initials || "S"}</span>
+              <span><strong>{student.name}</strong><small>{student.email}</small></span>
+            </div>
+            <button type="button" className="mm-mobile-account-action" onClick={() => { setMenuOpen(false); setProfileDialogOpen(true); }}>
+              <span aria-hidden="true">♙</span> View Profile
+            </button>
+            <button type="button" className="mm-mobile-account-action mm-mobile-logout" disabled={signingOut} onClick={() => void handleSignOut()}>
+              <span aria-hidden="true">↪</span> {signingOut ? "Logging out..." : "Log Out"}
+            </button>
+          </div>
           <div className="mm-help-card">
             <span className="mm-help-icon">✦</span>
             <strong>Keep your momentum</strong>
