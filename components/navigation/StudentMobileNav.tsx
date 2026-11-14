@@ -7,6 +7,7 @@ const items = [
   { label: "Dashboard", href: "/dashboard", icon: "⌂" },
   { label: "Practice", href: "/practice", icon: "◎" },
   { label: "Live Test", href: "/live-test", icon: "◷" },
+  { label: "Personal Notebook", href: "/personal-notebook", icon: "▤" },
 ];
 
 export default function StudentMobileNav() {
