@@ -796,3 +796,22 @@ button, input { font: inherit; }
 @media(max-width:700px){.mm-workspace-cards{grid-template-columns:1fr}.mm-practice-section-heading{align-items:flex-start}.mm-practice-builder-cta{align-items:flex-start!important;flex-direction:column}.mm-practice-section-heading h2{font-size:19px}}
 
 .mm-dashboard-recent-tests{display:grid;gap:0;border:1px solid #e7e1d5;border-radius:12px;background:#fffefa;overflow:hidden}.mm-dashboard-recent-tests>div{display:grid;grid-template-columns:1fr auto;gap:3px 15px;padding:14px 17px;border-bottom:1px solid #eee9df}.mm-dashboard-recent-tests>div:last-child{border-bottom:0}.mm-dashboard-recent-tests span{font-size:12px;font-weight:700}.mm-dashboard-recent-tests b{font-size:13px;color:#2563eb}.mm-dashboard-recent-tests small{grid-column:1/-1;color:#758196;font-size:10px}
+
+
+/* Consistent mobile button and touch-target system */
+button, a, input, summary { -webkit-tap-highlight-color: transparent; }
+button, a, summary { touch-action: manipulation; }
+:focus-visible { outline:3px solid #93c5fd; outline-offset:3px; }
+@media(max-width:640px) {
+  .btn {
+    min-height:48px;
+    padding:12px 16px;
+    border-radius:12px;
+    font-size:14px;
+    font-weight:700;
+  }
+  .btn:active { transform:scale(.985); }
+  .mobile-nav summary { min-height:46px; }
+  .mobile-nav-panel a { min-height:46px; display:flex; align-items:center; }
+  .test-bottom a { min-height:44px; display:inline-flex; align-items:center; }
+}
