@@ -1150,3 +1150,70 @@ button, a, summary { touch-action: manipulation; }
     white-space: nowrap !important;
   }
 }
+
+
+/* Always-visible account actions at the bottom of the mobile drawer */
+@media screen and (max-width:760px) {
+  .mm-mobile-account-menu {
+    display:flex !important;
+    flex-direction:column !important;
+    align-items:stretch !important;
+    gap:7px !important;
+    width:100% !important;
+    padding:14px 8px 4px !important;
+    border-top:1px solid #e8e2d8 !important;
+  }
+  .mm-mobile-account-heading {
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:0 5px 10px;
+  }
+  .mm-mobile-account-heading .mm-avatar {
+    flex:0 0 38px;
+    width:38px;
+    height:38px;
+    background:#2563eb;
+    color:#fff;
+  }
+  .mm-mobile-account-heading > span:last-child {
+    display:flex;
+    min-width:0;
+    flex-direction:column;
+    gap:3px;
+  }
+  .mm-mobile-account-heading strong {
+    overflow:hidden;
+    color:#172033;
+    font-size:13px;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .mm-mobile-account-heading small {
+    overflow:hidden;
+    color:#64748b;
+    font-size:10px;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .mm-mobile-account-action {
+    display:flex !important;
+    align-items:center;
+    gap:11px;
+    width:100%;
+    min-height:46px;
+    padding:0 12px;
+    border:0;
+    border-radius:10px;
+    background:#f1f5ff;
+    color:#2457a6;
+    font:inherit;
+    font-size:13px;
+    font-weight:700;
+    text-align:left;
+    cursor:pointer;
+  }
+  .mm-mobile-account-action span { width:20px; font-size:17px; text-align:center; }
+  .mm-mobile-logout { background:#fff1f0; color:#c2413a; }
+  .mm-mobile-account-action:disabled { opacity:.6; cursor:wait; }
+}
