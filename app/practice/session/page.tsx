@@ -55,8 +55,8 @@ export default function PracticeSessionPage(){
  const finish=useCallback(async()=>{
   if(!db||!attemptId)return;setSaving(true);
   const {error}=await db.rpc("student_submit_practice_test",{p_attempt_id:attemptId});
-  setSaving(false);if(error){setError(error.message);return;}setSubmitted(true);
- },[db,attemptId]);
+  setSaving(false);if(error){setError(error.message);return;}router.replace("/practice/result?"+new URLSearchParams({attempt:attemptId}).toString());
+ },[db,attemptId,router]);
  useEffect(()=>{if(loading||submitted||questions.length===0)return;if(seconds<=0){void finish();return;}
   const timer=window.setInterval(()=>setSeconds(s=>{if(s<=1){window.clearInterval(timer);return 0;}return s-1;}),1000);
   return()=>window.clearInterval(timer);
