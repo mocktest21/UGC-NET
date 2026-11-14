@@ -931,3 +931,12 @@ button, a, summary { touch-action: manipulation; }
   .mm-bottom-active { color:#2563eb; }
   .mm-main { padding-bottom:76px; }
 }
+
+
+/* Keep the full desktop menu off phone screens; mobile uses the bottom bar */
+@media(max-width:800px) {
+  .mm-workspace-nav { display:none !important; }
+}
+@media(max-width:760px) {
+  .mm-bottom-nav { grid-template-columns:repeat(4,minmax(0,1fr)); }
+}
