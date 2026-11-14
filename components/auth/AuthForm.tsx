@@ -45,16 +45,16 @@ export default function AuthForm({ mode }: AuthFormProps) {
         if (!data.session) {
           setNotice("Your account has been created. Check your email for a confirmation link, then return here to log in.");
         } else {
-          window.location.assign("/dashboard");
+          window.location.assign(data.user?.user_metadata?.onboarding_completed === true ? "/dashboard" : "/onboarding");
         }
       } else {
-        const { error: authError } = await supabase.auth.signInWithPassword({
+        const { data, error: authError } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
 
         if (authError) throw authError;
-        window.location.assign("/dashboard");
+        window.location.assign(data.user?.user_metadata?.onboarding_completed === true ? "/dashboard" : "/onboarding");
       }
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Something went wrong. Please try again.");
