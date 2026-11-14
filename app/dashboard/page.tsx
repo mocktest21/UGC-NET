@@ -198,6 +198,14 @@ export default function DashboardPage() {
             </a>
           ))}
         </nav>
+        <div className="mm-mobile-main-label">MAIN MENU</div>
+        <nav className="mm-mobile-main-nav" aria-label="Main navigation">
+          {desktopNavigation.map((item, index) => (
+            <a key={item.label} className={index === 0 ? "mm-nav-link mm-nav-active" : "mm-nav-link"} href={item.href} onClick={() => setMenuOpen(false)}>
+              <span className="mm-nav-icon">{["⌂", "◎", "◷", "▤", "ⓘ"][index]}</span>{item.label}
+            </a>
+          ))}
+        </nav>
         <nav className="mm-desktop-nav" aria-label="Main navigation">
           {desktopNavigation.map((item, index) => (
             <a key={item.label} className={index === 0 ? "mm-nav-link mm-nav-active" : "mm-nav-link"} href={item.href}>{item.label}</a>
