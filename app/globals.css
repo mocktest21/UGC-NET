@@ -842,3 +842,15 @@ button, a, summary { touch-action: manipulation; }
     gap:4px 10px;
   }
 }
+
+
+/* Dashboard subject and unit performance breakdown */
+.mm-dashboard-breakdown{display:grid;gap:0;margin-top:8px}
+.mm-dashboard-breakdown-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:15px 0;border-bottom:1px solid #edf0f5}
+.mm-dashboard-breakdown-row:last-child{border-bottom:0}
+.mm-dashboard-breakdown-row>div{display:grid;gap:5px;min-width:0}
+.mm-dashboard-breakdown-row strong{font-size:13px;color:#172033;overflow-wrap:anywhere}
+.mm-dashboard-breakdown-row small{font-size:10px;line-height:1.5;color:#7b8799}
+.mm-dashboard-breakdown-row>b{display:grid;gap:3px;flex-shrink:0;text-align:right;color:#2563eb;font-size:16px}
+.mm-dashboard-breakdown-row>b small{font-weight:500;color:#7b8799}
+@media(max-width:600px){.mm-dashboard-breakdown-row{gap:10px;padding:13px 0}.mm-dashboard-breakdown-row strong{font-size:12px}.mm-dashboard-breakdown-row>b{font-size:14px}}
