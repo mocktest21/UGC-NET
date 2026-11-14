@@ -17,13 +17,6 @@ type Student = {
   phone?: string | null;
 };
 
-const navigation = [
-  { label: "Overview", icon: "⌂", href: "#overview" },
-  { label: "My examinations", icon: "▤", href: "#examinations" },
-  { label: "Practice centre", icon: "◎", href: "#practice" },
-  { label: "Performance", icon: "↗", href: "#performance" },
-];
-
 const desktopNavigation = [
   { label: "Dashboard", href: "/dashboard" },
   { label: "Practice", href: "/practice" },
@@ -190,14 +183,6 @@ export default function DashboardPage() {
     <div className="mm-dashboard">
       <aside className={menuOpen ? "mm-sidebar mm-sidebar-open" : "mm-sidebar"}>
         <a className="mm-brand" href="/"><span className="mm-brand-mark">M</span><span>MockMaster</span></a>
-        <div className="mm-side-label">STUDENT WORKSPACE</div>
-        <nav className="mm-side-nav" aria-label="Student navigation">
-          {navigation.map((item, index) => (
-            <a key={item.label} className={index === 0 ? "mm-nav-link mm-nav-active" : "mm-nav-link"} href={item.label === "Practice centre" ? "/practice" : item.label === "My examinations" ? "/dashboard#examinations" : item.label === "Performance" ? "/dashboard#performance" : "/dashboard"} onClick={() => setMenuOpen(false)}>
-              <span className="mm-nav-icon">{item.icon}</span>{item.label}
-            </a>
-          ))}
-        </nav>
         <div className="mm-mobile-main-label">MAIN MENU</div>
         <nav className="mm-mobile-main-nav" aria-label="Main navigation">
           {desktopNavigation.map((item, index) => (
@@ -343,13 +328,6 @@ export default function DashboardPage() {
         </div>
       )}
 
-      <nav className="mm-bottom-nav" aria-label="Mobile navigation">
-        {navigation.slice(0, 4).map((item, index) => (
-          <a key={item.label} className={index === 0 ? "mm-bottom-link mm-bottom-active" : "mm-bottom-link"} href={item.label === "Practice centre" ? "/practice" : item.label === "My examinations" ? "/dashboard#examinations" : item.label === "Performance" ? "/dashboard#performance" : "/dashboard"}>
-            <span>{item.icon}</span><small>{index === 0 ? "Home" : index === 1 ? "Exams" : index === 2 ? "Practice" : "Progress"}</small>
-          </a>
-        ))}
-      </nav>
     </div>
   );
 }
