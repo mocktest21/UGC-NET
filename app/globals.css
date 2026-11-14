@@ -983,3 +983,63 @@ button, a, summary { touch-action: manipulation; }
     overflow: hidden !important;
   }
 }
+
+
+/* Mobile account controls live inside the hamburger drawer */
+@media(max-width:760px) {
+  .mm-topbar {
+    justify-content:flex-start !important;
+    gap:12px;
+  }
+  .mm-mobile-page-label,
+  .mm-topbar-right {
+    display:none !important;
+  }
+  .mm-sidebar {
+    display:flex;
+    flex-direction:column;
+    overflow-y:auto;
+    padding-bottom:max(18px,env(safe-area-inset-bottom));
+  }
+  .mm-sidebar-bottom {
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+    width:100%;
+    margin-top:auto !important;
+    padding-top:18px;
+    border-top:1px solid #e8e2d8;
+  }
+  .mm-mobile-account-menu {
+    display:flex;
+    justify-content:flex-start;
+    width:100%;
+  }
+  .mm-mobile-account-menu .mm-profile-menu-wrap {
+    width:100%;
+  }
+  .mm-mobile-account-menu .mm-profile-trigger {
+    display:none;
+  }
+  .mm-mobile-account-menu .mm-profile-dropdown {
+    position:static;
+    display:block;
+    width:100%;
+    padding:0;
+    border:0;
+    border-radius:0;
+    background:transparent;
+    box-shadow:none;
+  }
+  .mm-mobile-account-menu .mm-profile-dropdown-heading {
+    padding:0 12px 10px;
+  }
+  .mm-mobile-account-menu .mm-profile-dropdown>button {
+    min-height:46px;
+    padding:12px;
+    font-size:13px;
+  }
+}
+@media(min-width:761px) {
+  .mm-mobile-account-menu { display:none; }
+}
