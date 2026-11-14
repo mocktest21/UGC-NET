@@ -101,8 +101,12 @@ language plpgsql
 security definer
 set search_path = ''
 as $$
-declare v_student uuid:=auth.uid(); v_attempt public.test_attempts%rowtype; v_test public.tests%rowtype;
-declare v_questions jsonb; v_history jsonb;
+declare
+  v_student uuid:=auth.uid();
+  v_attempt public.test_attempts%rowtype;
+  v_test public.tests%rowtype;
+  v_questions jsonb;
+  v_history jsonb;
 begin
   if v_student is null then raise exception 'Authentication required' using errcode='28000'; end if;
   select * into v_attempt from public.test_attempts where id=p_attempt_id and student_id=v_student;
