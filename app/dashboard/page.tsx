@@ -67,7 +67,7 @@ export default function DashboardPage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [profileDialogOpen, setProfileDialogOpen] = useState(false);
-  const [analytics,setAnalytics]=useState({tests:0,average:"—",accuracy:"—",totalQuestions:0,uniqueQuestions:0,recent:[] as any[]});
+  const [analytics,setAnalytics]=useState({tests:0,average:"—",accuracy:"—",totalQuestions:0,uniqueQuestions:0,recent:[] as any[],subjects:[] as any[],units:[] as any[]});
 
   useEffect(() => {
     let active = true;
@@ -100,7 +100,43 @@ export default function DashboardPage() {
         const accuracyRows=attempts.filter(a=>a.accuracy!==null);
         const accuracy=accuracyRows.length?accuracyRows.reduce((sum,a)=>sum+Number(a.accuracy),0)/accuracyRows.length*100:null;
         const total=attempts.reduce((sum,a)=>sum+Number(a.questions_attempted||0)+Number(a.unanswered_count||0),0);
-        if(active)setAnalytics({tests:attempts.length,average:avg===null?"—":avg.toFixed(1)+"%",accuracy:accuracy===null?"—":accuracy.toFixed(1)+"%",totalQuestions:total,uniqueQuestions:attempted,recent:attempts.slice(0,5).map(a=>({id:a.id,score:a.score===null?null:Number(a.score),max_score:a.max_score===null?null:Number(a.max_score),started_at:a.started_at,questions_attempted:Number(a.questions_attempted||0)}))});
+        const attemptIds=attempts.map(a=>a.id);
+        let subjectPerformance:any[]=[];
+        let unitPerformance:any[]=[];
+        if(attemptIds.length){
+          const {data:responseRows}=await supabase.from("student_responses").select("attempt_id,test_question_id,is_correct,awarded_marks,time_spent_seconds").in("attempt_id",attemptIds);
+          const responses=(responseRows||[]) as any[];
+          const tqIds=Array.from(new Set(responses.map(r=>r.test_question_id).filter(Boolean)));
+          if(tqIds.length){
+            const {data:tqRows}=await supabase.from("test_questions").select("id,question_id").in("id",tqIds);
+            const questionIds=Array.from(new Set((tqRows||[]).map((r:any)=>r.question_id).filter(Boolean)));
+            if(questionIds.length){
+              const {data:questionRows}=await supabase.from("questions").select("id,subject_id,unit_id,subjects(name),units(name)").in("id",questionIds);
+              const questionById=new Map((tqRows||[]).map((r:any)=>[r.id,(questionRows||[]).find((q:any)=>q.id===r.question_id)]));
+              const subjectMap=new Map<string,any>();
+              const unitMap=new Map<string,any>();
+              for(const response of responses){
+                if(response.is_correct===null||response.is_correct===undefined)continue;
+                const tq=(tqRows||[]).find((r:any)=>r.id===response.test_question_id);
+                const q=tq?questionById.get(tq.id) as any:null;
+                if(!q)continue;
+                const subjectName=Array.isArray(q.subjects)?q.subjects[0]?.name:q.subjects?.name;
+                const unitName=Array.isArray(q.units)?q.units[0]?.name:q.units?.name;
+                const add=(map:Map<string,any>,id:string| null,name:string|undefined)=>{
+                  if(!id)return;
+                  const item=map.get(id)||{id,name:name||"Unlabelled",attempted:0,correct:0,incorrect:0,time:0};
+                  item.attempted++;if(response.is_correct)item.correct++;else item.incorrect++;
+                  item.time+=Number(response.time_spent_seconds||0);map.set(id,item);
+                };
+                add(subjectMap,q.subject_id,subjectName);
+                add(unitMap,q.unit_id,unitName);
+              }
+              const format=(map:Map<string,any>)=>Array.from(map.values()).map(x=>({...x,accuracy:x.attempted?x.correct/x.attempted*100:0,avgTime:x.attempted?x.time/x.attempted:0})).sort((a,b)=>b.attempted-a.attempted);
+              subjectPerformance=format(subjectMap);unitPerformance=format(unitMap);
+            }
+          }
+        }
+        if(active)setAnalytics({tests:attempts.length,average:avg===null?"—":avg.toFixed(1)+"%",accuracy:accuracy===null?"—":accuracy.toFixed(1)+"%",totalQuestions:total,uniqueQuestions:attempted,recent:attempts.slice(0,5).map(a=>({id:a.id,score:a.score===null?null:Number(a.score),max_score:a.max_score===null?null:Number(a.max_score),started_at:a.started_at,questions_attempted:Number(a.questions_attempted||0)})),subjects:subjectPerformance,units:unitPerformance});
 
       } catch {
         router.replace("/login");
@@ -252,7 +288,7 @@ export default function DashboardPage() {
               <div className="mm-analytics-panel-heading">
                 <div><span className="mm-section-kicker">SUBJECT-WISE ANALYSIS</span><h2>Subject performance</h2><p>See how you are performing in each subject.</p></div>
               </div>
-              <EmptyAnalytics title="Subject analysis will appear here" detail="Attempt subject tests to build your subject-wise performance record." />
+              {analytics.subjects.length?<div className="mm-dashboard-breakdown">{analytics.subjects.map((item:any)=><div className="mm-dashboard-breakdown-row" key={item.id}><div><strong>{item.name}</strong><small>{item.attempted} evaluated questions · {item.correct} correct · {item.incorrect} incorrect</small></div><b>{item.accuracy.toFixed(1)}%<small>accuracy</small></b></div>)}</div>:<EmptyAnalytics title="Subject analysis will appear here" detail="Complete and submit subject-wise practice tests to build your performance record." />}
             </article>
           </section>
 
@@ -261,13 +297,7 @@ export default function DashboardPage() {
               <div><span className="mm-section-kicker">DETAILED SYLLABUS ANALYSIS</span><h2>Unit-wise performance</h2><p>Identify strong units, weak units and your progress across the syllabus.</p></div>
               <span className="mm-unit-badge">Core analytics</span>
             </div>
-            <div className="mm-unit-empty">
-              <div className="mm-unit-empty-art">▤</div>
-              <div><strong>Your unit-wise report will build here</strong><p>For every unit, MockMaster will track questions attempted, correct and incorrect answers, accuracy, average score, test coverage and improvement.</p></div>
-            </div>
-            <div className="mm-unit-metric-list">
-              <span>Unit accuracy</span><span>Questions attempted</span><span>Correct / incorrect</span><span>Mastery level</span><span>Progress over time</span>
-            </div>
+            {analytics.units.length?<div className="mm-dashboard-breakdown">{analytics.units.map((item:any)=><div className="mm-dashboard-breakdown-row" key={item.id}><div><strong>{item.name}</strong><small>{item.attempted} evaluated questions · {item.correct} correct · {item.incorrect} incorrect</small></div><b>{item.accuracy.toFixed(1)}%<small>accuracy</small></b></div>)}</div>:<EmptyAnalytics title="Your unit-wise report will build here" detail="Complete and submit practice tests containing unit-tagged questions to see unit-level accuracy and progress." />}
           </section>
 
           <section className="mm-analytics-two-col">
