@@ -359,13 +359,16 @@ export default function DashboardPage() {
                 <div className="mm-analytics-stat-copy">
                   <span>{stat.label}</span>
                   {stat.label === "Accuracy" ? (
-                    <div className="mm-accuracy-meter" aria-label={evaluatedResponses.length + " evaluated answers"}>
-                      <div className="mm-accuracy-meter-track">
-                        <span className="mm-accuracy-correct" style={{width: accuracyPercent + "%"}} />
-                        <span className="mm-accuracy-incorrect" style={{width: (evaluatedResponses.length ? 100 - accuracyPercent : 0) + "%"}} />
+                    <>
+                      <strong className="mm-accuracy-value">{evaluatedResponses.length ? accuracyPercent.toFixed(1) + "%" : "—"}</strong>
+                      <div className="mm-accuracy-meter" aria-label={evaluatedResponses.length ? accuracyPercent.toFixed(1) + "% accuracy" : "No evaluated answers yet"}>
+                        <div className="mm-accuracy-meter-track">
+                          <span className="mm-accuracy-correct" style={{width: accuracyPercent + "%"}} />
+                          <span className="mm-accuracy-incorrect" style={{width: (evaluatedResponses.length ? 100 - accuracyPercent : 0) + "%"}} />
+                        </div>
+                        <small>{correctCount} correct · {incorrectCount} incorrect</small>
                       </div>
-                      <small>{correctCount} correct · {incorrectCount} incorrect</small>
-                    </div>
+                    </>
                   ) : (
                     <strong>{stat.label==="Tests attempted"?filteredAttempts.length:stat.label==="Average score"?(averageScore===null?"—":averageScore.toFixed(1)+"%"):stat.label==="Total questions"?totalQuestions:stat.label==="Unique questions attempted"?uniqueQuestionIds.size:stat.label==="Average time per question"?formatDuration(averageTime):"—"}</strong>
                   )}
@@ -461,7 +464,7 @@ export default function DashboardPage() {
               <div className="mm-analytics-panel-heading">
                 <div><span className="mm-section-kicker">SUBJECT-WISE ANALYSIS</span><h2>Subject performance</h2><p>See how you are performing in each subject.</p></div>
               </div>
-              {subjectPerformance.length?<div className="mm-dashboard-breakdown">{subjectPerformance.map((item:any)=><div className="mm-dashboard-breakdown-row" key={item.id}><div><strong>{item.name}</strong><small>{item.attempted} evaluated questions · {item.correct} correct · {item.incorrect} incorrect</small></div><b>{item.accuracy.toFixed(1)}%<small>accuracy</small></b></div>)}</div>:<EmptyAnalytics title="Subject analysis will appear here" detail="Complete and submit subject-wise practice tests to build your performance record." />}
+              {subjectPerformance.length?<div className="mm-dashboard-breakdown">{subjectPerformance.map((item:any)=><div className="mm-dashboard-breakdown-row" key={item.id}><div><strong>{item.name}</strong><small>{item.attempted} evaluated questions · {item.correct} correct · {item.incorrect} incorrect</small><div className="mm-breakdown-color-track" aria-label={item.accuracy.toFixed(1)+"% correct"}><span className="mm-breakdown-correct" style={{width:item.accuracy+"%"}}/><span className="mm-breakdown-incorrect" style={{width:(100-item.accuracy)+"%"}}/></div></div><b>{item.accuracy.toFixed(1)}%<small>accuracy</small></b></div>)}</div>:<EmptyAnalytics title="Subject analysis will appear here" detail="Complete and submit subject-wise practice tests to build your performance record." />}
             </article>
           </section>
 
@@ -470,7 +473,7 @@ export default function DashboardPage() {
               <div><span className="mm-section-kicker">DETAILED SYLLABUS ANALYSIS</span><h2>Unit-wise performance</h2><p>Identify strong units, weak units and your progress across the syllabus.</p></div>
               <span className="mm-unit-badge">Core analytics</span>
             </div>
-            {unitPerformance.length?<div className="mm-dashboard-breakdown">{unitPerformance.map((item:any)=><div className="mm-dashboard-breakdown-row" key={item.id}><div><strong>{item.name}</strong><small>{item.attempted} evaluated questions · {item.correct} correct · {item.incorrect} incorrect</small></div><b>{item.accuracy.toFixed(1)}%<small>accuracy</small></b></div>)}</div>:<EmptyAnalytics title="Your unit-wise report will build here" detail="Complete and submit practice tests containing unit-tagged questions to see unit-level accuracy and progress." />}
+            {unitPerformance.length?<div className="mm-dashboard-breakdown">{unitPerformance.map((item:any)=><div className="mm-dashboard-breakdown-row" key={item.id}><div><strong>{item.name}</strong><small>{item.attempted} evaluated questions · {item.correct} correct · {item.incorrect} incorrect</small><div className="mm-breakdown-color-track" aria-label={item.accuracy.toFixed(1)+"% correct"}><span className="mm-breakdown-correct" style={{width:item.accuracy+"%"}}/><span className="mm-breakdown-incorrect" style={{width:(100-item.accuracy)+"%"}}/></div></div><b>{item.accuracy.toFixed(1)}%<small>accuracy</small></b></div>)}</div>:<EmptyAnalytics title="Your unit-wise report will build here" detail="Complete and submit practice tests containing unit-tagged questions to see unit-level accuracy and progress." />}
           </section>
 
           <section className="mm-analytics-two-col">
