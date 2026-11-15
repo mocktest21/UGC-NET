@@ -1587,3 +1587,16 @@ button, a, summary { touch-action: manipulation; }
   .mm-dashboard-test-actions { justify-content:stretch; }
   .mm-dashboard-test-actions button { flex:1; min-height:42px; }
 }
+
+
+/* Consistent colour-coded analytics indicators */
+.mm-analytics-stat-copy .mm-accuracy-value{display:block;margin:2px 0 1px;color:#172033;font-size:25px;line-height:1.25;font-weight:800}
+.mm-breakdown-color-track{display:flex;width:min(100%,360px);height:8px;margin-top:7px;overflow:hidden;border-radius:999px;background:#e8edf5}
+.mm-breakdown-correct{display:block;height:100%;background:linear-gradient(90deg,#16a34a,#22c55e);transition:width .25s ease}
+.mm-breakdown-incorrect{display:block;height:100%;background:linear-gradient(90deg,#fb7185,#dc2626);transition:width .25s ease}
+.mm-accuracy-meter-track{background:#e8edf5}
+.mm-accuracy-correct{background:linear-gradient(90deg,#16a34a,#22c55e)}
+.mm-accuracy-incorrect{background:linear-gradient(90deg,#fb7185,#dc2626)}
+.mm-test-trend-green{background:linear-gradient(90deg,#16a34a,#22c55e)}
+.mm-test-trend-red{background:linear-gradient(90deg,#fb7185,#dc2626)}
+@media(max-width:600px){.mm-breakdown-color-track{height:7px}.mm-analytics-stat-copy .mm-accuracy-value{font-size:23px}}
