@@ -325,23 +325,6 @@ export default function DashboardPage() {
     accuracy: paper.correct + paper.incorrect ? paper.correct / (paper.correct + paper.incorrect) * 100 : null,
   })).sort((a: any, b: any) => a.name.localeCompare(b.name));
 
-  const examStats = analytics.exams.map((preference: any) => {
-    const examName = preference.name;
-    const examAttempts = filteredAttempts.filter((a: any) => (testById.get(a.test_id) as any)?.exam_id === preference.exam_id);
-    const examAttemptIds = new Set(examAttempts.map((a: any) => a.id));
-    const examResponses = filteredResponses.filter((r: any) => examAttemptIds.has(r.attempt_id) && (r.is_correct === true || r.is_correct === false));
-    const examCorrect = examResponses.filter((r: any) => r.is_correct === true).length;
-    const scored = examAttempts.filter((a: any) => a.score !== null && Number(a.max_score) > 0);
-    const average = scored.length ? scored.reduce((sum: number, a: any) => sum + Number(a.score) / Number(a.max_score) * 100, 0) / scored.length : null;
-    return {
-      id: preference.exam_id,
-      name: examName || "Selected examination",
-      tests: examAttempts.length,
-      average,
-      accuracy: examResponses.length ? examCorrect / examResponses.length * 100 : null,
-    };
-  });
-
   if (loading || !student) {
     return (
       <main className="mm-loading">
@@ -496,31 +479,6 @@ export default function DashboardPage() {
               </div>
             ) : (
               <EmptyAnalytics title="No tests in this period" detail="Complete a test or choose a wider date range to see your performance trends." />
-            )}
-          </section>
-
-          <section className="mm-analytics-panel" id="examinations">
-            <div className="mm-analytics-panel-heading">
-              <div><span className="mm-section-kicker">EXAM-WISE OVERVIEW</span><h2>My examinations</h2><p>Live performance calculated separately for each examination you selected.</p></div>
-              <span className="mm-count-pill">{examStats.length} selected</span>
-            </div>
-            {examStats.length ? (
-              <div className="mm-analytics-exam-grid">
-                {examStats.map((exam: any) => (
-                  <article className="mm-analytics-exam-card" key={exam.id}>
-                    <div className="mm-analytics-exam-top"><span className="mm-analytics-exam-icon">▤</span><span className="mm-analytics-status">Selected</span></div>
-                    <h3>{exam.name}</h3>
-                    <div className="mm-analytics-exam-metrics">
-                      <div><strong>{exam.tests}</strong><span>Tests</span></div>
-                      <div><strong>{exam.average === null ? "—" : exam.average.toFixed(1) + "%"}</strong><span>Average score</span></div>
-                      <div><strong>{exam.accuracy === null ? "—" : exam.accuracy.toFixed(1) + "%"}</strong><span>Accuracy</span></div>
-                    </div>
-                    <p>{exam.tests ? "Based on " + exam.tests + " completed test attempt(s) in this period." : "No completed tests for this examination in the selected period."}</p>
-                  </article>
-                ))}
-              </div>
-            ) : (
-              <EmptyAnalytics title="No examinations selected" detail="Your selected examinations will appear here after you complete onboarding or update your exam preferences." />
             )}
           </section>
 
