@@ -220,3 +220,7 @@
   }
   .ps-main{width:100%;max-width:680px;margin:auto}
 }
+
+.ps-bookmark{border:1px solid #dbe4f0;border-radius:8px;background:#fff;color:#2563eb;padding:10px 12px;font-size:10px;font-weight:750;cursor:pointer}
+.ps-bookmark.active{border-color:#f59e0b;background:#fffbeb;color:#b45309}
+@media(max-width:560px){.ps-actions .ps-bookmark{min-height:42px}}
