@@ -403,7 +403,8 @@ export default function DashboardPage() {
             <div className="mm-analytics-panel-heading">
               <div><span className="mm-section-kicker">PROGRESS TRACKER</span><h2>Performance trends</h2><p>Completed tests for the selected period.</p></div>
               <select className="mm-analytics-filter-select" value={dateFilter} onChange={(event) => setDateFilter(event.target.value)} aria-label="Filter tests by date">
-                <option value="today">Today</option>\n                <option value="all">All time</option>
+                <option value="today">Today</option>
+                <option value="all">All time</option>
                 <option value="week">Last 7 days</option>
                 <option value="month">Last 30 days</option>
                 <option value="3months">Last 3 months</option>
