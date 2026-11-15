@@ -246,7 +246,6 @@ export default function DashboardPage() {
 
   const unitMap = new Map<string, any>();
   const paperNameById = new Map(analytics.papers.map((paper: any) => [paper.id, paper.name || paper.code || "Paper"]));
-  const testById = new Map(analytics.tests.map((test: any) => [test.id, test]));
   const unitPaperNames = new Map<string, Set<string>>();
   for (const link of analytics.testQuestions) {
     const q: any = questionById.get(link.question_id);
