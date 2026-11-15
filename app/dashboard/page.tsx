@@ -216,6 +216,20 @@ export default function DashboardPage() {
   const questionById = new Map(analytics.questions.map((q: any) => [q.id, q]));
   const testById = new Map(analytics.tests.map((t: any) => [t.id, t]));
   const hasAnswer = (value: any) => value !== null && value !== undefined && value !== "" && JSON.stringify(value) !== "null" && JSON.stringify(value) !== '""';
+  const allAttemptIds = new Set(analytics.attempts.map((a: any) => a.id));
+  const allResponses = analytics.responses.filter((r: any) => allAttemptIds.has(r.attempt_id));
+  const allEvaluatedResponses = allResponses.filter((r: any) => r.is_correct === true || r.is_correct === false);
+  const allCorrectCount = allEvaluatedResponses.filter((r: any) => r.is_correct === true).length;
+  const allAccuracy = allEvaluatedResponses.length ? allCorrectCount / allEvaluatedResponses.length * 100 : 0;
+  const allUniqueQuestionIds = new Set(allResponses.filter((r: any) => hasAnswer(r.response)).map((r: any) => {
+    const tq: any = testQuestionById.get(r.test_question_id);
+    return tq?.question_id;
+  }).filter(Boolean));
+  const allScoredAttempts = analytics.attempts.filter((a: any) => a.score !== null && Number(a.max_score) > 0);
+  const allAverageScore = allScoredAttempts.length ? allScoredAttempts.reduce((sum: number, a: any) => sum + Number(a.score) / Number(a.max_score) * 100, 0) / allScoredAttempts.length : null;
+  const allTotalQuestions = analytics.attempts.reduce((sum: number, a: any) => sum + Number(a.questions_attempted || 0) + Number(a.unanswered_count || 0), 0);
+  const allTimeRows = allResponses.filter((r: any) => hasAnswer(r.response));
+  const allAverageTime = allTimeRows.length ? allTimeRows.reduce((sum: number, r: any) => sum + Number(r.time_spent_seconds || 0), 0) / allTimeRows.length : null;
   const evaluatedResponses = filteredResponses.filter((r: any) => r.is_correct === true || r.is_correct === false);
   const correctCount = evaluatedResponses.filter((r: any) => r.is_correct === true).length;
   const incorrectCount = evaluatedResponses.length - correctCount;
@@ -393,7 +407,7 @@ export default function DashboardPage() {
               <article className="mm-analytics-stat" key={stat.label}>
                 <div className="mm-analytics-stat-copy">
                   <span>{stat.label}</span>
-                  <strong>{stat.label==="Accuracy"?(evaluatedResponses.length?accuracyPercent.toFixed(1)+"%":"—"):stat.label==="Total tests attempted"?filteredAttempts.length:stat.label==="Average score"?(averageScore===null?"—":averageScore.toFixed(1)+"%"):stat.label==="Total questions"?totalQuestions:stat.label==="Unique questions attempted"?uniqueQuestionIds.size:formatDuration(averageTime)}</strong>
+                  <strong>{stat.label==="Accuracy"?(allEvaluatedResponses.length?allAccuracy.toFixed(1)+"%":"—"):stat.label==="Total tests attempted"?analytics.attempts.length:stat.label==="Average score"?(allAverageScore===null?"—":allAverageScore.toFixed(1)+"%"):stat.label==="Total questions"?allTotalQuestions:stat.label==="Unique questions attempted"?allUniqueQuestionIds.size:formatDuration(allAverageTime)}</strong>
                 </div>
               </article>
             ))}
