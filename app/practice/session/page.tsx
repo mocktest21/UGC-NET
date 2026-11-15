@@ -15,6 +15,7 @@ export default function PracticeSessionPage(){
  const [questions,setQuestions]=useState<Q[]>([]);
  const [answers,setAnswers]=useState<Record<string,any>>({});
  const [review,setReview]=useState<string[]>([]);
+ const [bookmarked,setBookmarked]=useState<string[]>([]);
  const [current,setCurrent]=useState(0);
  const [seconds,setSeconds]=useState(0);
  const [loading,setLoading]=useState(true),[error,setError]=useState("");
@@ -37,11 +38,12 @@ export default function PracticeSessionPage(){
   if(versionError){setError(versionError.message);setLoading(false);return;}
   const versionMap=new Map((versions||[]).map((v:any)=>[v.id,v]));
   const built=(links||[]).flatMap((link:any)=>{const v:any=versionMap.get(link.question_version_id);return v?[{id:link.id,questionId:link.question_id,type:v.question_type,prompt:v.prompt||{},stimulus:v.stimulus,options:Array.isArray(v.options)?v.options:[],marks:Number(link.marks||2),negative:Number(link.negative_marks||0),responseId:link.id} as Q]:[];});
+  const {data:bookmarkRows}=await db.from("bookmarks").select("question_id").eq("student_id",auth.user.id).in("question_id",built.map((q:any)=>q.questionId));
   const {data:responses}=await db.from("student_responses").select("test_question_id,response,is_marked_for_review").eq("attempt_id",attemptId);
   const answerState:Record<string,any>={},reviewState:string[]=[];
   (responses||[]).forEach((r:any)=>{if(r.response!==null)answerState[r.test_question_id]=r.response;if(r.is_marked_for_review)reviewState.push(r.test_question_id);});
   const expiry=attempt.expires_at?Math.max(0,Math.floor((new Date(attempt.expires_at).getTime()-Date.now())/1000)):Math.max(1,Number(params.get("minutes")||50)*60);
-  if(live){setQuestions(built);setAnswers(answerState);setReview(reviewState);setSeconds(expiry);setLoading(false);if(!built.length)setError("No questions were found in this practice attempt.");}
+  if(live){setQuestions(built);setAnswers(answerState);setReview(reviewState);setBookmarked((bookmarkRows||[]).map((b:any)=>b.question_id));setSeconds(expiry);setLoading(false);if(!built.length)setError("No questions were found in this practice attempt.");}
  })();return()=>{live=false;};},[db,router,params,testId,attemptId]);
 
  const save=useCallback(async(id:string,value:any,flag=review.includes(id))=>{
@@ -52,6 +54,19 @@ export default function PracticeSessionPage(){
  },[db,attemptId,review]);
  const updateAnswer=(id:string,value:any)=>{setAnswers(old=>({...old,[id]:value}));void save(id,value);};
  const toggleReview=(id:string)=>{const next=!review.includes(id);setReview(old=>next?[...old,id]:old.filter(x=>x!==id));void save(id,answers[id]??null,next);};
+ const toggleBookmark=async(questionId:string)=>{
+  if(!db||!studentId)return;
+  const exists=bookmarked.includes(questionId);
+  setBookmarked(old=>exists?old.filter(x=>x!==questionId):[...old,questionId]);
+  const result=exists
+   ?await db.from("bookmarks").delete().eq("student_id",studentId).eq("question_id",questionId)
+   :await db.from("bookmarks").insert({student_id:studentId,question_id:questionId});
+  if(result.error){setBookmarked(old=>exists?[...old,questionId]:old.filter(x=>x!==questionId));setError("Bookmark could not be saved: "+result.error.message);}
+ };
+ const exitAttempt=async()=>{
+  if(db&&attemptId){const {error}=await db.rpc("student_abandon_practice_attempt",{p_attempt_id:attemptId});if(error){setError("Could not safely exit this attempt: "+error.message);return;}}
+  router.push("/practice");
+ };
  const finish=useCallback(async()=>{
   if(!db||!attemptId)return;setSaving(true);
   const {error}=await db.rpc("student_submit_practice_test",{p_attempt_id:attemptId});
@@ -85,7 +100,7 @@ export default function PracticeSessionPage(){
   </article><div className="ps-actions"><button className="ps-outline" onClick={()=>updateAnswer(q.id,null)}>Clear response</button><button className={review.includes(q.id)?"ps-review active":"ps-review"} onClick={()=>toggleReview(q.id)}>{review.includes(q.id)?"Unmark review":"Mark for review"}</button><span/>{saving&&<small>Saving…</small>}<button className="ps-outline" disabled={current===0} onClick={()=>setCurrent(x=>Math.max(0,x-1))}>← Previous</button><button className="ps-next" onClick={()=>setCurrent(x=>Math.min(questions.length-1,x+1))}>{current===questions.length-1?"Last question":"Save & Next →"}</button></div></section>
    <aside className={showPalette?"ps-sidebar is-open":"ps-sidebar"}><h2>Question palette</h2><div className="ps-legend"><span><i className="done"/>Answered</span><span><i className="todo"/>Not answered</span><span><i className="flag"/>Review</span></div><div className="ps-grid">{questions.map((item,i)=><button key={item.id} className={(current===i?"current ":"")+(answers[item.id]!==undefined&&answers[item.id]!==null&&answers[item.id]!==""?"done ":"")+(review.includes(item.id)?"flag":"")} onClick={()=>setCurrent(i)}>{i+1}</button>)}</div><div className="ps-side-count"><span>Answered <b>{answered}</b></span><span>Remaining <b>{questions.length-answered}</b></span></div><button className="ps-submit-wide" onClick={()=>setConfirm(true)}>Submit test</button></aside>
   </div>
-  <footer className="ps-bottom-bar"><button className="ps-exit" onClick={()=>router.push("/practice")}>Exit</button><button type="button" className="ps-question-count" onClick={()=>setShowPalette(v=>!v)} aria-label="Open question palette" aria-expanded={showPalette}>{current+1} <span>/</span> {questions.length}</button><button className="ps-bottom-submit" onClick={()=>setConfirm(true)}>Submit</button></footer>
+  <footer className="ps-bottom-bar"><button className="ps-exit" onClick={()=>void exitAttempt()}>Exit</button><button type="button" className="ps-question-count" onClick={()=>setShowPalette(v=>!v)} aria-label="Open question palette" aria-expanded={showPalette}>{current+1} <span>/</span> {questions.length}</button><button className="ps-bottom-submit" onClick={()=>setConfirm(true)}>Submit</button></footer>
   {confirm&&<div className="ps-overlay"><div className="ps-dialog"><h2>Submit your test?</h2><p>You have answered {answered} out of {questions.length} questions. Unanswered questions will be submitted as blank.</p><div><button className="ps-outline" onClick={()=>setConfirm(false)}>Continue test</button><button className="ps-submit" onClick={()=>{setConfirm(false);void finish();}}>Confirm submission</button></div></div></div>}
  </main>;
 }
