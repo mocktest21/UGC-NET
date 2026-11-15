@@ -1731,3 +1731,15 @@ button, a, summary { touch-action: manipulation; }
  .mm-unit-coverage{height:5px;margin-top:8px}
  .mm-unit-card>p{font-size:11px}
 }
+
+/* Reference-style summary panel: six evenly separated metric cells */
+.mm-analytics-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;padding:10px;border:1px solid #e4dfd3;border-radius:18px;background:#fffefa;overflow:hidden}
+.mm-analytics-stat{position:relative;min-width:0;min-height:118px;height:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:13px 8px;border:0;border-radius:0;background:transparent;text-align:center}
+.mm-analytics-stat:nth-child(1),.mm-analytics-stat:nth-child(2),.mm-analytics-stat:nth-child(4),.mm-analytics-stat:nth-child(5){border-right:1px solid #e5e0d5}
+.mm-analytics-stat:nth-child(-n+3){border-bottom:1px solid #e5e0d5}
+.mm-analytics-stat-icon{display:grid!important;flex:0 0 24px;width:24px;height:24px;place-items:center;border-radius:7px;background:#edf3ff;color:#2563eb;font-size:12px;line-height:1}
+.mm-analytics-stat-copy{display:flex;min-width:0;min-height:0;flex:0 1 auto;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+.mm-analytics-stat-copy span{display:block;min-height:0;color:#667085;font-size:11px;font-weight:600;line-height:1.25;text-align:center;order:2}
+.mm-analytics-stat-copy strong{display:block;color:#171b27;font-size:clamp(22px,3vw,29px);font-weight:800;line-height:1.1;order:1}
+@media(max-width:760px){.mm-analytics-summary{grid-template-columns:repeat(3,minmax(0,1fr));padding:7px;border-radius:15px}.mm-analytics-stat{min-height:105px;padding:10px 5px;gap:5px}.mm-analytics-stat-icon{flex-basis:21px;width:21px;height:21px;font-size:11px}.mm-analytics-stat-copy{min-height:0;gap:4px}.mm-analytics-stat-copy span{font-size:10px;line-height:1.25}.mm-analytics-stat-copy strong{font-size:clamp(20px,5.4vw,25px)}}
+@media(max-width:360px){.mm-analytics-stat{min-height:98px;padding:8px 3px}.mm-analytics-stat-copy span{font-size:9px}.mm-analytics-stat-copy strong{font-size:19px}}
