@@ -32,12 +32,12 @@ const practiceOptions = [
 ];
 
 const summaryStats = [
-  { label: "Tests attempted", icon: "▤", note: "Completed tests" },
-  { label: "Average score", icon: "↗", note: "Across completed tests" },
-  { label: "Accuracy", icon: "◎", note: "Correct answers ÷ attempted" },
-  { label: "Total questions", icon: "▦", note: "In your selected question banks" },
-  { label: "Unique questions attempted", icon: "◉", note: "Distinct questions answered across completed tests" },
-  { label: "Average time per question", icon: "◷", note: "Average time spent on each attempted question" },
+  { label: "Total tests attempted" },
+  { label: "Total questions" },
+  { label: "Unique questions attempted" },
+  { label: "Accuracy" },
+  { label: "Average score" },
+  { label: "Average time per question" },
 ];
 
 function EmptyAnalytics({ title, detail }: { title: string; detail: string }) {
@@ -59,7 +59,7 @@ export default function DashboardPage() {
   const [profileOpen, setProfileOpen] = useState(false);
   const [profileDialogOpen, setProfileDialogOpen] = useState(false);
   const [analytics,setAnalytics]=useState({attempts:[] as any[],responses:[] as any[],testQuestions:[] as any[],questions:[] as any[],tests:[] as any[],papers:[] as any[],exams:[] as any[]});
-  const [dateFilter,setDateFilter]=useState("all");
+  const [dateFilter,setDateFilter]=useState("today");
   const [customFrom,setCustomFrom]=useState("");
   const [customTo,setCustomTo]=useState("");
   const [reattemptingId,setReattemptingId]=useState("");
@@ -196,11 +196,13 @@ export default function DashboardPage() {
   }
 
   const now = new Date();
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const cutoff = dateFilter === "week" ? new Date(now.getTime() - 7 * 86400000)
     : dateFilter === "month" ? new Date(now.getTime() - 30 * 86400000)
     : dateFilter === "3months" ? new Date(now.getTime() - 90 * 86400000) : null;
   const filteredAttempts = analytics.attempts.filter((attempt: any) => {
     const date = new Date(attempt.submitted_at || attempt.started_at);
+    if (dateFilter === "today") return date >= todayStart && date <= now;
     if (dateFilter === "custom") {
       if (customFrom && date < new Date(customFrom + "T00:00:00")) return false;
       if (customTo && date > new Date(customTo + "T23:59:59")) return false;
@@ -389,24 +391,9 @@ export default function DashboardPage() {
           <section className="mm-analytics-summary" aria-label="Overall performance statistics">
             {summaryStats.map((stat) => (
               <article className="mm-analytics-stat" key={stat.label}>
-                <span className="mm-analytics-stat-icon">{stat.icon}</span>
                 <div className="mm-analytics-stat-copy">
                   <span>{stat.label}</span>
-                  {stat.label === "Accuracy" ? (
-                    <>
-                      <strong className="mm-accuracy-value">{evaluatedResponses.length ? accuracyPercent.toFixed(1) + "%" : "—"}</strong>
-                      <div className="mm-accuracy-meter" aria-label={evaluatedResponses.length ? accuracyPercent.toFixed(1) + "% accuracy" : "No evaluated answers yet"}>
-                        <div className="mm-accuracy-meter-track" style={{display:"flex",width:"100%",height:10,minHeight:10,overflow:"hidden",borderRadius:999,background:"#e5e7eb"}}>
-                          <span style={{display:"block",height:"100%",width:accuracyPercent+"%",background:"#16a34a"}} />
-                          <span style={{display:"block",height:"100%",width:(evaluatedResponses.length?100-accuracyPercent:0)+"%",background:"#ef4444"}} />
-                        </div>
-                        <small>{correctCount} correct · {incorrectCount} incorrect</small>
-                      </div>
-                    </>
-                  ) : (
-                    <strong>{stat.label==="Tests attempted"?filteredAttempts.length:stat.label==="Average score"?(averageScore===null?"—":averageScore.toFixed(1)+"%"):stat.label==="Total questions"?totalQuestions:stat.label==="Unique questions attempted"?uniqueQuestionIds.size:stat.label==="Average time per question"?formatDuration(averageTime):"—"}</strong>
-                  )}
-                  <small>{stat.note}</small>
+                  <strong>{stat.label==="Accuracy"?(evaluatedResponses.length?accuracyPercent.toFixed(1)+"%":"—"):stat.label==="Total tests attempted"?filteredAttempts.length:stat.label==="Average score"?(averageScore===null?"—":averageScore.toFixed(1)+"%"):stat.label==="Total questions"?totalQuestions:stat.label==="Unique questions attempted"?uniqueQuestionIds.size:formatDuration(averageTime)}</strong>
                 </div>
               </article>
             ))}
@@ -414,9 +401,9 @@ export default function DashboardPage() {
 
           <section className="mm-analytics-panel mm-overall-panel" id="performance">
             <div className="mm-analytics-panel-heading">
-              <div><span className="mm-section-kicker">PROGRESS TRACKER</span><h2>Performance trends</h2><p>Your scores, accuracy and attempt history for the selected period.</p></div>
+              <div><span className="mm-section-kicker">PROGRESS TRACKER</span><h2>Performance trends</h2><p>Completed tests for the selected period.</p></div>
               <select className="mm-analytics-filter-select" value={dateFilter} onChange={(event) => setDateFilter(event.target.value)} aria-label="Filter tests by date">
-                <option value="all">All time</option>
+                <option value="today">Today</option>\n                <option value="all">All time</option>
                 <option value="week">Last 7 days</option>
                 <option value="month">Last 30 days</option>
                 <option value="3months">Last 3 months</option>
