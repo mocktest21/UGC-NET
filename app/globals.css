@@ -1779,3 +1779,23 @@ button, a, summary { touch-action: manipulation; }
 @media(max-width:360px){
  .mm-analytics-stat{min-height:98px;padding:9px 3px}
 }
+
+/* Completed performance trends reuse the compact unit-analysis card language */
+.mm-dashboard-recent-tests{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.mm-trend-card{display:flex;min-width:0;flex-direction:column;gap:9px;padding:12px 13px;background:#fff;border:1px solid #e5e0d5;border-radius:12px}
+.mm-trend-card-heading{align-items:flex-start;margin:0}
+.mm-trend-card-heading h3{font-size:12px;line-height:1.35}
+.mm-trend-card-heading>span{font-size:9px;white-space:nowrap}
+.mm-trend-card .mm-unit-metrics>div{min-height:48px}
+.mm-trend-card .mm-unit-metrics strong{font-size:17px}
+.mm-trend-card .mm-unit-metrics small{font-size:8px}
+.mm-trend-card .mm-unit-coverage{margin-top:0}
+.mm-trend-card-meta{display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px 8px;color:#718096;font-size:9px;line-height:1.4}
+.mm-trend-card .mm-dashboard-test-actions{justify-content:flex-start;gap:7px;margin-top:auto}
+.mm-trend-card .mm-dashboard-test-actions button{min-height:31px;padding:6px 10px;font-size:9px}
+@media(max-width:600px){
+ .mm-dashboard-recent-tests{grid-template-columns:1fr;gap:8px}
+ .mm-trend-card{padding:11px 12px;gap:8px}
+ .mm-trend-card-heading h3{font-size:12px}
+ .mm-trend-card .mm-unit-metrics>div{min-height:46px}
+}
