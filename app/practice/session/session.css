@@ -57,3 +57,46 @@
   .ps-grid{grid-template-columns:repeat(6,minmax(0,1fr));gap:9px}
   .ps-grid button{height:40px;font-size:12px}
 }
+
+
+/* Compact exam header, palette and fixed bottom action bar */
+.ps-header{height:68px;display:grid;grid-template-columns:1fr auto auto;gap:14px;padding:0 clamp(14px,3vw,30px)}
+.ps-header>div:nth-child(2){margin:0;justify-self:center}
+.ps-review-top{min-height:42px;padding:0 18px;border:1px solid #dce3ed;border-radius:10px;background:#fff;color:#2563eb;font-size:12px;font-weight:800;cursor:pointer}
+.ps-review-top.active{border-color:#2563eb;background:#eff6ff}
+.ps-bottom-bar{position:fixed;left:0;right:0;bottom:0;z-index:16;display:grid;grid-template-columns:1fr 1fr 1fr;align-items:center;gap:12px;padding:10px max(14px,env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left));background:rgba(255,254,250,.97);border-top:1px solid #e7e1d5;backdrop-filter:blur(12px)}
+.ps-exit,.ps-bottom-submit{min-height:46px;border-radius:11px;font-size:13px;font-weight:800;cursor:pointer}
+.ps-exit{justify-self:start;padding:0 22px;border:1px solid #e7e1d5;background:#fff;color:#2563eb}
+.ps-bottom-submit{justify-self:end;padding:0 25px;border:0;background:#2563eb;color:#fff}
+.ps-question-count{justify-self:center;min-width:94px;padding:8px 14px;border:1px solid #e7e1d5;border-radius:11px;background:#fff;text-align:center;font-size:17px;font-weight:700;font-variant-numeric:tabular-nums}
+.ps-question-count span{color:#94a3b8;padding:0 5px}
+.ps-body{padding-bottom:92px}
+.ps-palette-toggle{display:none}
+@media(max-width:560px){
+ .ps-header{height:76px;min-height:76px;padding:0 12px;grid-template-columns:minmax(0,1fr) auto auto;gap:9px}
+ .ps-brand{font-size:16px;gap:7px}
+ .ps-brand span{width:31px;height:31px;flex-basis:31px;font-size:14px}
+ .ps-header>div:nth-child(2){display:flex;min-width:0;align-items:center;gap:7px;padding:7px 10px;border-radius:10px}
+ .ps-timer small{font-size:8px;letter-spacing:.4px}
+ .ps-timer b{font-size:15px}
+ .ps-review-top{min-height:40px;padding:0 12px;font-size:11px}
+ .ps-body{padding:12px 10px 90px;display:block}
+ .ps-main{padding:14px 12px}
+ .ps-sidebar{display:none}
+ .ps-sidebar.is-open{display:block;position:fixed;left:12px;right:12px;bottom:76px;z-index:15;max-height:34dvh;overflow:auto;margin:0;padding:12px;border:1px solid #dbe3ef;border-radius:13px;box-shadow:0 10px 30px rgba(15,23,42,.18)}
+ .ps-sidebar h2{font-size:12px;margin-bottom:9px}
+ .ps-legend{display:flex;flex-wrap:wrap;gap:10px;font-size:9px}
+ .ps-grid{grid-template-columns:repeat(8,minmax(0,1fr));gap:6px;margin:10px 0}
+ .ps-grid button{height:29px;font-size:10px;border-radius:6px}
+ .ps-side-count{padding:7px 0;font-size:9px}
+ .ps-submit-wide{padding:8px;font-size:10px}
+ .ps-question{min-height:0;padding:19px 2px}
+ .ps-question h1{font-size:17px;line-height:1.55}
+ .ps-actions{gap:7px;padding-top:12px}
+ .ps-actions>*{min-height:40px;padding:8px 9px;font-size:10px}
+ .ps-bottom-bar{gap:8px;padding:9px 12px calc(9px + env(safe-area-inset-bottom))}
+ .ps-exit,.ps-bottom-submit{min-height:44px;font-size:12px}
+ .ps-exit{padding:0 18px}
+ .ps-bottom-submit{padding:0 22px}
+ .ps-question-count{min-width:82px;padding:7px 10px;font-size:16px}
+}
