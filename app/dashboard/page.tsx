@@ -37,7 +37,7 @@ const summaryStats = [
   { label: "Accuracy", icon: "◎", note: "Correct answers ÷ attempted" },
   { label: "Units mastered", icon: "✓", note: "Based on unit performance" },
   { label: "Total questions", icon: "▦", note: "In your selected question banks" },
-  { label: "Questions attempted", icon: "◉", note: "Questions included in your completed tests" },
+  { label: "Unique questions attempted", icon: "◉", note: "Distinct questions answered across completed tests" },
   { label: "Relative standing", icon: "🏆", note: "Your percentile among comparable students" },
   { label: "Average time per question", icon: "◷", note: "Average time spent on each attempted question" },
 ];
@@ -60,7 +60,12 @@ export default function DashboardPage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [profileDialogOpen, setProfileDialogOpen] = useState(false);
-  const [analytics,setAnalytics]=useState({tests:0,average:"—",accuracy:"—",totalQuestions:0,uniqueQuestions:0,recent:[] as any[],subjects:[] as any[],units:[] as any[]});
+  const [analytics,setAnalytics]=useState({attempts:[] as any[],responses:[] as any[],testQuestions:[] as any[],questions:[] as any[],tests:[] as any[],exams:[] as any[]});
+  const [dateFilter,setDateFilter]=useState("all");
+  const [customFrom,setCustomFrom]=useState("");
+  const [customTo,setCustomTo]=useState("");
+  const [reattemptingId,setReattemptingId]=useState("");
+  const [actionError,setActionError]=useState("");
 
   useEffect(() => {
     let active = true;
@@ -82,55 +87,61 @@ export default function DashboardPage() {
           exams: Array.isArray(profile.exams) ? profile.exams : [],
           phone: profile.phone_number,
         });
-        const {data:attemptRows}=await supabase.from("test_attempts")
-          .select("id,score,max_score,accuracy,questions_attempted,correct_count,incorrect_count,unanswered_count,status,started_at")
-          .eq("student_id",data.user.id).in("status",["submitted","auto_submitted"]).order("started_at",{ascending:false}).limit(200);
-        const attempts=(attemptRows||[]) as any[];
-        const scored=attempts.filter(a=>a.score!==null&&a.max_score!==null&&Number(a.max_score)>0);
-        const avg=scored.length?scored.reduce((sum,a)=>sum+(Number(a.score)/Number(a.max_score))*100,0)/scored.length:null;
-        const correct=attempts.reduce((sum,a)=>sum+Number(a.correct_count||0),0);
-        const attempted=attempts.reduce((sum,a)=>sum+Number(a.questions_attempted||0),0);
-        const accuracyRows=attempts.filter(a=>a.accuracy!==null);
-        const accuracy=accuracyRows.length?accuracyRows.reduce((sum,a)=>sum+Number(a.accuracy),0)/accuracyRows.length*100:null;
-        const total=attempts.reduce((sum,a)=>sum+Number(a.questions_attempted||0)+Number(a.unanswered_count||0),0);
-        const attemptIds=attempts.map(a=>a.id);
-        let subjectPerformance:any[]=[];
-        let unitPerformance:any[]=[];
-        if(attemptIds.length){
-          const {data:responseRows}=await supabase.from("student_responses").select("attempt_id,test_question_id,is_correct,awarded_marks,time_spent_seconds").in("attempt_id",attemptIds);
-          const responses=(responseRows||[]) as any[];
-          const tqIds=Array.from(new Set(responses.map(r=>r.test_question_id).filter(Boolean)));
-          if(tqIds.length){
-            const {data:tqRows}=await supabase.from("test_questions").select("id,question_id").in("id",tqIds);
-            const questionIds=Array.from(new Set((tqRows||[]).map((r:any)=>r.question_id).filter(Boolean)));
-            if(questionIds.length){
-              const {data:questionRows}=await supabase.from("questions").select("id,subject_id,unit_id,subjects(name),units(name)").in("id",questionIds);
-              const questionById=new Map((tqRows||[]).map((r:any)=>[r.id,(questionRows||[]).find((q:any)=>q.id===r.question_id)]));
-              const subjectMap=new Map<string,any>();
-              const unitMap=new Map<string,any>();
-              for(const response of responses){
-                if(response.is_correct===null||response.is_correct===undefined)continue;
-                const tq=(tqRows||[]).find((r:any)=>r.id===response.test_question_id);
-                const q=tq?questionById.get(tq.id) as any:null;
-                if(!q)continue;
-                const subjectName=Array.isArray(q.subjects)?q.subjects[0]?.name:q.subjects?.name;
-                const unitName=Array.isArray(q.units)?q.units[0]?.name:q.units?.name;
-                const add=(map:Map<string,any>,id:string| null,name:string|undefined)=>{
-                  if(!id)return;
-                  const item=map.get(id)||{id,name:name||"Unlabelled",attempted:0,correct:0,incorrect:0,time:0};
-                  item.attempted++;if(response.is_correct)item.correct++;else item.incorrect++;
-                  item.time+=Number(response.time_spent_seconds||0);map.set(id,item);
-                };
-                add(subjectMap,q.subject_id,subjectName);
-                add(unitMap,q.unit_id,unitName);
-              }
-              const format=(map:Map<string,any>)=>Array.from(map.values()).map(x=>({...x,accuracy:x.attempted?x.correct/x.attempted*100:0,avgTime:x.attempted?x.time/x.attempted:0})).sort((a,b)=>b.attempted-a.attempted);
-              subjectPerformance=format(subjectMap);unitPerformance=format(unitMap);
+
+        const { data: attemptRows } = await supabase.from("test_attempts")
+          .select("id,test_id,score,max_score,accuracy,questions_attempted,correct_count,incorrect_count,unanswered_count,status,started_at,submitted_at,time_taken_seconds")
+          .eq("student_id", data.user.id)
+          .in("status", ["submitted","auto_submitted"])
+          .order("started_at", { ascending: false })
+          .limit(500);
+        const attempts = (attemptRows || []) as any[];
+        const attemptIds = attempts.map((a) => a.id);
+        const testIds = Array.from(new Set(attempts.map((a) => a.test_id).filter(Boolean)));
+
+        let tests: any[] = [];
+        let responses: any[] = [];
+        let testQuestions: any[] = [];
+        let questions: any[] = [];
+        if (testIds.length) {
+          const { data: testRows } = await supabase.from("tests")
+            .select("id,title,exam_id,paper_id,subject_id")
+            .in("id", testIds);
+          tests = (testRows || []) as any[];
+        }
+        if (attemptIds.length) {
+          const { data: responseRows } = await supabase.from("student_responses")
+            .select("attempt_id,test_question_id,response,is_correct,time_spent_seconds")
+            .in("attempt_id", attemptIds);
+          responses = (responseRows || []) as any[];
+          const tqIds = Array.from(new Set(responses.map((r) => r.test_question_id).filter(Boolean)));
+          if (tqIds.length) {
+            const { data: tqRows } = await supabase.from("test_questions")
+              .select("id,question_id,test_id")
+              .in("id", tqIds);
+            testQuestions = (tqRows || []) as any[];
+            const questionIds = Array.from(new Set(testQuestions.map((q) => q.question_id).filter(Boolean)));
+            if (questionIds.length) {
+              const { data: questionRows } = await supabase.from("questions")
+                .select("id,subject_id,unit_id,subjects(name),units(name)")
+                .in("id", questionIds);
+              questions = (questionRows || []) as any[];
             }
           }
         }
-        if(active)setAnalytics({tests:attempts.length,average:avg===null?"—":avg.toFixed(1)+"%",accuracy:accuracy===null?"—":accuracy.toFixed(1)+"%",totalQuestions:total,uniqueQuestions:attempted,recent:attempts.slice(0,5).map(a=>({id:a.id,score:a.score===null?null:Number(a.score),max_score:a.max_score===null?null:Number(a.max_score),started_at:a.started_at,questions_attempted:Number(a.questions_attempted||0)})),subjects:subjectPerformance,units:unitPerformance});
+        const { data: examRows } = await supabase.from("student_exam_preferences")
+          .select("exam_id,selected_subject_id,exams(name)")
+          .eq("student_id", data.user.id);
 
+        if (active) {
+          setAnalytics({
+            attempts,
+            responses,
+            testQuestions,
+            questions,
+            tests,
+            exams: (examRows || []) as any[],
+          });
+        }
       } catch {
         router.replace("/login");
       } finally {
@@ -148,6 +159,100 @@ export default function DashboardPage() {
     await supabase.auth.signOut();
     router.replace("/login");
   }
+
+  async function handleReattempt(attemptId: string) {
+    setReattemptingId(attemptId);
+    setActionError("");
+    const supabase = createSupabaseBrowserClient();
+    const { data, error } = await supabase.rpc("student_reattempt_test", { p_attempt_id: attemptId });
+    setReattemptingId("");
+    if (error) {
+      setActionError(error.message || "Unable to prepare this reattempt.");
+      return;
+    }
+    const next = data as { test_id: string; attempt_id: string; duration_seconds: number };
+    router.push("/practice/session?" + new URLSearchParams({
+      test: next.test_id,
+      attempt: next.attempt_id,
+      minutes: String(Math.ceil(next.duration_seconds / 60)),
+    }).toString());
+  }
+
+  const now = new Date();
+  const cutoff = dateFilter === "week" ? new Date(now.getTime() - 7 * 86400000)
+    : dateFilter === "month" ? new Date(now.getTime() - 30 * 86400000)
+    : dateFilter === "3months" ? new Date(now.getTime() - 90 * 86400000) : null;
+  const filteredAttempts = analytics.attempts.filter((attempt: any) => {
+    const date = new Date(attempt.submitted_at || attempt.started_at);
+    if (dateFilter === "custom") {
+      if (customFrom && date < new Date(customFrom + "T00:00:00")) return false;
+      if (customTo && date > new Date(customTo + "T23:59:59")) return false;
+      return true;
+    }
+    return !cutoff || date >= cutoff;
+  });
+  const filteredAttemptIds = new Set(filteredAttempts.map((a: any) => a.id));
+  const filteredResponses = analytics.responses.filter((r: any) => filteredAttemptIds.has(r.attempt_id));
+  const testQuestionById = new Map(analytics.testQuestions.map((q: any) => [q.id, q]));
+  const questionById = new Map(analytics.questions.map((q: any) => [q.id, q]));
+  const testById = new Map(analytics.tests.map((t: any) => [t.id, t]));
+  const hasAnswer = (value: any) => value !== null && value !== undefined && value !== "" && JSON.stringify(value) !== "null" && JSON.stringify(value) !== '""';
+  const evaluatedResponses = filteredResponses.filter((r: any) => r.is_correct === true || r.is_correct === false);
+  const correctCount = evaluatedResponses.filter((r: any) => r.is_correct === true).length;
+  const incorrectCount = evaluatedResponses.length - correctCount;
+  const accuracyPercent = evaluatedResponses.length ? correctCount / evaluatedResponses.length * 100 : 0;
+  const uniqueQuestionIds = new Set(filteredResponses.filter((r: any) => hasAnswer(r.response)).map((r: any) => {
+    const tq: any = testQuestionById.get(r.test_question_id);
+    return tq?.question_id;
+  }).filter(Boolean));
+  const scoredAttempts = filteredAttempts.filter((a: any) => a.score !== null && Number(a.max_score) > 0);
+  const averageScore = scoredAttempts.length ? scoredAttempts.reduce((sum: number, a: any) => sum + Number(a.score) / Number(a.max_score) * 100, 0) / scoredAttempts.length : null;
+  const totalQuestions = filteredAttempts.reduce((sum: number, a: any) => sum + Number(a.questions_attempted || 0) + Number(a.unanswered_count || 0), 0);
+  const timeRows = filteredResponses.filter((r: any) => hasAnswer(r.response));
+  const averageTime = timeRows.length ? timeRows.reduce((sum: number, r: any) => sum + Number(r.time_spent_seconds || 0), 0) / timeRows.length : null;
+  const formatDuration = (seconds: number | null) => seconds === null ? "—" : seconds < 60 ? Math.round(seconds) + " sec" : Math.floor(seconds / 60) + "m " + Math.round(seconds % 60) + "s";
+
+  const buildBreakdown = (field: "subject_id" | "unit_id") => {
+    const map = new Map<string, any>();
+    for (const response of evaluatedResponses) {
+      const tq: any = testQuestionById.get(response.test_question_id);
+      const q: any = tq ? questionById.get(tq.question_id) : null;
+      const id = q?.[field];
+      if (!id) continue;
+      const relation = field === "subject_id" ? q.subjects : q.units;
+      const name = Array.isArray(relation) ? relation[0]?.name : relation?.name;
+      const item = map.get(id) || { id, name: name || "Unlabelled", attempted: 0, correct: 0, incorrect: 0, time: 0 };
+      item.attempted += 1;
+      if (response.is_correct) item.correct += 1; else item.incorrect += 1;
+      item.time += Number(response.time_spent_seconds || 0);
+      map.set(id, item);
+    }
+    return Array.from(map.values()).map((item) => ({
+      ...item,
+      accuracy: item.attempted ? item.correct / item.attempted * 100 : 0,
+      avgTime: item.attempted ? item.time / item.attempted : 0,
+    })).sort((a, b) => b.attempted - a.attempted);
+  };
+  const subjectPerformance = buildBreakdown("subject_id");
+  const unitPerformance = buildBreakdown("unit_id");
+
+  const examStats = analytics.exams.map((preference: any) => {
+    const examRelation = preference.exams;
+    const examName = Array.isArray(examRelation) ? examRelation[0]?.name : examRelation?.name;
+    const examAttempts = filteredAttempts.filter((a: any) => (testById.get(a.test_id) as any)?.exam_id === preference.exam_id);
+    const examAttemptIds = new Set(examAttempts.map((a: any) => a.id));
+    const examResponses = filteredResponses.filter((r: any) => examAttemptIds.has(r.attempt_id) && (r.is_correct === true || r.is_correct === false));
+    const examCorrect = examResponses.filter((r: any) => r.is_correct === true).length;
+    const scored = examAttempts.filter((a: any) => a.score !== null && Number(a.max_score) > 0);
+    const average = scored.length ? scored.reduce((sum: number, a: any) => sum + Number(a.score) / Number(a.max_score) * 100, 0) / scored.length : null;
+    return {
+      id: preference.exam_id,
+      name: examName || "Selected examination",
+      tests: examAttempts.length,
+      average,
+      accuracy: examResponses.length ? examCorrect / examResponses.length * 100 : null,
+    };
+  });
 
   if (loading || !student) {
     return (
@@ -242,7 +347,17 @@ export default function DashboardPage() {
                 <span className="mm-analytics-stat-icon">{stat.icon}</span>
                 <div className="mm-analytics-stat-copy">
                   <span>{stat.label}</span>
-                  <strong>{stat.label==="Tests attempted"?analytics.tests:stat.label==="Average score"?analytics.average:stat.label==="Accuracy"?analytics.accuracy:stat.label==="Total questions"?analytics.totalQuestions:stat.label==="Questions attempted"?analytics.uniqueQuestions:"—"}</strong>
+                  {stat.label === "Accuracy" ? (
+                    <div className="mm-accuracy-meter" aria-label={evaluatedResponses.length + " evaluated answers"}>
+                      <div className="mm-accuracy-meter-track">
+                        <span className="mm-accuracy-correct" style={{width: accuracyPercent + "%"}} />
+                        <span className="mm-accuracy-incorrect" style={{width: (100 - accuracyPercent) + "%"}} />
+                      </div>
+                      <small>{correctCount} correct · {incorrectCount} incorrect</small>
+                    </div>
+                  ) : (
+                    <strong>{stat.label==="Tests attempted"?filteredAttempts.length:stat.label==="Average score"?(averageScore===null?"—":averageScore.toFixed(1)+"%"):stat.label==="Total questions"?totalQuestions:stat.label==="Unique questions attempted"?uniqueQuestionIds.size:stat.label==="Average time per question"?formatDuration(averageTime):"—"}</strong>
+                  )}
                   <small>{stat.note}</small>
                 </div>
               </article>
@@ -251,34 +366,76 @@ export default function DashboardPage() {
 
           <section className="mm-analytics-panel mm-overall-panel" id="performance">
             <div className="mm-analytics-panel-heading">
-              <div><span className="mm-section-kicker">PROGRESS TRACKER</span><h2>Performance trends</h2><p>Your scores and accuracy will be plotted as you complete tests.</p></div>
-              <span className="mm-analytics-filter">All time</span>
+              <div><span className="mm-section-kicker">PROGRESS TRACKER</span><h2>Performance trends</h2><p>Your scores, accuracy and attempt history for the selected period.</p></div>
+              <select className="mm-analytics-filter-select" value={dateFilter} onChange={(event) => setDateFilter(event.target.value)} aria-label="Filter tests by date">
+                <option value="all">All time</option>
+                <option value="week">Last 7 days</option>
+                <option value="month">Last 30 days</option>
+                <option value="3months">Last 3 months</option>
+                <option value="custom">Custom range</option>
+              </select>
             </div>
-            {analytics.recent.length?<div className="mm-dashboard-recent-tests">{analytics.recent.map((test,index)=><div key={test.id}><span>Test {analytics.tests-index}</span><b>{test.score!==null&&test.max_score?((test.score/test.max_score)*100).toFixed(1)+"%":"Submitted"}</b><small>{test.questions_attempted} questions attempted · {new Date(test.started_at).toLocaleDateString("en-IN")}</small></div>)}</div>:<EmptyAnalytics title="Your performance trend will appear here" detail="Complete a test to start tracking your score and accuracy trends over time." />}
+            {dateFilter === "custom" && (
+              <div className="mm-custom-date-filter">
+                <label>From <input type="date" value={customFrom} onChange={(event) => setCustomFrom(event.target.value)} /></label>
+                <label>To <input type="date" value={customTo} min={customFrom || undefined} onChange={(event) => setCustomTo(event.target.value)} /></label>
+              </div>
+            )}
+            {actionError && <p className="mm-dashboard-action-error" role="alert">{actionError}</p>}
+            {filteredAttempts.length ? (
+              <div className="mm-dashboard-recent-tests">
+                {filteredAttempts.slice(0, 20).map((test: any) => {
+                  const meta: any = testById.get(test.test_id);
+                  const pct = Number(test.max_score) > 0 && test.score !== null ? Math.max(0, Math.min(100, Number(test.score) / Number(test.max_score) * 100)) : null;
+                  const total = Number(test.correct_count || 0) + Number(test.incorrect_count || 0) + Number(test.unanswered_count || 0);
+                  const green = total ? Number(test.correct_count || 0) / total * 100 : 0;
+                  const red = total ? Number(test.incorrect_count || 0) / total * 100 : 0;
+                  return (
+                    <article className="mm-dashboard-test-card" key={test.id}>
+                      <div className="mm-dashboard-test-heading">
+                        <span>{meta?.title || "Mock test"}</span>
+                        <b>{pct === null ? "Submitted" : pct.toFixed(1) + "% score"}</b>
+                      </div>
+                      <small>{test.score === null ? "Score pending" : Number(test.score).toFixed(2) + " / " + Number(test.max_score || 0).toFixed(2) + " marks"} · {test.correct_count || 0} correct · {test.incorrect_count || 0} incorrect · {test.unanswered_count || 0} unattempted · {new Date(test.submitted_at || test.started_at).toLocaleDateString("en-IN")}</small>
+                      <div className="mm-test-trend-track" aria-label={green.toFixed(0) + "% correct and " + red.toFixed(0) + "% incorrect"}>
+                        <span className="mm-test-trend-green" style={{width: green + "%"}} />
+                        <span className="mm-test-trend-red" style={{width: red + "%"}} />
+                      </div>
+                      <div className="mm-dashboard-test-actions">
+                        <button type="button" className="mm-dashboard-analysis-button" onClick={() => router.push("/practice/result?" + new URLSearchParams({attempt: test.id}).toString())}>View Analysis</button>
+                        <button type="button" className="mm-dashboard-reattempt-button" disabled={reattemptingId === test.id} onClick={() => void handleReattempt(test.id)}>{reattemptingId === test.id ? "Preparing…" : "Reattempt"}</button>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            ) : (
+              <EmptyAnalytics title="No tests in this period" detail="Complete a test or choose a wider date range to see your performance trends." />
+            )}
           </section>
 
           <section className="mm-analytics-panel" id="examinations">
             <div className="mm-analytics-panel-heading">
-              <div><span className="mm-section-kicker">EXAM-WISE OVERVIEW</span><h2>My examinations</h2><p>Performance will be organised separately for each examination you have selected.</p></div>
-              <span className="mm-count-pill">{student.exams.length} selected</span>
+              <div><span className="mm-section-kicker">EXAM-WISE OVERVIEW</span><h2>My examinations</h2><p>Live performance calculated separately for each examination you selected.</p></div>
+              <span className="mm-count-pill">{examStats.length} selected</span>
             </div>
-            {student.exams.length ? (
+            {examStats.length ? (
               <div className="mm-analytics-exam-grid">
-                {student.exams.map((exam) => (
-                  <article className="mm-analytics-exam-card" key={exam}>
+                {examStats.map((exam: any) => (
+                  <article className="mm-analytics-exam-card" key={exam.id}>
                     <div className="mm-analytics-exam-top"><span className="mm-analytics-exam-icon">▤</span><span className="mm-analytics-status">Selected</span></div>
-                    <h3>{exam}</h3>
+                    <h3>{exam.name}</h3>
                     <div className="mm-analytics-exam-metrics">
-                      <div><strong>—</strong><span>Tests</span></div>
-                      <div><strong>—</strong><span>Average score</span></div>
-                      <div><strong>—</strong><span>Accuracy</span></div>
+                      <div><strong>{exam.tests}</strong><span>Tests</span></div>
+                      <div><strong>{exam.average === null ? "—" : exam.average.toFixed(1) + "%"}</strong><span>Average score</span></div>
+                      <div><strong>{exam.accuracy === null ? "—" : exam.accuracy.toFixed(1) + "%"}</strong><span>Accuracy</span></div>
                     </div>
-                    <p>Statistics will populate after test attempts are recorded.</p>
+                    <p>{exam.tests ? "Based on " + exam.tests + " completed test attempt(s) in this period." : "No completed tests for this examination in the selected period."}</p>
                   </article>
                 ))}
               </div>
             ) : (
-              <EmptyAnalytics title="No examinations selected" detail="Your selected examinations will appear here after you update your profile." />
+              <EmptyAnalytics title="No examinations selected" detail="Your selected examinations will appear here after you complete onboarding or update your exam preferences." />
             )}
           </section>
 
@@ -293,7 +450,7 @@ export default function DashboardPage() {
               <div className="mm-analytics-panel-heading">
                 <div><span className="mm-section-kicker">SUBJECT-WISE ANALYSIS</span><h2>Subject performance</h2><p>See how you are performing in each subject.</p></div>
               </div>
-              {analytics.subjects.length?<div className="mm-dashboard-breakdown">{analytics.subjects.map((item:any)=><div className="mm-dashboard-breakdown-row" key={item.id}><div><strong>{item.name}</strong><small>{item.attempted} evaluated questions · {item.correct} correct · {item.incorrect} incorrect</small></div><b>{item.accuracy.toFixed(1)}%<small>accuracy</small></b></div>)}</div>:<EmptyAnalytics title="Subject analysis will appear here" detail="Complete and submit subject-wise practice tests to build your performance record." />}
+              {subjectPerformance.length?<div className="mm-dashboard-breakdown">{subjectPerformance.map((item:any)=><div className="mm-dashboard-breakdown-row" key={item.id}><div><strong>{item.name}</strong><small>{item.attempted} evaluated questions · {item.correct} correct · {item.incorrect} incorrect</small></div><b>{item.accuracy.toFixed(1)}%<small>accuracy</small></b></div>)}</div>:<EmptyAnalytics title="Subject analysis will appear here" detail="Complete and submit subject-wise practice tests to build your performance record." />}
             </article>
           </section>
 
@@ -302,7 +459,7 @@ export default function DashboardPage() {
               <div><span className="mm-section-kicker">DETAILED SYLLABUS ANALYSIS</span><h2>Unit-wise performance</h2><p>Identify strong units, weak units and your progress across the syllabus.</p></div>
               <span className="mm-unit-badge">Core analytics</span>
             </div>
-            {analytics.units.length?<div className="mm-dashboard-breakdown">{analytics.units.map((item:any)=><div className="mm-dashboard-breakdown-row" key={item.id}><div><strong>{item.name}</strong><small>{item.attempted} evaluated questions · {item.correct} correct · {item.incorrect} incorrect</small></div><b>{item.accuracy.toFixed(1)}%<small>accuracy</small></b></div>)}</div>:<EmptyAnalytics title="Your unit-wise report will build here" detail="Complete and submit practice tests containing unit-tagged questions to see unit-level accuracy and progress." />}
+            {unitPerformance.length?<div className="mm-dashboard-breakdown">{unitPerformance.map((item:any)=><div className="mm-dashboard-breakdown-row" key={item.id}><div><strong>{item.name}</strong><small>{item.attempted} evaluated questions · {item.correct} correct · {item.incorrect} incorrect</small></div><b>{item.accuracy.toFixed(1)}%<small>accuracy</small></b></div>)}</div>:<EmptyAnalytics title="Your unit-wise report will build here" detail="Complete and submit practice tests containing unit-tagged questions to see unit-level accuracy and progress." />}
           </section>
 
           <section className="mm-analytics-two-col">
