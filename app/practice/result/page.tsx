@@ -17,7 +17,9 @@ const responseText=(v:any,options:any[])=>{
  return vals.map(x=>{const opt=options.find((o:any)=>String(o.id??o.value??"")===String(x));return opt?String(opt.text??opt.label??x):typeof x==="object"?JSON.stringify(x):String(x)}).join(", ");
 };
 export default function PracticeResultPage(){
- const router=useRouter();\n const [attemptId,setAttemptId]=useState("");\n useEffect(()=>{setAttemptId(new URLSearchParams(window.location.search).get("attempt")||"");},[]);
+ const router=useRouter();
+ const [attemptId,setAttemptId]=useState("");
+ useEffect(()=>{setAttemptId(new URLSearchParams(window.location.search).get("attempt")||"");},[]);
  const [data,setData]=useState<ResultData|null>(null),[loading,setLoading]=useState(true),[error,setError]=useState(""),[busy,setBusy]=useState(false),[showAnalysis,setShowAnalysis]=useState(true);
  const load=useCallback(async()=>{if(!attemptId)return;const db=createSupabaseBrowserClient();const {data,error}=await db.rpc("student_get_attempt_result",{p_attempt_id:attemptId});if(error){setError(error.message);setLoading(false);return;}setData(data as ResultData);setLoading(false);},[attemptId]);
  useEffect(()=>{if(attemptId)void load();},[attemptId,load]);
