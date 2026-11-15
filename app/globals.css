@@ -1708,3 +1708,26 @@ button, a, summary { touch-action: manipulation; }
  .mm-analytics-stat-copy span{font-size:8px}
  .mm-analytics-stat-copy strong{font-size:17px}
 }
+
+/* Compact Mcqkart-inspired unit performance cards */
+.mm-unit-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.mm-unit-card{min-width:0;padding:13px 14px;border:1px solid #e5e1d7;border-radius:13px;background:#fffefa}
+.mm-unit-card-heading{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:10px}
+.mm-unit-card-heading h3{min-width:0;margin:0;color:#202638;font-size:13px;font-weight:750;line-height:1.35}
+.mm-unit-card-heading>span{flex-shrink:0;color:#77766f;font-size:10px}
+.mm-unit-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.mm-unit-metrics>div{display:flex;min-width:0;min-height:55px;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:6px 4px;border:1px solid #e8e4da;border-radius:9px;background:#fff}
+.mm-unit-metrics strong{max-width:100%;overflow:hidden;color:#202638;font-family:Georgia,serif;font-size:19px;font-weight:700;line-height:1.15;text-overflow:ellipsis;white-space:nowrap}
+.mm-unit-metrics small{color:#74736d;font-size:8px;letter-spacing:.35px;font-weight:650}
+.mm-unit-coverage{height:6px;margin-top:9px;overflow:hidden;border-radius:99px;background:#eee8da}
+.mm-unit-coverage>span{display:block;height:100%;border-radius:99px;background:#16a34a}
+.mm-unit-card>p{margin:5px 0 0;color:#696963;font-family:Georgia,serif;font-size:12px}
+@media(max-width:600px){
+ .mm-unit-cards{grid-template-columns:1fr;gap:8px}
+ .mm-unit-card{padding:11px 12px;border-radius:11px}
+ .mm-unit-card-heading{margin-bottom:8px}
+ .mm-unit-metrics>div{min-height:49px;padding:5px 3px}
+ .mm-unit-metrics strong{font-size:18px}
+ .mm-unit-coverage{height:5px;margin-top:8px}
+ .mm-unit-card>p{font-size:11px}
+}
