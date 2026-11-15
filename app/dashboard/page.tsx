@@ -35,10 +35,8 @@ const summaryStats = [
   { label: "Tests attempted", icon: "▤", note: "Completed tests" },
   { label: "Average score", icon: "↗", note: "Across completed tests" },
   { label: "Accuracy", icon: "◎", note: "Correct answers ÷ attempted" },
-  { label: "Units mastered", icon: "✓", note: "Based on unit performance" },
   { label: "Total questions", icon: "▦", note: "In your selected question banks" },
   { label: "Unique questions attempted", icon: "◉", note: "Distinct questions answered across completed tests" },
-  { label: "Relative standing", icon: "🏆", note: "Your percentile among comparable students" },
   { label: "Average time per question", icon: "◷", note: "Average time spent on each attempted question" },
 ];
 
@@ -60,7 +58,7 @@ export default function DashboardPage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [profileDialogOpen, setProfileDialogOpen] = useState(false);
-  const [analytics,setAnalytics]=useState({attempts:[] as any[],responses:[] as any[],testQuestions:[] as any[],questions:[] as any[],tests:[] as any[],exams:[] as any[]});
+  const [analytics,setAnalytics]=useState({attempts:[] as any[],responses:[] as any[],testQuestions:[] as any[],questions:[] as any[],tests:[] as any[],papers:[] as any[],exams:[] as any[]});
   const [dateFilter,setDateFilter]=useState("all");
   const [customFrom,setCustomFrom]=useState("");
   const [customTo,setCustomTo]=useState("");
@@ -108,6 +106,12 @@ export default function DashboardPage() {
             .in("id", testIds);
           tests = (testRows || []) as any[];
         }
+        const paperIds = Array.from(new Set(tests.map((test: any) => test.paper_id).filter(Boolean)));
+        let papers: any[] = [];
+        if (paperIds.length) {
+          const { data: paperRows } = await supabase.from("papers").select("id,name,code").in("id", paperIds);
+          papers = (paperRows || []) as any[];
+        }
         if (attemptIds.length) {
           const { data: responseRows } = await supabase.from("student_responses")
             .select("attempt_id,test_question_id,response,is_correct,time_spent_seconds")
@@ -151,6 +155,7 @@ export default function DashboardPage() {
             testQuestions,
             questions,
             tests,
+            papers,
             exams: examRows,
           });
         }
@@ -245,8 +250,37 @@ export default function DashboardPage() {
       avgTime: item.attempted ? item.time / item.attempted : 0,
     })).sort((a, b) => b.attempted - a.attempted);
   };
-  const subjectPerformance = buildBreakdown("subject_id");
   const unitPerformance = buildBreakdown("unit_id");
+  const paperMap = new Map<string, any>();
+  for (const attempt of filteredAttempts) {
+    const test: any = testById.get(attempt.test_id);
+    const paperId = test?.paper_id;
+    if (!paperId) continue;
+    const paper = paperMap.get(paperId) || {
+      id: paperId,
+      name: analytics.papers.find((item: any) => item.id === paperId)?.name || "Paper",
+      tests: 0, scoreTotal: 0, scoredTests: 0, correct: 0, incorrect: 0,
+    };
+    paper.tests += 1;
+    if (attempt.score !== null && Number(attempt.max_score) > 0) {
+      paper.scoreTotal += Number(attempt.score) / Number(attempt.max_score) * 100;
+      paper.scoredTests += 1;
+    }
+    paperMap.set(paperId, paper);
+  }
+  for (const response of evaluatedResponses) {
+    const tq: any = testQuestionById.get(response.test_question_id);
+    const test: any = tq ? testById.get(tq.test_id) : null;
+    const paper = test?.paper_id ? paperMap.get(test.paper_id) : null;
+    if (!paper) continue;
+    if (response.is_correct === true) paper.correct += 1;
+    else paper.incorrect += 1;
+  }
+  const paperPerformance = Array.from(paperMap.values()).map((paper: any) => ({
+    ...paper,
+    average: paper.scoredTests ? paper.scoreTotal / paper.scoredTests : null,
+    accuracy: paper.correct + paper.incorrect ? paper.correct / (paper.correct + paper.incorrect) * 100 : null,
+  })).sort((a: any, b: any) => a.name.localeCompare(b.name));
 
   const examStats = analytics.exams.map((preference: any) => {
     const examName = preference.name;
@@ -453,19 +487,11 @@ export default function DashboardPage() {
             )}
           </section>
 
-          <section className="mm-analytics-two-col">
-            <article className="mm-analytics-panel">
-              <div className="mm-analytics-panel-heading">
-                <div><span className="mm-section-kicker">PAPER-WISE ANALYSIS</span><h2>Performance by paper</h2><p>Compare scores and accuracy across papers.</p></div>
-              </div>
-              <EmptyAnalytics title="Paper-wise statistics are not available yet" detail="Your paper-level results will appear here after you attempt tests." />
-            </article>
-            <article className="mm-analytics-panel">
-              <div className="mm-analytics-panel-heading">
-                <div><span className="mm-section-kicker">SUBJECT-WISE ANALYSIS</span><h2>Subject performance</h2><p>See how you are performing in each subject.</p></div>
-              </div>
-              {subjectPerformance.length?<div className="mm-dashboard-breakdown">{subjectPerformance.map((item:any)=><div className="mm-dashboard-breakdown-row" key={item.id}><div><strong>{item.name}</strong><small>{item.attempted} evaluated questions · {item.correct} correct · {item.incorrect} incorrect</small><div className="mm-breakdown-color-track" aria-label={item.accuracy.toFixed(1)+"% correct"} style={{display:"flex",width:"100%",height:10,minHeight:10,marginTop:8,overflow:"hidden",borderRadius:999,background:"#e5e7eb"}}><span style={{display:"block",height:"100%",width:item.accuracy+"%",background:"#16a34a"}}/><span style={{display:"block",height:"100%",width:(100-item.accuracy)+"%",background:"#ef4444"}}/></div></div><b>{item.accuracy.toFixed(1)}%<small>accuracy</small></b></div>)}</div>:<EmptyAnalytics title="Subject analysis will appear here" detail="Complete and submit subject-wise practice tests to build your performance record." />}
-            </article>
+          <section className="mm-analytics-panel" id="paper-analysis">
+            <div className="mm-analytics-panel-heading">
+              <div><span className="mm-section-kicker">PAPER-WISE ANALYSIS</span><h2>Performance by paper</h2><p>Compare scores and accuracy across papers.</p></div>
+            </div>
+            {paperPerformance.length ? <div className="mm-dashboard-breakdown">{paperPerformance.map((item: any) => <div className="mm-dashboard-breakdown-row" key={item.id}><div><strong>{item.name}</strong><small>{item.tests} completed tests · {item.correct} correct · {item.incorrect} incorrect · Average score {item.average === null ? "—" : item.average.toFixed(1) + "%"}</small>{item.accuracy !== null && <div style={{display:"flex",width:"100%",height:9,minHeight:9,marginTop:8,overflow:"hidden",borderRadius:999,background:"#e5e7eb"}}><span style={{display:"block",height:"100%",width:item.accuracy+"%",background:"#16a34a"}}/><span style={{display:"block",height:"100%",width:(100-item.accuracy)+"%",background:"#ef4444"}}/></div>}</div><b>{item.accuracy === null ? "—" : item.accuracy.toFixed(1)+"%"}<small>accuracy</small></b></div>)}</div> : <EmptyAnalytics title="Paper-wise statistics are not available yet" detail="Complete a test with Paper 1 or Paper 2 questions to see your performance here." />}
           </section>
 
           <section className="mm-analytics-panel mm-unit-panel" id="unit-analysis">
