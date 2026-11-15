@@ -1799,3 +1799,113 @@ button, a, summary { touch-action: manipulation; }
  .mm-trend-card-heading h3{font-size:12px}
  .mm-trend-card .mm-unit-metrics>div{min-height:46px}
 }
+
+
+/* =========================================================
+   MOCKMASTER DESIGN SYSTEM — site-wide foundation
+   Typography, spacing, surfaces, buttons and status colours
+   ========================================================= */
+:root{
+  --mm-font: "Poppins", Arial, sans-serif;
+  --mm-font-xs: 11px;
+  --mm-font-sm: 12px;
+  --mm-font-body: 14px;
+  --mm-font-subheading: 18px;
+  --mm-font-section: 24px;
+  --mm-font-page: 32px;
+  --mm-font-hero: clamp(36px,5vw,52px);
+  --mm-space-card: 16px;
+  --mm-space-inner: 12px;
+  --mm-space-section: 20px;
+  --mm-radius-card: 14px;
+  --mm-radius-control: 9px;
+  --mm-border: #E7E1D5;
+  --mm-border-soft: #EEEAE2;
+  --mm-primary: #2563EB;
+  --mm-primary-hover: #1D4ED8;
+  --mm-success: #16A34A;
+  --mm-success-bg: #DCFCE7;
+  --mm-danger: #DC2626;
+  --mm-danger-bg: #FEE2E2;
+  --mm-warning: #D97706;
+  --mm-warning-bg: #FEF3C7;
+  --mm-active-bg: #EFF6FF;
+}
+html,body,button,input,textarea,select{
+  font-family:var(--mm-font);
+}
+body{font-size:var(--mm-font-body);line-height:1.6}
+h1{font-size:var(--mm-font-page);line-height:1.2;font-weight:700;letter-spacing:-.7px}
+h2{font-size:var(--mm-font-section);line-height:1.3;font-weight:650;letter-spacing:-.35px}
+h3{font-size:var(--mm-font-subheading);line-height:1.35;font-weight:600}
+h4{font-size:15px;line-height:1.4;font-weight:600}
+p,li{font-size:var(--mm-font-body);line-height:1.6}
+small,.text-small,.helper-text{font-size:var(--mm-font-xs);line-height:1.45}
+label,.field-label{font-size:var(--mm-font-sm);font-weight:600}
+button{font-family:var(--mm-font);font-weight:600}
+:where(.card,.panel,.exam-card,.test-card,.feature-card,.mm-unit-card,.mm-trend-card,.mn-question-card){
+  border-color:var(--mm-border);
+  border-radius:var(--mm-radius-card);
+  box-shadow:none;
+}
+:where(.card,.panel,.exam-card,.test-card,.feature-card){padding:var(--mm-space-card)}
+:where(.card-grid,.test-grid,.feature-grid,.mm-unit-cards,.mm-dashboard-recent-tests){gap:var(--mm-space-inner)}
+:where(.section,.dashboard-section,.mm-dashboard-section){margin-bottom:var(--mm-space-section)}
+/* Primary and secondary action hierarchy */
+:where(.btn-primary,.button-primary,.primary-button,.mm-dashboard-analysis-button,.mm-dashboard-reattempt-button){
+  background:var(--mm-primary);
+  border:1px solid var(--mm-primary);
+  color:#fff;
+  border-radius:var(--mm-radius-control);
+  font-family:var(--mm-font);
+  font-weight:600;
+  box-shadow:none;
+}
+:where(.btn-primary,.button-primary,.primary-button,.mm-dashboard-analysis-button,.mm-dashboard-reattempt-button):hover{
+  background:var(--mm-primary-hover);
+  border-color:var(--mm-primary-hover);
+}
+:where(.btn-outline,.button-secondary,.secondary-button){
+  background:#fff;
+  color:var(--mm-primary);
+  border:1px solid #BFDBFE;
+  border-radius:var(--mm-radius-control);
+  font-family:var(--mm-font);
+  font-weight:600;
+  box-shadow:none;
+}
+:where(.btn-outline,.button-secondary,.secondary-button):hover{
+  background:var(--mm-active-bg);
+  border-color:var(--mm-primary);
+}
+/* Shared semantic status utilities */
+:where(.status-correct,.is-correct,.answer-correct,.tag-green){
+  color:#166534;
+  background:var(--mm-success-bg);
+}
+:where(.status-incorrect,.is-incorrect,.answer-incorrect){
+  color:#991B1B;
+  background:var(--mm-danger-bg);
+}
+:where(.status-review,.is-review,.answer-review){
+  color:#92400E;
+  background:var(--mm-warning-bg);
+}
+:where(.status-active,.is-active,.tag-blue){
+  color:#1D4ED8;
+  background:var(--mm-active-bg);
+}
+/* Shared focus state for keyboard and accessibility */
+:where(button,a,input,select,textarea):focus-visible{
+  outline:2px solid #60A5FA;
+  outline-offset:2px;
+}
+@media(max-width:760px){
+  :root{
+    --mm-font-page:26px;
+    --mm-font-section:21px;
+    --mm-font-subheading:16px;
+    --mm-space-card:14px;
+    --mm-space-section:16px;
+  }
+}
