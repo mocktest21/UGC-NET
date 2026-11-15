@@ -32,12 +32,12 @@ const practiceOptions = [
 ];
 
 const summaryStats = [
-  { label: "Total tests attempted" },
-  { label: "Total questions" },
-  { label: "Unique questions attempted" },
-  { label: "Accuracy" },
-  { label: "Average score" },
-  { label: "Average time per question" },
+  { label: "Total tests attempted", icon: "▤" },
+  { label: "Total questions", icon: "▦" },
+  { label: "Unique questions attempted", icon: "◉" },
+  { label: "Accuracy", icon: "◎" },
+  { label: "Average score", icon: "↗" },
+  { label: "Average time per question", icon: "◷" },
 ];
 
 function EmptyAnalytics({ title, detail }: { title: string; detail: string }) {
@@ -405,6 +405,7 @@ export default function DashboardPage() {
           <section className="mm-analytics-summary" aria-label="Overall performance statistics">
             {summaryStats.map((stat) => (
               <article className="mm-analytics-stat" key={stat.label}>
+                <span className="mm-analytics-stat-icon" aria-hidden="true">{stat.icon}</span>
                 <div className="mm-analytics-stat-copy">
                   <span>{stat.label}</span>
                   <strong>{stat.label==="Accuracy"?(allEvaluatedResponses.length?allAccuracy.toFixed(1)+"%":"—"):stat.label==="Total tests attempted"?analytics.attempts.length:stat.label==="Average score"?(allAverageScore===null?"—":allAverageScore.toFixed(1)+"%"):stat.label==="Total questions"?allTotalQuestions:stat.label==="Unique questions attempted"?allUniqueQuestionIds.size:formatDuration(allAverageTime)}</strong>
