@@ -1,9 +1,10 @@
+import { BookOpen, Target, Landmark, Building2, TrainFront, Compass, ChartNoAxesColumnIncreasing, ClipboardList, Search, Smartphone, GraduationCap } from "lucide-react";
 const exams = [
-  { icon: "📘", name: "UGC NET", desc: "Paper 1 and subject-wise Paper 2 practice", href: "/exams/ugc-net" },
-  { icon: "🎯", name: "SSC", desc: "Prepare for SSC competitive examinations", href: "/exams/ssc" },
-  { icon: "🏛️", name: "UPSC", desc: "Build a consistent civil services practice routine", href: "/exams/upsc" },
-  { icon: "🏦", name: "Banking", desc: "Practice banking and aptitude questions", href: "/exams/banking" },
-  { icon: "🚆", name: "Railways", desc: "Explore railway recruitment exam practice", href: "/exams/railways" },
+  { icon: <BookOpen size={21} strokeWidth={1.8} />, name: "UGC NET", desc: "Paper 1 and subject-wise Paper 2 practice", href: "/exams/ugc-net" },
+  { icon: <Target size={21} strokeWidth={1.8} />, name: "SSC", desc: "Prepare for SSC competitive examinations", href: "/exams/ssc" },
+  { icon: <Landmark size={21} strokeWidth={1.8} />, name: "UPSC", desc: "Build a consistent civil services practice routine", href: "/exams/upsc" },
+  { icon: <Building2 size={21} strokeWidth={1.8} />, name: "Banking", desc: "Practice banking and aptitude questions", href: "/exams/banking" },
+  { icon: <TrainFront size={21} strokeWidth={1.8} />, name: "Railways", desc: "Explore railway recruitment exam practice", href: "/exams/railways" },
 ];
 const tests = [
   { exam: "UGC NET", type: "Paper 1", name: "Teaching & Research Aptitude", detail: "A focused practice set covering core Paper 1 areas.", questions: "50 questions", duration: "60 min" },
@@ -11,12 +12,12 @@ const tests = [
   { exam: "UGC NET", type: "Management", name: "Management – Mixed Practice", detail: "Review key Management concepts through MCQs.", questions: "50 questions", duration: "60 min" },
 ];
 const features = [
-  ["🧭", "Structured preparation", "Find examinations, subjects, topics and practice sets in a clear hierarchy."],
-  ["📊", "Meaningful progress", "A focused practice experience designed to help you identify what to revise next."],
-  ["📝", "Previous-year questions", "Browse papers by examination, subject and year, all in one organised place."],
-  ["🔎", "Quick discovery", "Search across examinations, subjects, topics, mock tests and PYQs."],
-  ["📱", "Designed for every screen", "A responsive experience for desktop, tablet and mobile."],
-  ["🎓", "A focused learning space", "A clean, distraction-free environment built around exam preparation."],
+  [<Compass size={21} strokeWidth={1.8} />, "Structured preparation", "Find examinations, subjects, topics and practice sets in a clear hierarchy."],
+  [<ChartNoAxesColumnIncreasing size={21} strokeWidth={1.8} />, "Meaningful progress", "A focused practice experience designed to help you identify what to revise next."],
+  [<ClipboardList size={21} strokeWidth={1.8} />, "Previous-year questions", "Browse papers by examination, subject and year, all in one organised place."],
+  [<Search size={21} strokeWidth={1.8} />, "Quick discovery", "Search across examinations, subjects, topics, mock tests and PYQs."],
+  [<Smartphone size={21} strokeWidth={1.8} />, "Designed for every screen", "A responsive experience for desktop, tablet and mobile."],
+  [<GraduationCap size={21} strokeWidth={1.8} />, "A focused learning space", "A clean, distraction-free environment built around exam preparation."],
 ];
 export default function Home() {
   return <>
