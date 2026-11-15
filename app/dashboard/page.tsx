@@ -128,9 +128,21 @@ export default function DashboardPage() {
             }
           }
         }
-        const { data: examRows } = await supabase.from("student_exam_preferences")
-          .select("exam_id,selected_subject_id,exams(name)")
+        const { data: preferenceRows } = await supabase.from("student_exam_preferences")
+          .select("exam_id,selected_subject_id")
           .eq("student_id", data.user.id);
+        const examIds = Array.from(new Set((preferenceRows || []).map((row: any) => row.exam_id).filter(Boolean)));
+        let examRows: any[] = [];
+        if (examIds.length) {
+          const { data: catalogueRows } = await supabase.from("exams")
+            .select("id,name")
+            .in("id", examIds);
+          const examById = new Map((catalogueRows || []).map((exam: any) => [exam.id, exam]));
+          examRows = (preferenceRows || []).map((row: any) => ({
+            ...row,
+            name: (examById.get(row.exam_id) as any)?.name || "Selected examination",
+          }));
+        }
 
         if (active) {
           setAnalytics({
@@ -139,7 +151,7 @@ export default function DashboardPage() {
             testQuestions,
             questions,
             tests,
-            exams: (examRows || []) as any[],
+            exams: examRows,
           });
         }
       } catch {
@@ -237,8 +249,7 @@ export default function DashboardPage() {
   const unitPerformance = buildBreakdown("unit_id");
 
   const examStats = analytics.exams.map((preference: any) => {
-    const examRelation = preference.exams;
-    const examName = Array.isArray(examRelation) ? examRelation[0]?.name : examRelation?.name;
+    const examName = preference.name;
     const examAttempts = filteredAttempts.filter((a: any) => (testById.get(a.test_id) as any)?.exam_id === preference.exam_id);
     const examAttemptIds = new Set(examAttempts.map((a: any) => a.id));
     const examResponses = filteredResponses.filter((r: any) => examAttemptIds.has(r.attempt_id) && (r.is_correct === true || r.is_correct === false));
