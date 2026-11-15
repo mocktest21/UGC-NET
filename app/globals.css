@@ -1743,3 +1743,39 @@ button, a, summary { touch-action: manipulation; }
 .mm-analytics-stat-copy strong{display:block;color:#171b27;font-size:clamp(22px,3vw,29px);font-weight:800;line-height:1.1;order:1}
 @media(max-width:760px){.mm-analytics-summary{grid-template-columns:repeat(3,minmax(0,1fr));padding:7px;border-radius:15px}.mm-analytics-stat{min-height:105px;padding:10px 5px;gap:5px}.mm-analytics-stat-icon{flex-basis:21px;width:21px;height:21px;font-size:11px}.mm-analytics-stat-copy{min-height:0;gap:4px}.mm-analytics-stat-copy span{font-size:10px;line-height:1.25}.mm-analytics-stat-copy strong{font-size:clamp(20px,5.4vw,25px)}}
 @media(max-width:360px){.mm-analytics-stat{min-height:98px;padding:8px 3px}.mm-analytics-stat-copy span{font-size:9px}.mm-analytics-stat-copy strong{font-size:19px}}
+
+/* Final summary cards: white surfaces with clear separation; no icons */
+.mm-analytics-summary{
+  padding:0;
+  gap:0;
+  background:transparent;
+  border:0;
+  border-radius:16px;
+  overflow:hidden;
+}
+.mm-analytics-stat{
+  min-height:112px;
+  margin:0;
+  padding:14px 9px;
+  background:#ffffff;
+  border:1px solid #e5e0d5;
+  border-radius:0;
+  box-shadow:none;
+}
+.mm-analytics-stat-icon{display:none!important}
+.mm-analytics-stat:nth-child(1){border-top-left-radius:14px}
+.mm-analytics-stat:nth-child(3){border-top-right-radius:14px}
+.mm-analytics-stat:nth-child(4){border-bottom-left-radius:14px}
+.mm-analytics-stat:nth-child(6){border-bottom-right-radius:14px}
+.mm-analytics-stat:nth-child(1),.mm-analytics-stat:nth-child(2),.mm-analytics-stat:nth-child(4),.mm-analytics-stat:nth-child(5){border-right:1px solid #e5e0d5}
+.mm-analytics-stat:nth-child(-n+3){border-bottom:1px solid #e5e0d5}
+.mm-analytics-stat-copy{gap:6px}
+.mm-analytics-stat-copy strong{color:#172033}
+.mm-analytics-stat-copy span{color:#667085}
+@media(max-width:760px){
+ .mm-analytics-stat{min-height:104px;padding:12px 5px}
+ .mm-analytics-stat-copy strong{font-size:clamp(20px,5.4vw,25px)}
+}
+@media(max-width:360px){
+ .mm-analytics-stat{min-height:98px;padding:9px 3px}
+}
