@@ -117,11 +117,10 @@ export default function DashboardPage() {
             .select("attempt_id,test_question_id,response,is_correct,time_spent_seconds")
             .in("attempt_id", attemptIds);
           responses = (responseRows || []) as any[];
-          const tqIds = Array.from(new Set(responses.map((r) => r.test_question_id).filter(Boolean)));
-          if (tqIds.length) {
+          if (testIds.length) {
             const { data: tqRows } = await supabase.from("test_questions")
               .select("id,question_id,test_id")
-              .in("id", tqIds);
+              .in("test_id", testIds);
             testQuestions = (tqRows || []) as any[];
             const questionIds = Array.from(new Set(testQuestions.map((q) => q.question_id).filter(Boolean)));
             if (questionIds.length) {
@@ -245,28 +244,57 @@ export default function DashboardPage() {
   const averageTime = timeRows.length ? timeRows.reduce((sum: number, r: any) => sum + Number(r.time_spent_seconds || 0), 0) / timeRows.length : null;
   const formatDuration = (seconds: number | null) => seconds === null ? "—" : seconds < 60 ? Math.round(seconds) + " sec" : Math.floor(seconds / 60) + "m " + Math.round(seconds % 60) + "s";
 
-  const buildBreakdown = (field: "subject_id" | "unit_id") => {
-    const map = new Map<string, any>();
-    for (const response of evaluatedResponses) {
-      const tq: any = testQuestionById.get(response.test_question_id);
-      const q: any = tq ? questionById.get(tq.question_id) : null;
-      const id = q?.[field];
-      if (!id) continue;
-      const relation = field === "subject_id" ? q.subjects : q.units;
-      const name = Array.isArray(relation) ? relation[0]?.name : relation?.name;
-      const item = map.get(id) || { id, name: name || "Unlabelled", attempted: 0, correct: 0, incorrect: 0, time: 0 };
-      item.attempted += 1;
-      if (response.is_correct) item.correct += 1; else item.incorrect += 1;
-      item.time += Number(response.time_spent_seconds || 0);
-      map.set(id, item);
+  const unitMap = new Map<string, any>();
+  const paperNameById = new Map(analytics.papers.map((paper: any) => [paper.id, paper.name || paper.code || "Paper"]));
+  const testById = new Map(analytics.tests.map((test: any) => [test.id, test]));
+  const unitPaperNames = new Map<string, Set<string>>();
+  for (const link of analytics.testQuestions) {
+    const q: any = questionById.get(link.question_id);
+    const test: any = testById.get(link.test_id);
+    if (!q?.unit_id || !test?.paper_id) continue;
+    const paperName = paperNameById.get(test.paper_id) || "Paper";
+    if (!unitPaperNames.has(q.unit_id)) unitPaperNames.set(q.unit_id, new Set());
+    unitPaperNames.get(q.unit_id)!.add(String(paperName));
+  }
+  for (const q of analytics.questions) {
+    if (!q.unit_id) continue;
+    const relation = q.units;
+    const name = Array.isArray(relation) ? relation[0]?.name : relation?.name;
+    const item = unitMap.get(q.unit_id) || {
+      id: q.unit_id, name: name || "Unlabelled", total: 0,
+      attemptedIds: new Set<string>(), correctIds: new Set<string>(),
+      correct: 0, incorrect: 0, evaluated: 0,
+    };
+    item.total += 1;
+    unitMap.set(q.unit_id, item);
+  }
+  for (const response of filteredResponses) {
+    const tq: any = testQuestionById.get(response.test_question_id);
+    const q: any = tq ? questionById.get(tq.question_id) : null;
+    const id = q?.unit_id;
+    if (!id) continue;
+    const item = unitMap.get(id);
+    if (!item) continue;
+    if (hasAnswer(response.response)) item.attemptedIds.add(q.id);
+    if (response.is_correct === true || response.is_correct === false) {
+      item.evaluated += 1;
+      if (response.is_correct === true) { item.correct += 1; item.correctIds.add(q.id); }
+      else item.incorrect += 1;
     }
-    return Array.from(map.values()).map((item) => ({
-      ...item,
-      accuracy: item.attempted ? item.correct / item.attempted * 100 : 0,
-      avgTime: item.attempted ? item.time / item.attempted : 0,
-    })).sort((a, b) => b.attempted - a.attempted);
-  };
-  const unitPerformance = buildBreakdown("unit_id");
+  }
+  const unitPerformance = Array.from(unitMap.values()).map((item: any) => {
+    const papers = Array.from(unitPaperNames.get(item.id) || []);
+    const attempted = item.attemptedIds.size;
+    const accuracy = item.evaluated ? item.correct / item.evaluated * 100 : 0;
+    return {
+      id: item.id, name: item.name,
+      paperName: papers.length ? papers.join(" / ") : "Paper",
+      attempted, total: item.total,
+      correct: item.correctIds.size,
+      accuracy,
+      coverage: item.total ? attempted / item.total * 100 : 0,
+    };
+  }).sort((a: any, b: any) => b.attempted - a.attempted || a.name.localeCompare(b.name));
   const paperMap = new Map<string, any>();
   for (const attempt of filteredAttempts) {
     const test: any = testById.get(attempt.test_id);
@@ -499,10 +527,18 @@ export default function DashboardPage() {
 
           <section className="mm-analytics-panel mm-unit-panel" id="unit-analysis">
             <div className="mm-analytics-panel-heading">
-              <div><span className="mm-section-kicker">DETAILED SYLLABUS ANALYSIS</span><h2>Unit-wise performance</h2><p>Identify strong units, weak units and your progress across the syllabus.</p></div>
-              <span className="mm-unit-badge">Core analytics</span>
+              <div><span className="mm-section-kicker">DETAILED SYLLABUS ANALYSIS</span><h2>Unit-wise performance</h2></div>
             </div>
-            {unitPerformance.length?<div className="mm-dashboard-breakdown">{unitPerformance.map((item:any)=><div className="mm-dashboard-breakdown-row" key={item.id}><div><strong>{item.name}</strong><small>{item.attempted} evaluated questions · {item.correct} correct · {item.incorrect} incorrect</small><div className="mm-breakdown-color-track" aria-label={item.accuracy.toFixed(1)+"% correct"}><span className="mm-breakdown-correct" style={{width:item.accuracy+"%"}}/><span className="mm-breakdown-incorrect" style={{width:(100-item.accuracy)+"%"}}/></div></div><b>{item.accuracy.toFixed(1)}%<small>accuracy</small></b></div>)}</div>:<EmptyAnalytics title="Your unit-wise report will build here" detail="Complete and submit practice tests containing unit-tagged questions to see unit-level accuracy and progress." />}
+            {unitPerformance.length ? <div className="mm-unit-cards">{unitPerformance.map((item: any) => <article className="mm-unit-card" key={item.id}>
+              <div className="mm-unit-card-heading"><h3>{item.name}</h3><span>{item.paperName}</span></div>
+              <div className="mm-unit-metrics">
+                <div><strong>{item.accuracy.toFixed(0)}%</strong><small>ACCURACY</small></div>
+                <div><strong>{item.correct}</strong><small>RIGHT</small></div>
+                <div><strong>{item.attempted}/{item.total}</strong><small>ATTEMPTED</small></div>
+              </div>
+              <div className="mm-unit-coverage"><span style={{width: item.coverage + "%"}} /></div>
+              <p>Coverage {item.coverage.toFixed(0)}%</p>
+            </article>)}</div> : <EmptyAnalytics title="Your unit-wise report will build here" detail="Complete tests with unit-tagged questions to see accuracy, attempted questions and syllabus coverage." />}
           </section>
 
           <section className="mm-analytics-two-col">
