@@ -528,7 +528,16 @@ export default function DashboardPage() {
             <div className="mm-analytics-panel-heading">
               <div><span className="mm-section-kicker">PAPER-WISE ANALYSIS</span><h2>Performance by paper</h2><p>Compare scores and accuracy across papers.</p></div>
             </div>
-            {paperPerformance.length ? <div className="mm-dashboard-breakdown">{paperPerformance.map((item: any) => <div className="mm-dashboard-breakdown-row" key={item.id}><div><strong>{item.name}</strong><small>{item.tests} completed tests · {item.correct} correct · {item.incorrect} incorrect · Average score {item.average === null ? "—" : item.average.toFixed(1) + "%"}</small>{item.accuracy !== null && <div style={{display:"flex",width:"100%",height:9,minHeight:9,marginTop:8,overflow:"hidden",borderRadius:999,background:"#e5e7eb"}}><span style={{display:"block",height:"100%",width:item.accuracy+"%",background:"#16a34a"}}/><span style={{display:"block",height:"100%",width:(100-item.accuracy)+"%",background:"#ef4444"}}/></div>}</div><b>{item.accuracy === null ? "—" : item.accuracy.toFixed(1)+"%"}<small>accuracy</small></b></div>)}</div> : <EmptyAnalytics title="Paper-wise statistics are not available yet" detail="Complete a test with Paper 1 or Paper 2 questions to see your performance here." />}
+            {paperPerformance.length ? <div className="mm-unit-cards mm-paper-cards">{paperPerformance.map((item: any) => <article className="mm-unit-card mm-paper-card" key={item.id}>
+              <div className="mm-unit-card-heading"><h3>{item.name}</h3><span>{item.tests} completed {item.tests === 1 ? "test" : "tests"}</span></div>
+              <div className="mm-unit-metrics">
+                <div><strong>{item.accuracy === null ? "—" : item.accuracy.toFixed(1) + "%"}</strong><small>ACCURACY</small></div>
+                <div><strong>{item.average === null ? "—" : item.average.toFixed(1) + "%"}</strong><small>AVG. SCORE</small></div>
+                <div><strong>{item.correct}</strong><small>RIGHT</small></div>
+              </div>
+              <div className="mm-unit-coverage"><span style={{width: (item.accuracy ?? 0) + "%"}} /></div>
+              <div className="mm-paper-card-meta"><span>{item.correct} correct</span><span>{item.incorrect} incorrect</span></div>
+            </article>)}</div> : <EmptyAnalytics title="Paper-wise statistics are not available yet" detail="Complete a test with Paper 1 or Paper 2 questions to see your performance here." />}
           </section>
 
           <section className="mm-analytics-panel mm-unit-panel" id="unit-analysis">
