@@ -362,9 +362,9 @@ export default function DashboardPage() {
                     <>
                       <strong className="mm-accuracy-value">{evaluatedResponses.length ? accuracyPercent.toFixed(1) + "%" : "—"}</strong>
                       <div className="mm-accuracy-meter" aria-label={evaluatedResponses.length ? accuracyPercent.toFixed(1) + "% accuracy" : "No evaluated answers yet"}>
-                        <div className="mm-accuracy-meter-track">
-                          <span className="mm-accuracy-correct" style={{width: accuracyPercent + "%"}} />
-                          <span className="mm-accuracy-incorrect" style={{width: (evaluatedResponses.length ? 100 - accuracyPercent : 0) + "%"}} />
+                        <div className="mm-accuracy-meter-track" style={{display:"flex",width:"100%",height:10,minHeight:10,overflow:"hidden",borderRadius:999,background:"#e5e7eb"}}>
+                          <span style={{display:"block",height:"100%",width:accuracyPercent+"%",background:"#16a34a"}} />
+                          <span style={{display:"block",height:"100%",width:(evaluatedResponses.length?100-accuracyPercent:0)+"%",background:"#ef4444"}} />
                         </div>
                         <small>{correctCount} correct · {incorrectCount} incorrect</small>
                       </div>
@@ -411,9 +411,9 @@ export default function DashboardPage() {
                         <b>{pct === null ? "Submitted" : pct.toFixed(1) + "% score"}</b>
                       </div>
                       <small>{test.score === null ? "Score pending" : Number(test.score).toFixed(2) + " / " + Number(test.max_score || 0).toFixed(2) + " marks"} · {test.correct_count || 0} correct · {test.incorrect_count || 0} incorrect · {test.unanswered_count || 0} unattempted · {new Date(test.submitted_at || test.started_at).toLocaleDateString("en-IN")}</small>
-                      <div className="mm-test-trend-track" aria-label={green.toFixed(0) + "% correct and " + red.toFixed(0) + "% incorrect"}>
-                        <span className="mm-test-trend-green" style={{width: green + "%"}} />
-                        <span className="mm-test-trend-red" style={{width: red + "%"}} />
+                      <div className="mm-test-trend-track" aria-label={green.toFixed(0) + "% correct and " + red.toFixed(0) + "% incorrect"} style={{display:"flex",width:"100%",height:9,minHeight:9,overflow:"hidden",borderRadius:999,background:"#e5e7eb"}}>
+                        <span style={{display:"block",height:"100%",width:green+"%",background:"#16a34a"}} />
+                        <span style={{display:"block",height:"100%",width:red+"%",background:"#ef4444"}} />
                       </div>
                       <div className="mm-dashboard-test-actions">
                         <button type="button" className="mm-dashboard-analysis-button" onClick={() => router.push("/practice/result?" + new URLSearchParams({attempt: test.id}).toString())}>View Analysis</button>
@@ -464,7 +464,7 @@ export default function DashboardPage() {
               <div className="mm-analytics-panel-heading">
                 <div><span className="mm-section-kicker">SUBJECT-WISE ANALYSIS</span><h2>Subject performance</h2><p>See how you are performing in each subject.</p></div>
               </div>
-              {subjectPerformance.length?<div className="mm-dashboard-breakdown">{subjectPerformance.map((item:any)=><div className="mm-dashboard-breakdown-row" key={item.id}><div><strong>{item.name}</strong><small>{item.attempted} evaluated questions · {item.correct} correct · {item.incorrect} incorrect</small><div className="mm-breakdown-color-track" aria-label={item.accuracy.toFixed(1)+"% correct"}><span className="mm-breakdown-correct" style={{width:item.accuracy+"%"}}/><span className="mm-breakdown-incorrect" style={{width:(100-item.accuracy)+"%"}}/></div></div><b>{item.accuracy.toFixed(1)}%<small>accuracy</small></b></div>)}</div>:<EmptyAnalytics title="Subject analysis will appear here" detail="Complete and submit subject-wise practice tests to build your performance record." />}
+              {subjectPerformance.length?<div className="mm-dashboard-breakdown">{subjectPerformance.map((item:any)=><div className="mm-dashboard-breakdown-row" key={item.id}><div><strong>{item.name}</strong><small>{item.attempted} evaluated questions · {item.correct} correct · {item.incorrect} incorrect</small><div className="mm-breakdown-color-track" aria-label={item.accuracy.toFixed(1)+"% correct"} style={{display:"flex",width:"100%",height:10,minHeight:10,marginTop:8,overflow:"hidden",borderRadius:999,background:"#e5e7eb"}}><span style={{display:"block",height:"100%",width:item.accuracy+"%",background:"#16a34a"}}/><span style={{display:"block",height:"100%",width:(100-item.accuracy)+"%",background:"#ef4444"}}/></div></div><b>{item.accuracy.toFixed(1)}%<small>accuracy</small></b></div>)}</div>:<EmptyAnalytics title="Subject analysis will appear here" detail="Complete and submit subject-wise practice tests to build your performance record." />}
             </article>
           </section>
 
