@@ -362,7 +362,7 @@ export default function DashboardPage() {
                     <div className="mm-accuracy-meter" aria-label={evaluatedResponses.length + " evaluated answers"}>
                       <div className="mm-accuracy-meter-track">
                         <span className="mm-accuracy-correct" style={{width: accuracyPercent + "%"}} />
-                        <span className="mm-accuracy-incorrect" style={{width: (100 - accuracyPercent) + "%"}} />
+                        <span className="mm-accuracy-incorrect" style={{width: (evaluatedResponses.length ? 100 - accuracyPercent : 0) + "%"}} />
                       </div>
                       <small>{correctCount} correct · {incorrectCount} incorrect</small>
                     </div>
