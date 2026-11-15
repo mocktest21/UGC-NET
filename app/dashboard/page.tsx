@@ -465,19 +465,26 @@ export default function DashboardPage() {
                 {filteredAttempts.slice(0, 20).map((test: any) => {
                   const meta: any = testById.get(test.test_id);
                   const pct = Number(test.max_score) > 0 && test.score !== null ? Math.max(0, Math.min(100, Number(test.score) / Number(test.max_score) * 100)) : null;
-                  const total = Number(test.correct_count || 0) + Number(test.incorrect_count || 0) + Number(test.unanswered_count || 0);
-                  const green = total ? Number(test.correct_count || 0) / total * 100 : 0;
-                  const red = total ? Number(test.incorrect_count || 0) / total * 100 : 0;
+                  const attempted = Number(test.correct_count || 0) + Number(test.incorrect_count || 0);
+                  const right = Number(test.correct_count || 0);
+                  const incorrect = Number(test.incorrect_count || 0);
+                  const unattempted = Number(test.unanswered_count || 0);
+                  const total = attempted + unattempted;
                   return (
-                    <article className="mm-dashboard-test-card" key={test.id}>
-                      <div className="mm-dashboard-test-heading">
-                        <span>{meta?.title || "Mock test"}</span>
-                        <b>{pct === null ? "Submitted" : pct.toFixed(1) + "% score"}</b>
+                    <article className="mm-unit-card mm-trend-card" key={test.id}>
+                      <div className="mm-unit-card-heading mm-trend-card-heading">
+                        <h3>{meta?.title || "Mock test"}</h3>
+                        <span>{new Date(test.submitted_at || test.started_at).toLocaleDateString("en-IN")}</span>
                       </div>
-                      <small>{test.score === null ? "Score pending" : Number(test.score).toFixed(2) + " / " + Number(test.max_score || 0).toFixed(2) + " marks"} · {test.correct_count || 0} correct · {test.incorrect_count || 0} incorrect · {test.unanswered_count || 0} unattempted · {new Date(test.submitted_at || test.started_at).toLocaleDateString("en-IN")}</small>
-                      <div className="mm-test-trend-track" aria-label={green.toFixed(0) + "% correct and " + red.toFixed(0) + "% incorrect"} style={{display:"flex",width:"100%",height:9,minHeight:9,overflow:"hidden",borderRadius:999,background:"#e5e7eb"}}>
-                        <span style={{display:"block",height:"100%",width:green+"%",background:"#16a34a"}} />
-                        <span style={{display:"block",height:"100%",width:red+"%",background:"#ef4444"}} />
+                      <div className="mm-unit-metrics">
+                        <div><strong>{pct === null ? "—" : pct.toFixed(1) + "%"}</strong><small>SCORE</small></div>
+                        <div><strong>{right}</strong><small>RIGHT</small></div>
+                        <div><strong>{attempted}/{total}</strong><small>ATTEMPTED</small></div>
+                      </div>
+                      <div className="mm-unit-coverage"><span style={{width: (pct ?? 0) + "%"}} /></div>
+                      <div className="mm-trend-card-meta">
+                        <span>{test.score === null ? "Score pending" : Number(test.score).toFixed(2) + " / " + Number(test.max_score || 0).toFixed(2) + " marks"}</span>
+                        <span>{incorrect} incorrect · {unattempted} unattempted</span>
                       </div>
                       <div className="mm-dashboard-test-actions">
                         <button type="button" className="mm-dashboard-analysis-button" onClick={() => router.push("/practice/result?" + new URLSearchParams({attempt: test.id}).toString())}>View Analysis</button>
