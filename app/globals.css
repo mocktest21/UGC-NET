@@ -1631,3 +1631,24 @@ button, a, summary { touch-action: manipulation; }
  .mm-analytics-stat{padding:8px}
  .mm-analytics-stat-copy strong,.mm-analytics-stat-copy .mm-accuracy-value{font-size:16px}
 }
+
+/* Final dashboard card treatment: clean text-only 3 × 2 grid */
+.mm-analytics-summary{grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.mm-analytics-stat{min-height:88px;padding:15px 17px;align-items:center}
+.mm-analytics-stat-icon{display:none!important}
+.mm-analytics-stat-copy{gap:5px}
+.mm-analytics-stat-copy span{font-size:11px;color:#64748b}
+.mm-analytics-stat-copy strong{font-size:25px;line-height:1.2}
+.mm-analytics-stat-copy small,.mm-accuracy-meter{display:none!important}
+@media(max-width:760px){
+ .mm-analytics-summary{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+ .mm-analytics-stat{min-height:84px;padding:12px 10px}
+ .mm-analytics-stat-copy span{font-size:10px;line-height:1.35}
+ .mm-analytics-stat-copy strong{font-size:21px}
+}
+@media(max-width:360px){
+ .mm-analytics-summary{gap:6px}
+ .mm-analytics-stat{padding:10px 8px}
+ .mm-analytics-stat-copy span{font-size:9px}
+ .mm-analytics-stat-copy strong{font-size:18px}
+}
