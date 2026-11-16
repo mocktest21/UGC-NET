@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
+
 
 :root {
   --blue: #2563EB;
@@ -16,7 +16,7 @@
 html { scroll-behavior: smooth; }
 body {
   margin: 0; background: var(--cream); color: var(--ink);
-  font-family: "Poppins", Arial, sans-serif; font-size: 14px; line-height: 1.65;
+  font-family: var(--font-poppins), Arial, sans-serif; font-size: 14px; line-height: 1.65;
 }
 a { color: inherit; text-decoration: none; }
 button, input { font: inherit; }
@@ -2097,4 +2097,24 @@ button{font-family:var(--mm-font);font-weight:600}
  .mm-live-lifecycle-foot{font-size:9px}
  .mm-live-schedule{font-size:8px}
  .mm-live-action-placeholder{font-size:8px;padding:6px 7px}
+}
+
+
+/* Shared student header, typography and accessibility */
+.mm-shared-student-header{position:sticky;top:0;z-index:30;display:flex;align-items:center;justify-content:space-between;gap:18px;min-height:68px;padding:10px clamp(14px,4vw,48px);border-bottom:1px solid var(--border);background:rgba(255,254,250,.96);backdrop-filter:blur(12px)}
+.mm-shared-student-header nav{display:flex;align-items:center;gap:clamp(8px,1.6vw,22px);flex-wrap:wrap}
+.mm-shared-student-header nav a{display:inline-flex;align-items:center;gap:6px;color:#64748b;font-size:12px;font-weight:650;white-space:nowrap}
+.mm-shared-student-header nav a.active,.mm-shared-student-header nav a:hover{color:#2563eb}
+.mm-shared-student-name{color:#475569;font-size:12px;font-weight:650;white-space:nowrap}
+.ps-shell,.mr-shell,.mn-shell{font-family:var(--font-poppins),Arial,sans-serif}
+.mn-brand{font-family:var(--font-poppins),Arial,sans-serif}
+.mn-brand span{font-family:var(--font-poppins),Arial,sans-serif}
+.ps-header,.ps-main,.ps-sidebar,.ps-dialog,.mr-header,.mr-content,.mn-header,.mn-content{font-family:var(--font-poppins),Arial,sans-serif}
+small{font-size:max(12px,1em)}
+:where(button,input,select,textarea){font-family:inherit}
+:where(button,a,input,select,textarea,[tabindex]):focus-visible{outline:3px solid #93c5fd;outline-offset:2px}
+@media(max-width:760px){
+ .mm-shared-student-header{min-height:58px;padding:9px 12px}
+ .mm-shared-student-header nav{display:none}
+ .mm-shared-student-name{margin-left:auto}
 }
