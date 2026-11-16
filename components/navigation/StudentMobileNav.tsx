@@ -21,7 +21,8 @@ export default function StudentMobileNav() {
   return (
     <nav className="mm-bottom-nav" aria-label="Student quick navigation">
       {items.map(item => {
-        const Icon = item.Icon;\n        const active = item.href === "/dashboard" ? pathname === "/dashboard" : pathname === item.href || pathname.startsWith(item.href + "/");
+        const Icon = item.Icon;
+        const active = item.href === "/dashboard" ? pathname === "/dashboard" : pathname === item.href || pathname.startsWith(item.href + "/");
         return (
           <Link key={item.href} className={active ? "mm-bottom-link mm-bottom-active" : "mm-bottom-link"} href={item.href}>
             <span aria-hidden="true"><Icon size={18} strokeWidth={1.8}/></span>
