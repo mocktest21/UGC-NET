@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import {ClipboardList,Grid2X2,Target,Gauge,TrendingUp,Clock3,House,BookOpen,Radio,NotebookPen,Info,UserRound,LogOut,Menu,ChevronDown,Sparkles} from "lucide-react";
+import StudentWorkspaceHeader from "@/components/navigation/StudentWorkspaceHeader";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -228,11 +229,7 @@ export default function DashboardPage() {
       {menuOpen && <button className="mm-sidebar-scrim" aria-label="Close navigation" onClick={() => setMenuOpen(false)} />}
 
       <div className="mm-main">
-        <header className="mm-topbar">
-          <button className="mm-menu-toggle" aria-label={menuOpen ? "Close navigation" : "Open navigation"} aria-expanded={menuOpen} onClick={() => setMenuOpen((open) => !open)}><Menu size={20}/></button>
-          <Link className="mm-mobile-topbar-brand" href="/dashboard"><span className="mm-brand-mark">M</span><span>MockMaster</span></Link>
-          <div className="mm-topbar-right">{profileMenu}</div>
-        </header>
+        <StudentWorkspaceHeader showNav={false} leftSlot={<button className="mm-menu-toggle" aria-label={menuOpen ? "Close navigation" : "Open navigation"} aria-expanded={menuOpen} onClick={() => setMenuOpen((open) => !open)}><Menu size={20}/></button>} rightSlot={profileMenu}/>
 
         <main className="mm-content mm-analytics-content" id="overview">
           <section className="mm-analytics-heading">
