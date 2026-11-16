@@ -108,7 +108,7 @@ export default function StudentSectionPage({section}:{section:Section}){
         const starts=new Date(test.starts_at).getTime(),ends=new Date(test.ends_at).getTime();
         const ended=kind==="recent";
         return <article className="mm-completed-live-card mm-live-lifecycle-card" key={test.id}>
-          <div className="mm-live-card-top"><span className={kind==="active"?"mm-live-status is-live":kind==="recent"?"mm-live-status is-completed":"mm-live-status"}><i/>{kind==="active"?"LIVE NOW":kind==="recent"?(stats.my_attempt_status==="submitted"||stats.my_attempt_status==="auto_submitted"?"COMPLETED":"MISSED"):"UPCOMING"}</span><span className="mm-live-card-mark">{Number(test.total_marks).toLocaleString("en-IN")} Marks</span></div>
+          <div className="mm-live-card-top"><span className={kind==="active"?"mm-live-status is-live":kind==="recent"?(stats.my_attempt_status==="submitted"||stats.my_attempt_status==="auto_submitted"?"mm-live-status is-completed":"mm-live-status is-missed"):"mm-live-status"}><i/>{kind==="active"?"LIVE NOW":kind==="recent"?(stats.my_attempt_status==="submitted"||stats.my_attempt_status==="auto_submitted"?"COMPLETED":"MISSED"):"UPCOMING"}</span><span className="mm-live-card-mark">{Number(test.total_marks).toLocaleString("en-IN")} Marks</span></div>
           <h3>{test.title}</h3>
           {test.description&&<p className="mm-live-card-description">{test.description}</p>}
           <div className="mm-live-card-stats"><span><FileQuestion size={14}/>{test.question_count} Qs</span><span><Clock3 size={14}/>{Math.ceil(test.duration_seconds/60)} min</span></div>
