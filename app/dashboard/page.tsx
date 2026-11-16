@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import {ClipboardList,Grid2X2,Target,Gauge,TrendingUp,Clock3,House,BookOpen,Radio,NotebookPen,Info,UserRound,LogOut,Menu} from "lucide-react";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -33,12 +34,12 @@ const practiceOptions = [
 ];
 
 const summaryStats = [
-  { label: "Total tests attempted", icon: "▤" },
-  { label: "Total questions", icon: "▦" },
-  { label: "Unique questions attempted", icon: "◉" },
-  { label: "Accuracy", icon: "◎" },
-  { label: "Average score", icon: "↗" },
-  { label: "Average time per question", icon: "◷" },
+  { label: "Total tests attempted", Icon: ClipboardList },
+  { label: "Total questions", Icon: Grid2X2 },
+  { label: "Unique questions attempted", Icon: Target },
+  { label: "Accuracy", Icon: Gauge },
+  { label: "Average score", Icon: TrendingUp },
+  { label: "Average time per question", Icon: Clock3 },
 ];
 
 function EmptyAnalytics({ title, detail }: { title: string; detail: string }) {
@@ -175,8 +176,8 @@ export default function DashboardPage() {
       {profileOpen && (
         <div className="mm-profile-dropdown" role="menu">
           <div className="mm-profile-dropdown-heading"><strong>{student.name}</strong><span>{student.email}</span></div>
-          <button type="button" role="menuitem" onClick={() => { setProfileOpen(false); setProfileDialogOpen(true); }}><span aria-hidden="true">♙</span> View profile</button>
-          <button type="button" role="menuitem" className="mm-profile-logout" disabled={signingOut} onClick={() => void handleSignOut()}><span aria-hidden="true">↪</span> {signingOut ? "Logging out..." : "Log out"}</button>
+          <button type="button" role="menuitem" onClick={() => { setProfileOpen(false); setProfileDialogOpen(true); }}><span aria-hidden="true"><UserRound size={15}/></span> View profile</button>
+          <button type="button" role="menuitem" className="mm-profile-logout" disabled={signingOut} onClick={() => void handleSignOut()}><span aria-hidden="true"><LogOut size={15}/></span> {signingOut ? "Logging out..." : "Log out"}</button>
         </div>
       )}
     </div>
@@ -190,7 +191,7 @@ export default function DashboardPage() {
         <nav className="mm-mobile-main-nav" aria-label="Main navigation">
           {desktopNavigation.map((item, index) => (
             <Link key={item.label} className={index === 0 ? "mm-nav-link mm-nav-active" : "mm-nav-link"} href={item.href} onClick={() => setMenuOpen(false)}>
-              <span className="mm-nav-icon">{["⌂", "◎", "◷", "▤", "ⓘ"][index]}</span>{item.label}
+              <span className="mm-nav-icon">{index===0?<House size={17}/>:index===1?<BookOpen size={17}/>:index===2?<Radio size={17}/>:index===3?<NotebookPen size={17}/>:<Info size={17}/>}</span>{item.label}
             </Link>
           ))}
         </nav>
@@ -226,7 +227,7 @@ export default function DashboardPage() {
 
       <div className="mm-main">
         <header className="mm-topbar">
-          <button className="mm-menu-toggle" aria-label={menuOpen ? "Close navigation" : "Open navigation"} aria-expanded={menuOpen} onClick={() => setMenuOpen((open) => !open)}>☰</button>
+          <button className="mm-menu-toggle" aria-label={menuOpen ? "Close navigation" : "Open navigation"} aria-expanded={menuOpen} onClick={() => setMenuOpen((open) => !open)}><Menu size={20}/></button>
           <Link className="mm-mobile-topbar-brand" href="/dashboard"><span className="mm-brand-mark">M</span><span>MockMaster</span></Link>
           <div className="mm-topbar-right">{profileMenu}</div>
         </header>
@@ -242,7 +243,7 @@ export default function DashboardPage() {
           <section className="mm-analytics-summary" aria-label="Overall performance statistics">
             {summaryStats.map((stat) => (
               <article className="mm-analytics-stat" key={stat.label}>
-                <span className="mm-analytics-stat-icon" aria-hidden="true">{stat.icon}</span>
+                <span className="mm-analytics-stat-icon" aria-hidden="true"><stat.Icon size={18} strokeWidth={1.8}/></span>
                 <div className="mm-analytics-stat-copy">
                   <span>{stat.label}</span>
                   <strong>{stat.label==="Accuracy"?(overall.accuracy===null||overall.accuracy===undefined?"—":Number(overall.accuracy).toFixed(1)+"%"):stat.label==="Total tests attempted"?Number(overall.attempts||0):stat.label==="Average score"?(overall.average_score===null||overall.average_score===undefined?"—":Number(overall.average_score).toFixed(1)+"%"):stat.label==="Total questions"?Number(overall.total_questions||0):stat.label==="Unique questions attempted"?Number(overall.unique_questions||0):formatDuration(overall.average_time===null?null:Number(overall.average_time))}</strong>
