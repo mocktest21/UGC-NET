@@ -1963,3 +1963,14 @@ button{font-family:var(--mm-font);font-weight:600}
 .mm-live-countdown strong{margin-left:auto;color:#344054;font-size:11px;font-variant-numeric:tabular-nums;white-space:nowrap}
 .mm-live-countdown.is-active{border-color:#bbf7d0;background:#f0fdf4;color:#166534}
 .mm-live-countdown.is-active svg,.mm-live-countdown.is-active strong{color:#15803d}
+
+
+/* Keep schedule and countdown on one compact line in live-test cards */
+.mm-live-card-date-single{display:flex;align-items:center;flex-wrap:nowrap;gap:5px;min-width:0;padding:7px 8px;border:1px solid #e8e4da;border-radius:8px;background:#fffefa;font-size:9px;white-space:nowrap}
+.mm-live-card-date-single>span{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.mm-live-card-date-single>b{margin-left:auto;color:#166534;font-size:9px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.mm-live-card-date-single.is-active{border-color:#bbf7d0;background:#f0fdf4;color:#166534}
+.mm-live-status.is-completed{background:#f2f4f7;color:#475467}
+.mm-live-status.is-completed i{background:#98a2b3}
+.mm-practice-live-grid .mm-completed-live-card>button{width:100%;min-height:34px;margin-top:auto;padding:7px 8px;border:1px solid #2563eb;border-radius:8px;background:#2563eb;color:#fff;font-size:10px;font-weight:650}
+.mm-practice-live-grid .mm-completed-live-card>button:disabled{opacity:.65}
