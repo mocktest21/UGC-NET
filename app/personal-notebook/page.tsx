@@ -9,25 +9,18 @@ const answerText=(v:any,options:any[])=>{if(v===null||v===undefined||v==="")retu
 export default function PersonalNotebookPage(){
  const router=useRouter();const [studentId,setStudentId]=useState("");const [bookmarks,setBookmarks]=useState<Q[]>([]);const [incorrect,setIncorrect]=useState<Q[]>([]);const [tab,setTab]=useState<"bookmarks"|"incorrect">("bookmarks");const [loading,setLoading]=useState(true);const [error,setError]=useState("");const [removing,setRemoving]=useState("");
  const load=useCallback(async()=>{
-  setLoading(true);setError("");const db=createSupabaseBrowserClient();const {data:auth,error:authError}=await db.auth.getUser();if(authError||!auth.user){router.replace("/login");return;}setStudentId(auth.user.id);
-  const [{data:bookmarkRows,error:bookmarkError},{data:attemptRows,error:attemptError}]=await Promise.all([db.from("bookmarks").select("question_id,created_at").eq("student_id",auth.user.id).order("created_at",{ascending:false}),db.from("test_attempts").select("id,test_id,submitted_at,attempt_number").eq("student_id",auth.user.id).in("status",["submitted","auto_submitted"]).order("submitted_at",{ascending:false}).limit(1000)]);
-  if(bookmarkError||attemptError){setError(bookmarkError?.message||attemptError?.message||"Unable to load notebook.");setLoading(false);return;}
-  const attempts=attemptRows||[],attemptIds=attempts.map((a:any)=>a.id);let wrongRows:any[]=[];
-  if(attemptIds.length){const {data,error:e}=await db.from("student_responses").select("attempt_id,test_question_id,response,is_correct").in("attempt_id",attemptIds).eq("is_correct",false);if(e){setError(e.message);setLoading(false);return;}wrongRows=data||[];}
-  const tqIds=Array.from(new Set(wrongRows.map((r:any)=>r.test_question_id).filter(Boolean)));
-  const {data:links,error:le}=tqIds.length?await db.from("test_questions").select("id,question_id,question_version_id,test_id").in("id",tqIds):{data:[],error:null};
-  if(le){setError(le.message);setLoading(false);return;}
-  const allIds=Array.from(new Set([...(bookmarkRows||[]).map((b:any)=>b.question_id),...(links||[]).map((x:any)=>x.question_id)].filter(Boolean)));
-  if(!allIds.length){setBookmarks([]);setIncorrect([]);setLoading(false);return;}
-  const [{data:qs,error:qe},{data:vs,error:ve}]=await Promise.all([db.from("questions").select("id,subject_id,unit_id,subjects(name),units(name)").in("id",allIds),db.from("question_versions").select("id,question_id,version_number,prompt,stimulus,options").in("question_id",allIds).order("version_number",{ascending:false})]);
-  if(qe||ve){setError(qe?.message||ve?.message||"Unable to load question content.");setLoading(false);return;}
-  const qmap=new Map((qs||[]).map((q:any)=>[q.id,q]));const vmap=new Map<string,any>();for(const v of vs||[])if(!vmap.has(v.question_id))vmap.set(v.question_id,v);
-  const testIds=Array.from(new Set((links||[]).map((x:any)=>x.test_id).filter(Boolean)));const {data:tests}=testIds.length?await db.from("tests").select("id,title").in("id",testIds):{data:[]};const tmap=new Map((tests||[]).map((t:any)=>[t.id,t.title]));const amap=new Map(attempts.map((a:any)=>[a.id,a]));
-  const build=(id:string,extra:any={}):Q|null=>{const q:any=qmap.get(id),v:any=vmap.get(id);if(!q||!v)return null;const sub=Array.isArray(q.subjects)?q.subjects[0]?.name:q.subjects?.name;const un=Array.isArray(q.units)?q.units[0]?.name:q.units?.name;return{id,prompt:v.prompt,stimulus:v.stimulus,options:Array.isArray(v.options)?v.options:[],subject:sub||"Subject not tagged",unit:un||"Unit not tagged",...extra};};
-  setBookmarks((bookmarkRows||[]).map((b:any)=>build(b.question_id)).filter(Boolean) as Q[]);
-  const byQuestion=new Map<string,Q>();const sorted=wrongRows.slice().sort((a:any,b:any)=>new Date((amap.get(b.attempt_id) as any)?.submitted_at||0).getTime()-new Date((amap.get(a.attempt_id) as any)?.submitted_at||0).getTime());
-  for(const r of sorted){const link:any=(links||[]).find((x:any)=>x.id===r.test_question_id);if(!link||byQuestion.has(link.question_id))continue;const a:any=amap.get(r.attempt_id);const count=wrongRows.filter((w:any)=>{const l:any=(links||[]).find((x:any)=>x.id===w.test_question_id);return l?.question_id===link.question_id;}).length;const item=build(link.question_id,{response:r.response,testTitle:(tmap.get(link.test_id) as string)||"Practice test",date:a?.submitted_at,wrongCount:count});if(item)byQuestion.set(link.question_id,item);}
-  setIncorrect(Array.from(byQuestion.values()));setLoading(false);
+  setLoading(true);setError("");
+  const db=createSupabaseBrowserClient();
+  const {data:auth,error:authError}=await db.auth.getUser();
+  if(authError){setError("Unable to verify your session. Please retry.");setLoading(false);return;}
+  if(!auth.user){router.replace("/login");return;}
+  setStudentId(auth.user.id);
+  const {data,error:rpcError}=await db.rpc("student_get_personal_notebook");
+  if(rpcError){setError("Notebook data could not be loaded. Please retry. "+rpcError.message);setLoading(false);return;}
+  const payload=data as {bookmarks?:Q[];incorrect?:Q[]};
+  setBookmarks(payload.bookmarks||[]);
+  setIncorrect(payload.incorrect||[]);
+  setLoading(false);
  },[router]);
  useEffect(()=>{void load();},[load]);
  const remove=async(id:string)=>{if(!studentId)return;setRemoving(id);const db=createSupabaseBrowserClient();const {error}=await db.from("bookmarks").delete().eq("student_id",studentId).eq("question_id",id);setRemoving("");if(error){setError(error.message);return;}setBookmarks(old=>old.filter(q=>q.id!==id));};
