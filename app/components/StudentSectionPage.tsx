@@ -3,7 +3,7 @@ import Link from "next/link";
 
 import {useEffect,useState} from "react";
 import {useRouter} from "next/navigation";
-import {CalendarDays,Clock3,FileQuestion,Users,Trophy,Medal} from "lucide-react";
+import {CalendarDays,Clock3,FileQuestion,Users,Trophy,Medal,Clock3} from "lucide-react";
 import StudentWorkspaceHeader from "@/components/navigation/StudentWorkspaceHeader";
 import {createSupabaseBrowserClient} from "@/lib/supabase/client";
 
@@ -95,7 +95,7 @@ export default function StudentSectionPage({section}:{section:Section}){
         const result=data as {test_id:string;attempt_id:string;duration_seconds:number};
         router.push("/practice/session?"+new URLSearchParams({test:result.test_id,attempt:result.attempt_id,minutes:String(Math.ceil(result.duration_seconds/60))}).toString());
       }}><span>{startingTest===test.id?"Preparing…":"Practice again"}</span></button>
-    </article>)}</div>:<div className="mm-workspace-empty mm-completed-live-empty"><span>◷</span><h2>No completed live tests yet</h2><p>Once a scheduled live test ends, it will automatically appear here as a ready-made practice test.</p></div>}
+    </article>)}</div>:<div className="mm-workspace-empty mm-completed-live-empty"><span><Clock3 size={22}/></span><h2>No completed live tests yet</h2><p>Once a scheduled live test ends, it will automatically appear here as a ready-made practice test.</p></div>}
    </div>}
    {section==="live-test"&&<div className="mm-practice-dashboard mm-live-dashboard">
     {error&&<div className="mm-workspace-error">{error}</div>}
