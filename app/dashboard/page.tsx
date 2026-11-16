@@ -102,6 +102,14 @@ export default function DashboardPage() {
   }, [router]);
 
   useEffect(()=>{
+    if(!profileDialogOpen)return;
+    const onKey=(event:KeyboardEvent)=>{if(event.key==="Escape")setProfileDialogOpen(false);};
+    document.addEventListener("keydown",onKey);
+    const close=document.querySelector(".mm-profile-modal-heading button") as HTMLButtonElement|null;close?.focus();
+    return()=>document.removeEventListener("keydown",onKey);
+  },[profileDialogOpen]);
+
+  useEffect(()=>{
     if(!student)return;
     let active=true;
     const db=createSupabaseBrowserClient();
