@@ -108,13 +108,21 @@ export default function PracticeSessionPage(){
   if(loading||submitted||!expiresAt)return;
   const sync=()=>setSeconds(Math.max(0,Math.floor((new Date(expiresAt).getTime()-Date.now())/1000)));
   sync();
+  const tick=window.setInterval(()=>setSeconds(s=>Math.max(0,s-1)),1000);
   const timer=window.setInterval(sync,30000);
   const visible=()=>{if(document.visibilityState==="visible")sync();};
   document.addEventListener("visibilitychange",visible);
-  return()=>{window.clearInterval(timer);document.removeEventListener("visibilitychange",visible);};
+  return()=>{window.clearInterval(tick);window.clearInterval(timer);document.removeEventListener("visibilitychange",visible);};
  },[loading,submitted,expiresAt]);
  useEffect(()=>{if(!loading&&!submitted&&questions.length>0&&seconds<=0)void finish();},[loading,submitted,questions.length,seconds,finish]);
  useEffect(()=>()=>{for(const timer of saveTimers.current.values())clearTimeout(timer);},[]);
+ useEffect(()=>{
+  if(!confirm&&!showExitConfirm)return;
+  const onKey=(event:KeyboardEvent)=>{if(event.key==="Escape"){setConfirm(false);setShowExitConfirm(false);}};
+  document.addEventListener("keydown",onKey);
+  const target=document.querySelector(".ps-dialog button") as HTMLButtonElement|null;target?.focus();
+  return()=>document.removeEventListener("keydown",onKey);
+ },[confirm,showExitConfirm]);
  const goNext=async()=>{if(!await flushPending())return;setCurrent(x=>Math.min(questions.length-1,x+1));};
  const q=questions[current];
  const stem=(q?.prompt?.stem?.text||q?.prompt?.text||q?.prompt?.stem||"Question content unavailable").toString();
