@@ -98,7 +98,7 @@ export default function StudentSectionPage({section}:{section:Section}){
     </article>)}</div>:<div className="mm-workspace-empty mm-completed-live-empty"><span><Clock3 size={22}/></span><h2>No completed live tests yet</h2><p>Once a scheduled live test ends, it will automatically appear here as a ready-made practice test.</p></div>}
    </div>}
    {section==="live-test"&&<div className="mm-practice-dashboard mm-live-dashboard">
-    {error&&<div className="mm-workspace-error">{error}</div>}
+    {error&&<div className="mm-workspace-error" role="alert">{error} <button type="button" onClick={()=>window.location.reload()}>Retry</button></div>}
     {(()=>{
       const upcoming=liveTests.filter(test=>new Date(test.starts_at).getTime()>currentTime).sort((a,b)=>a.starts_at.localeCompare(b.starts_at));
       const active=liveTests.filter(test=>new Date(test.starts_at).getTime()<=currentTime&&new Date(test.ends_at).getTime()>currentTime).sort((a,b)=>a.ends_at.localeCompare(b.ends_at));
