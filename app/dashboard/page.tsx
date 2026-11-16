@@ -58,8 +58,10 @@ export default function DashboardPage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [profileDialogOpen, setProfileDialogOpen] = useState(false);
-  const [analytics,setAnalytics]=useState({attempts:[] as any[],responses:[] as any[],testQuestions:[] as any[],questions:[] as any[],tests:[] as any[],papers:[] as any[],exams:[] as any[]});
-  const [dateFilter,setDateFilter]=useState("today");
+  const [dashboardData,setDashboardData]=useState<any>(null);
+  const [analyticsLoading,setAnalyticsLoading]=useState(false);
+  const [analyticsError,setAnalyticsError]=useState("");
+  const [dateFilter,setDateFilter]=useState("week");
   const [customFrom,setCustomFrom]=useState("");
   const [customTo,setCustomTo]=useState("");
   const [reattemptingId,setReattemptingId]=useState("");
@@ -86,80 +88,9 @@ export default function DashboardPage() {
           phone: profile.phone_number,
         });
 
-        const { data: attemptRows } = await supabase.from("test_attempts")
-          .select("id,test_id,score,max_score,accuracy,questions_attempted,correct_count,incorrect_count,unanswered_count,status,started_at,submitted_at,time_taken_seconds")
-          .eq("student_id", data.user.id)
-          .in("status", ["submitted","auto_submitted"])
-          .order("started_at", { ascending: false })
-          .limit(500);
-        const attempts = (attemptRows || []) as any[];
-        const attemptIds = attempts.map((a) => a.id);
-        const testIds = Array.from(new Set(attempts.map((a) => a.test_id).filter(Boolean)));
 
-        let tests: any[] = [];
-        let responses: any[] = [];
-        let testQuestions: any[] = [];
-        let questions: any[] = [];
-        if (testIds.length) {
-          const { data: testRows } = await supabase.from("tests")
-            .select("id,title,exam_id,paper_id,subject_id")
-            .in("id", testIds);
-          tests = (testRows || []) as any[];
-        }
-        const paperIds = Array.from(new Set(tests.map((test: any) => test.paper_id).filter(Boolean)));
-        let papers: any[] = [];
-        if (paperIds.length) {
-          const { data: paperRows } = await supabase.from("papers").select("id,name,code").in("id", paperIds);
-          papers = (paperRows || []) as any[];
-        }
-        if (attemptIds.length) {
-          const { data: responseRows } = await supabase.from("student_responses")
-            .select("attempt_id,test_question_id,response,is_correct,time_spent_seconds")
-            .in("attempt_id", attemptIds);
-          responses = (responseRows || []) as any[];
-          if (testIds.length) {
-            const { data: tqRows } = await supabase.from("test_questions")
-              .select("id,question_id,test_id")
-              .in("test_id", testIds);
-            testQuestions = (tqRows || []) as any[];
-            const questionIds = Array.from(new Set(testQuestions.map((q) => q.question_id).filter(Boolean)));
-            if (questionIds.length) {
-              const { data: questionRows } = await supabase.from("questions")
-                .select("id,subject_id,unit_id,subjects(name),units(name)")
-                .in("id", questionIds);
-              questions = (questionRows || []) as any[];
-            }
-          }
-        }
-        const { data: preferenceRows } = await supabase.from("student_exam_preferences")
-          .select("exam_id,selected_subject_id")
-          .eq("student_id", data.user.id);
-        const examIds = Array.from(new Set((preferenceRows || []).map((row: any) => row.exam_id).filter(Boolean)));
-        let examRows: any[] = [];
-        if (examIds.length) {
-          const { data: catalogueRows } = await supabase.from("exams")
-            .select("id,name")
-            .in("id", examIds);
-          const examById = new Map((catalogueRows || []).map((exam: any) => [exam.id, exam]));
-          examRows = (preferenceRows || []).map((row: any) => ({
-            ...row,
-            name: (examById.get(row.exam_id) as any)?.name || "Selected examination",
-          }));
-        }
-
-        if (active) {
-          setAnalytics({
-            attempts,
-            responses,
-            testQuestions,
-            questions,
-            tests,
-            papers,
-            exams: examRows,
-          });
-        }
-      } catch {
-        router.replace("/login");
+      } catch (loadError) {
+        setAnalyticsError(loadError instanceof Error?loadError.message:"Unable to load dashboard data. Please retry.");
       } finally {
         if (active) setLoading(false);
       }
@@ -168,6 +99,27 @@ export default function DashboardPage() {
     void loadStudent();
     return () => { active = false; };
   }, [router]);
+
+  useEffect(()=>{
+    if(!student)return;
+    let active=true;
+    const db=createSupabaseBrowserClient();
+    const now=new Date();
+    let from:string|null=null,to:string|null=null;
+    if(dateFilter==="week")from=new Date(now.getTime()-7*86400000).toISOString();
+    else if(dateFilter==="month")from=new Date(now.getTime()-30*86400000).toISOString();
+    else if(dateFilter==="3months")from=new Date(now.getTime()-90*86400000).toISOString();
+    else if(dateFilter==="today"){const d=new Date();d.setHours(0,0,0,0);from=d.toISOString();}
+    else if(dateFilter==="custom"){from=customFrom?new Date(customFrom+"T00:00:00").toISOString():null;to=customTo?new Date(customTo+"T23:59:59").toISOString():null;}
+    setAnalyticsLoading(true);setAnalyticsError("");
+    void db.rpc("student_get_dashboard_analytics",{p_from:from,p_to:to}).then(({data,error})=>{
+      if(!active)return;
+      if(error){setAnalyticsError("Analytics could not be loaded. Retry in a moment. "+error.message);setDashboardData(null);}
+      else setDashboardData(data);
+      setAnalyticsLoading(false);
+    }).catch((e:any)=>{if(active){setAnalyticsError(e?.message||"Analytics could not be loaded.");setAnalyticsLoading(false);}});
+    return()=>{active=false;};
+  },[student,dateFilter,customFrom,customTo]);
 
   async function handleSignOut() {
     setSigningOut(true);
@@ -194,136 +146,11 @@ export default function DashboardPage() {
     }).toString());
   }
 
-  const now = new Date();
-  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const cutoff = dateFilter === "week" ? new Date(now.getTime() - 7 * 86400000)
-    : dateFilter === "month" ? new Date(now.getTime() - 30 * 86400000)
-    : dateFilter === "3months" ? new Date(now.getTime() - 90 * 86400000) : null;
-  const filteredAttempts = analytics.attempts.filter((attempt: any) => {
-    const date = new Date(attempt.submitted_at || attempt.started_at);
-    if (dateFilter === "today") return date >= todayStart && date <= now;
-    if (dateFilter === "custom") {
-      if (customFrom && date < new Date(customFrom + "T00:00:00")) return false;
-      if (customTo && date > new Date(customTo + "T23:59:59")) return false;
-      return true;
-    }
-    return !cutoff || date >= cutoff;
-  });
-  const filteredAttemptIds = new Set(filteredAttempts.map((a: any) => a.id));
-  const filteredResponses = analytics.responses.filter((r: any) => filteredAttemptIds.has(r.attempt_id));
-  const testQuestionById = new Map(analytics.testQuestions.map((q: any) => [q.id, q]));
-  const questionById = new Map(analytics.questions.map((q: any) => [q.id, q]));
-  const testById = new Map(analytics.tests.map((t: any) => [t.id, t]));
-  const hasAnswer = (value: any) => value !== null && value !== undefined && value !== "" && JSON.stringify(value) !== "null" && JSON.stringify(value) !== '""';
-  const allAttemptIds = new Set(analytics.attempts.map((a: any) => a.id));
-  const allResponses = analytics.responses.filter((r: any) => allAttemptIds.has(r.attempt_id));
-  const allEvaluatedResponses = allResponses.filter((r: any) => r.is_correct === true || r.is_correct === false);
-  const allCorrectCount = allEvaluatedResponses.filter((r: any) => r.is_correct === true).length;
-  const allAccuracy = allEvaluatedResponses.length ? allCorrectCount / allEvaluatedResponses.length * 100 : 0;
-  const allUniqueQuestionIds = new Set(allResponses.filter((r: any) => hasAnswer(r.response)).map((r: any) => {
-    const tq: any = testQuestionById.get(r.test_question_id);
-    return tq?.question_id;
-  }).filter(Boolean));
-  const allScoredAttempts = analytics.attempts.filter((a: any) => a.score !== null && Number(a.max_score) > 0);
-  const allAverageScore = allScoredAttempts.length ? allScoredAttempts.reduce((sum: number, a: any) => sum + Number(a.score) / Number(a.max_score) * 100, 0) / allScoredAttempts.length : null;
-  const allTotalQuestions = analytics.attempts.reduce((sum: number, a: any) => sum + Number(a.questions_attempted || 0) + Number(a.unanswered_count || 0), 0);
-  const allTimeRows = allResponses.filter((r: any) => hasAnswer(r.response));
-  const allAverageTime = allTimeRows.length ? allTimeRows.reduce((sum: number, r: any) => sum + Number(r.time_spent_seconds || 0), 0) / allTimeRows.length : null;
-  const evaluatedResponses = filteredResponses.filter((r: any) => r.is_correct === true || r.is_correct === false);
-  const correctCount = evaluatedResponses.filter((r: any) => r.is_correct === true).length;
-  const incorrectCount = evaluatedResponses.length - correctCount;
-  const accuracyPercent = evaluatedResponses.length ? correctCount / evaluatedResponses.length * 100 : 0;
-  const uniqueQuestionIds = new Set(filteredResponses.filter((r: any) => hasAnswer(r.response)).map((r: any) => {
-    const tq: any = testQuestionById.get(r.test_question_id);
-    return tq?.question_id;
-  }).filter(Boolean));
-  const scoredAttempts = filteredAttempts.filter((a: any) => a.score !== null && Number(a.max_score) > 0);
-  const averageScore = scoredAttempts.length ? scoredAttempts.reduce((sum: number, a: any) => sum + Number(a.score) / Number(a.max_score) * 100, 0) / scoredAttempts.length : null;
-  const totalQuestions = filteredAttempts.reduce((sum: number, a: any) => sum + Number(a.questions_attempted || 0) + Number(a.unanswered_count || 0), 0);
-  const timeRows = filteredResponses.filter((r: any) => hasAnswer(r.response));
-  const averageTime = timeRows.length ? timeRows.reduce((sum: number, r: any) => sum + Number(r.time_spent_seconds || 0), 0) / timeRows.length : null;
-  const formatDuration = (seconds: number | null) => seconds === null ? "—" : seconds < 60 ? Math.round(seconds) + " sec" : Math.floor(seconds / 60) + "m " + Math.round(seconds % 60) + "s";
-
-  const unitMap = new Map<string, any>();
-  const paperNameById = new Map(analytics.papers.map((paper: any) => [paper.id, paper.name || paper.code || "Paper"]));
-  const unitPaperNames = new Map<string, Set<string>>();
-  for (const link of analytics.testQuestions) {
-    const q: any = questionById.get(link.question_id);
-    const test: any = testById.get(link.test_id);
-    if (!q?.unit_id || !test?.paper_id) continue;
-    const paperName = paperNameById.get(test.paper_id) || "Paper";
-    if (!unitPaperNames.has(q.unit_id)) unitPaperNames.set(q.unit_id, new Set());
-    unitPaperNames.get(q.unit_id)!.add(String(paperName));
-  }
-  for (const q of analytics.questions) {
-    if (!q.unit_id) continue;
-    const relation = q.units;
-    const name = Array.isArray(relation) ? relation[0]?.name : relation?.name;
-    const item = unitMap.get(q.unit_id) || {
-      id: q.unit_id, name: name || "Unlabelled", total: 0,
-      attemptedIds: new Set<string>(), correctIds: new Set<string>(),
-      correct: 0, incorrect: 0, evaluated: 0,
-    };
-    item.total += 1;
-    unitMap.set(q.unit_id, item);
-  }
-  for (const response of filteredResponses) {
-    const tq: any = testQuestionById.get(response.test_question_id);
-    const q: any = tq ? questionById.get(tq.question_id) : null;
-    const id = q?.unit_id;
-    if (!id) continue;
-    const item = unitMap.get(id);
-    if (!item) continue;
-    if (hasAnswer(response.response)) item.attemptedIds.add(q.id);
-    if (response.is_correct === true || response.is_correct === false) {
-      item.evaluated += 1;
-      if (response.is_correct === true) { item.correct += 1; item.correctIds.add(q.id); }
-      else item.incorrect += 1;
-    }
-  }
-  const unitPerformance = Array.from(unitMap.values()).map((item: any) => {
-    const papers = Array.from(unitPaperNames.get(item.id) || []);
-    const attempted = item.attemptedIds.size;
-    const accuracy = item.evaluated ? item.correct / item.evaluated * 100 : 0;
-    return {
-      id: item.id, name: item.name,
-      paperName: papers.length ? papers.join(" / ") : "Paper",
-      attempted, total: item.total,
-      correct: item.correctIds.size,
-      accuracy,
-      coverage: item.total ? attempted / item.total * 100 : 0,
-    };
-  }).sort((a: any, b: any) => b.attempted - a.attempted || a.name.localeCompare(b.name));
-  const paperMap = new Map<string, any>();
-  for (const attempt of filteredAttempts) {
-    const test: any = testById.get(attempt.test_id);
-    const paperId = test?.paper_id;
-    if (!paperId) continue;
-    const paper = paperMap.get(paperId) || {
-      id: paperId,
-      name: analytics.papers.find((item: any) => item.id === paperId)?.name || "Paper",
-      tests: 0, scoreTotal: 0, scoredTests: 0, correct: 0, incorrect: 0,
-    };
-    paper.tests += 1;
-    if (attempt.score !== null && Number(attempt.max_score) > 0) {
-      paper.scoreTotal += Number(attempt.score) / Number(attempt.max_score) * 100;
-      paper.scoredTests += 1;
-    }
-    paperMap.set(paperId, paper);
-  }
-  for (const response of evaluatedResponses) {
-    const tq: any = testQuestionById.get(response.test_question_id);
-    const test: any = tq ? testById.get(tq.test_id) : null;
-    const paper = test?.paper_id ? paperMap.get(test.paper_id) : null;
-    if (!paper) continue;
-    if (response.is_correct === true) paper.correct += 1;
-    else paper.incorrect += 1;
-  }
-  const paperPerformance = Array.from(paperMap.values()).map((paper: any) => ({
-    ...paper,
-    average: paper.scoredTests ? paper.scoreTotal / paper.scoredTests : null,
-    accuracy: paper.correct + paper.incorrect ? paper.correct / (paper.correct + paper.incorrect) * 100 : null,
-  })).sort((a: any, b: any) => a.name.localeCompare(b.name));
+  const overall=dashboardData?.overall||{};
+  const filteredAttempts:any[]=dashboardData?.attempts||[];
+  const paperPerformance:any[]=dashboardData?.papers||[];
+  const unitPerformance:any[]=dashboardData?.units||[];
+  const formatDuration=(seconds:number|null)=>seconds===null||seconds===undefined?"—":seconds<60?Math.round(seconds)+" sec":Math.floor(seconds/60)+"m "+Math.round(seconds%60)+"s";
 
   if (loading || !student) {
     return (
@@ -418,7 +245,7 @@ export default function DashboardPage() {
                 <span className="mm-analytics-stat-icon" aria-hidden="true">{stat.icon}</span>
                 <div className="mm-analytics-stat-copy">
                   <span>{stat.label}</span>
-                  <strong>{stat.label==="Accuracy"?(allEvaluatedResponses.length?allAccuracy.toFixed(1)+"%":"—"):stat.label==="Total tests attempted"?analytics.attempts.length:stat.label==="Average score"?(allAverageScore===null?"—":allAverageScore.toFixed(1)+"%"):stat.label==="Total questions"?allTotalQuestions:stat.label==="Unique questions attempted"?allUniqueQuestionIds.size:formatDuration(allAverageTime)}</strong>
+                  <strong>{stat.label==="Accuracy"?(overall.accuracy===null||overall.accuracy===undefined?"—":Number(overall.accuracy).toFixed(1)+"%"):stat.label==="Total tests attempted"?Number(overall.attempts||0):stat.label==="Average score"?(overall.average_score===null||overall.average_score===undefined?"—":Number(overall.average_score).toFixed(1)+"%"):stat.label==="Total questions"?Number(overall.total_questions||0):stat.label==="Unique questions attempted"?Number(overall.unique_questions||0):formatDuration(overall.average_time===null?null:Number(overall.average_time))}</strong>
                 </div>
               </article>
             ))}
@@ -442,11 +269,12 @@ export default function DashboardPage() {
                 <label>To <input type="date" value={customTo} min={customFrom || undefined} onChange={(event) => setCustomTo(event.target.value)} /></label>
               </div>
             )}
-            {actionError && <p className="mm-dashboard-action-error" role="alert">{actionError}</p>}
+            {(actionError||analyticsError) && <p className="mm-dashboard-action-error" role="alert">{actionError||analyticsError} <button type="button" onClick={()=>setDateFilter(x=>x)}>Retry</button></p>}
+            {analyticsLoading&&<p className="mm-analytics-loading">Updating analytics…</p>}
             {filteredAttempts.length ? (
               <div className="mm-dashboard-recent-tests">
                 {filteredAttempts.slice(0, 20).map((test: any) => {
-                  const meta: any = testById.get(test.test_id);
+                  const meta: any = {title:test.title};
                   const pct = Number(test.max_score) > 0 && test.score !== null ? Math.max(0, Math.min(100, Number(test.score) / Number(test.max_score) * 100)) : null;
                   const attempted = Number(test.correct_count || 0) + Number(test.incorrect_count || 0);
                   const right = Number(test.correct_count || 0);
