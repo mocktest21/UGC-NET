@@ -156,13 +156,11 @@ export default function DashboardPage() {
   const unitPerformance:any[]=dashboardData?.units||[];
   const formatDuration=(seconds:number|null)=>seconds===null||seconds===undefined?"—":seconds<60?Math.round(seconds)+" sec":Math.floor(seconds/60)+"m "+Math.round(seconds%60)+"s";
 
-  if (loading || !student) {
-    return (
-      <main className="mm-loading">
-        <span className="mm-loading-mark">M</span>
-        <p>Loading your MockMaster dashboard...</p>
-      </main>
-    );
+  if (loading) {
+    return <main className="mm-loading"><span className="mm-loading-mark">M</span><p>Loading your MockMaster dashboard...</p></main>;
+  }
+  if(!student){
+    return <main className="mm-loading" role="alert"><p>{analyticsError||"Your dashboard could not be loaded."}</p><button type="button" onClick={()=>window.location.reload()}>Retry</button></main>;
   }
 
   const initials = student.name.split(" ").filter(Boolean).slice(0, 2).map((part) => part[0]).join("").toUpperCase();
