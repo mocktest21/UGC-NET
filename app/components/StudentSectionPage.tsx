@@ -2,6 +2,7 @@
 
 import {useEffect,useState} from "react";
 import {useRouter} from "next/navigation";
+import {CalendarDays,Clock3,FileQuestion,Trophy} from "lucide-react";
 import {createSupabaseBrowserClient} from "@/lib/supabase/client";
 
 type Section="practice"|"live-test"|"personal-notebook";
@@ -80,11 +81,11 @@ export default function StudentSectionPage({section}:{section:Section}){
       const now=Date.now(),starts=new Date(test.starts_at).getTime(),ends=new Date(test.ends_at).getTime();
       const isActive=starts<=now&&ends>now;
       return <article className="mm-completed-live-card" key={test.id}>
-       <div className="mm-completed-live-top"><span className="mm-course-icon">◷</span><span className="mm-completed-live-status">{isActive?"LIVE NOW":"UPCOMING"}</span></div>
+       <div className="mm-live-card-top"><span className={isActive?"mm-live-status is-live":"mm-live-status"}><i/>{isActive?"LIVE NOW":"UPCOMING"}</span><span className="mm-live-card-mark"><Trophy size={14}/>{Number(test.total_marks).toLocaleString("en-IN")}</span></div>
        <h3>{test.title}</h3>
-       {test.description&&<p>{test.description}</p>}
-       <div className="mm-completed-live-meta"><span>{test.question_count} Questions</span><span>{Math.ceil(test.duration_seconds/60)} Minutes</span><span>{Number(test.total_marks).toLocaleString("en-IN")} Marks</span></div>
-       <small className="mm-completed-live-date">{isActive?"Ends ":"Starts "}{new Date(isActive?test.ends_at:test.starts_at).toLocaleString("en-IN",{day:"numeric",month:"short",year:"numeric",hour:"numeric",minute:"2-digit"})}</small>
+       {test.description&&<p className="mm-live-card-description">{test.description}</p>}
+       <div className="mm-live-card-stats"><span><FileQuestion size={14}/>{test.question_count} Qs</span><span><Clock3 size={14}/>{Math.ceil(test.duration_seconds/60)} min</span></div>
+       <div className="mm-live-card-date"><CalendarDays size={14}/><span>{isActive?"Ends ":"Starts "}{new Date(isActive?test.ends_at:test.starts_at).toLocaleString("en-IN",{day:"numeric",month:"short",hour:"numeric",minute:"2-digit"})}</span></div>
        <button type="button" disabled={!isActive||startingTest===test.id} onClick={async()=>{
         setError("");setStartingTest(test.id);
         const db=createSupabaseBrowserClient();
@@ -93,7 +94,7 @@ export default function StudentSectionPage({section}:{section:Section}){
         if(error){setError(error.message);return;}
         const result=data as {test_id:string;attempt_id:string;duration_seconds:number};
         router.push("/practice/session?"+new URLSearchParams({test:result.test_id,attempt:result.attempt_id,minutes:String(Math.ceil(result.duration_seconds/60))}).toString());
-       }}>{startingTest===test.id?"Preparing test…":isActive?"Start live test →":"Starts soon"}</button>
+       }}><span>{startingTest===test.id?"Preparing…":isActive?"Start test":"Starts soon"}</span></button>
       </article>;
     })}</div>:<div className="mm-workspace-empty mm-completed-live-empty"><span>◷</span><h2>No upcoming or active live tests</h2><p>Published tests for your selected examinations will appear here during their scheduled window.</p></div>}
    </div>}
