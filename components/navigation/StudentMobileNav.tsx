@@ -1,13 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import {House,BookOpen,Radio,NotebookPen} from "lucide-react";
 import { usePathname } from "next/navigation";
 
 const items = [
-  { label: "Dashboard", href: "/dashboard", icon: "⌂" },
-  { label: "Practice", href: "/practice", icon: "◎" },
-  { label: "Live Test", href: "/live-test", icon: "◷" },
-  { label: "Personal Notebook", href: "/personal-notebook", icon: "▤" },
+  { label: "Dashboard", href: "/dashboard", Icon: House },
+  { label: "Practice", href: "/practice", Icon: BookOpen },
+  { label: "Live Test", href: "/live-test", Icon: Radio },
+  { label: "Personal Notebook", href: "/personal-notebook", Icon: NotebookPen },
 ];
 
 export default function StudentMobileNav() {
