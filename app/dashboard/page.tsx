@@ -344,20 +344,6 @@ export default function DashboardPage() {
             </article>)}</div> : <EmptyAnalytics title="Your unit-wise report will build here" detail="Complete tests with unit-tagged questions to see accuracy, attempted questions and syllabus coverage." />}
           </section>
 
-          <section className="mm-analytics-two-col">
-            <article className="mm-analytics-panel">
-              <div className="mm-analytics-panel-heading">
-                <div><span className="mm-section-kicker">WHAT YOU DO WELL</span><h2>Strengths & weaknesses</h2><p>See which papers, subjects and units need attention.</p></div>
-              </div>
-              <EmptyAnalytics title="Your strengths are waiting to be identified" detail="MockMaster will highlight your strongest and weakest areas using your actual test results." />
-            </article>
-            <article className="mm-analytics-panel">
-              <div className="mm-analytics-panel-heading">
-                <div><span className="mm-section-kicker">NEXT STEPS</span><h2>Revision recommendations</h2><p>Focused suggestions based on your performance.</p></div>
-              </div>
-              <EmptyAnalytics title="Personalised recommendations will appear here" detail="Once enough test data is available, revision priorities will be based on your weaker units and performance gaps." />
-            </article>
-          </section>
 
           <footer className="mm-footer"><span>© {new Date().getFullYear()} MockMaster</span><span>Practice. Improve. Achieve.</span></footer>
         </main>
