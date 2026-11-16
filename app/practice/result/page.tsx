@@ -4,6 +4,7 @@ import {useCallback,useEffect,useState} from "react";
 import {useRouter} from "next/navigation";
 import {createSupabaseBrowserClient} from "@/lib/supabase/client";
 import "./result.css";
+import StudentWorkspaceHeader from "@/components/navigation/StudentWorkspaceHeader";
 
 type Attempt={id:string;test_id:string;attempt_number:number;score:number|null;max_score:number|null;accuracy:number|null;correct_count:number;incorrect_count:number;unanswered_count:number;questions_attempted:number;time_taken_seconds:number|null;submitted_at:string|null};
 type Q={question_id:string;bank_question_id?:string;position:number;question_type:string;prompt:any;stimulus:any;options:any[];explanation:any;response:any;is_correct:boolean|null;awarded_marks:number;marks:number;negative_marks:number;answer_key:any};
@@ -31,7 +32,7 @@ export default function PracticeResultPage(){
  const a=data.attempt,score=Number(a.score??0),max=Number(a.max_score??0),pct=max>0?Math.max(0,Math.min(100,score/max*100)):0;
  const history=data.history||[];
  return <main className="mr-shell">
-  <header className="mr-header"><a href="/dashboard"><span>M</span> MockMaster</a><div><small>{data.test.mode==="live"?"LIVE TEST RESULT":"PRACTICE TEST RESULT"}</small><b>{data.test.title}</b></div><button onClick={()=>router.push("/dashboard")}>Dashboard</button></header>
+  <StudentWorkspaceHeader/>
   <section className="mr-content">
    <div className="mr-heading"><span>ATTEMPT {a.attempt_number} · SUBMITTED {a.submitted_at?new Date(a.submitted_at).toLocaleString("en-IN"):""}</span><h1>Your test result</h1><p>Review your performance and identify what to improve next.</p></div>
    <section className="mr-score-card"><div className="mr-score-main"><small>YOUR SCORE</small><strong>{score.toFixed(2)} <i>/ {max.toFixed(2)}</i></strong><span>{pct.toFixed(1)}% of maximum marks</span></div><div className="mr-score-ring" style={{"--score":pct+"%"} as React.CSSProperties}><b>{Number(a.accuracy??0).toFixed(1)}%</b><small>Accuracy</small></div></section>
