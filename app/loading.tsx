@@ -1,0 +1,1 @@
+export default function Loading(){return <main className="mm-loading" aria-live="polite"><span className="mm-loading-mark">M</span><p>Loading MockMaster…</p></main>;}
