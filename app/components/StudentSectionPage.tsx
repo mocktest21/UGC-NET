@@ -91,7 +91,6 @@ export default function StudentSectionPage({section}:{section:Section}){
        <h3>{test.title}</h3>
        {test.description&&<p className="mm-live-card-description">{test.description}</p>}
        <div className="mm-live-card-stats"><span><FileQuestion size={14}/>{test.question_count} Qs</span><span><Clock3 size={14}/>{Math.ceil(test.duration_seconds/60)} min</span></div>
-       <div className="mm-live-card-date"><CalendarDays size={14}/><span>{isActive?"Ends ":"Starts "}{new Date(isActive?test.ends_at:test.starts_at).toLocaleString("en-IN",{day:"numeric",month:"short",hour:"numeric",minute:"2-digit"})}</span></div>
        <div className={isActive?"mm-live-card-date mm-live-card-date-single is-active":"mm-live-card-date mm-live-card-date-single"}><CalendarDays size={14}/><span>{isActive?"Ends ":"Starts "}{new Date(isActive?ends:starts).toLocaleString("en-IN",{day:"numeric",month:"short",hour:"numeric",minute:"2-digit"})}</span><b>{isActive?"Ends in": "Starts in"} {formatCountdown(isActive?ends:starts,now)}</b></div>
        <button type="button" disabled={!isActive||startingTest===test.id} onClick={async()=>{
         setError("");setStartingTest(test.id);
