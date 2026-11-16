@@ -255,3 +255,6 @@
 }
 
 .sb-page :where(small,label,button,input,select,textarea,th,td,li,p,span,a){font-size:max(12px,1em)}
+
+/* Teal dashboard-aligned practice builder polish */
+.sb-page{background:var(--bg-page);color:var(--ink)}.sb-header{background:var(--surface);border-bottom-color:var(--border)}.sb-main,.sb-side{border:1px solid var(--border);border-radius:16px;background:var(--surface);box-shadow:0 4px 14px rgba(23,32,51,.035)}.sb-choice-grid button.chosen,.sb-unit-options button.chosen,.sb-pills button.chosen,.sb-count-options button.chosen{border-color:var(--primary);background:var(--primary-tint);color:var(--primary-hover)}.sb-start{background:var(--primary);border-color:var(--primary);color:#fff}.sb-start:hover{background:var(--primary-hover)}.sb-paper-check{border-color:var(--primary)}@media(max-width:760px){.sb-layout{grid-template-columns:1fr;gap:14px;padding:20px 14px 88px}.sb-main,.sb-side{padding:16px}.sb-title h1{font-size:23px}}
