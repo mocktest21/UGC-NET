@@ -1,5 +1,6 @@
 "use client";
 import StudentWorkspaceHeader from "@/components/navigation/StudentWorkspaceHeader";
+import {Check} from "lucide-react";
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -101,7 +102,7 @@ export default function StudentBuildTestPage(){
    <div className="sb-title"><div><span>PERSONALISED PRACTICE</span><h1>Build your test</h1><p>Choose your paper, units, question count and time. Your practice set is tailored to your selection.</p></div><span className="sb-exam">UGC NET ▾</span></div>
    <div className="sb-rule"/>
    <div className="sb-fields">
-    <section className="sb-field"><label>Paper</label><div className="sb-choice-grid">{papers.map(p=><button key={p.id} className={paperId===p.id?"chosen":""} aria-pressed={paperId===p.id} onClick={()=>{setPaperId(p.id);setSubjectId(p.id===preferredSubjectPaperId?preferredSubjectId:"");setUnitIds([]);}}><b>{p.name}</b><span className="sb-paper-check" aria-hidden="true">{paperId===p.id?"✓":""}</span></button>)}</div></section>
+    <section className="sb-field"><label>Paper</label><div className="sb-choice-grid">{papers.map(p=><button key={p.id} className={paperId===p.id?"chosen":""} aria-pressed={paperId===p.id} onClick={()=>{setPaperId(p.id);setSubjectId(p.id===preferredSubjectPaperId?preferredSubjectId:"");setUnitIds([]);}}><b>{p.name}</b><span className="sb-paper-check" aria-hidden="true">{paperId===p.id?<Check size={14}/>:null}</span></button>)}</div></section>
     <section className="sb-field"><div className="sb-label-row"><label>Units</label><span>{units.length?`${units.length} available` :"Select a paper to view its units"}</span></div><div className="sb-unit-options"><button className={!unitIds.length?"chosen":""} onClick={()=>setUnitIds([])} disabled={!subjectId}>All units</button>{units.map(u=><button key={u.id} className={unitIds.includes(u.id)?"chosen":""} onClick={()=>setUnitIds(old=>old.includes(u.id)?old.filter(id=>id!==u.id):[...old,u.id])}>{u.name} <small>{(unitCounts[u.id]??0).toLocaleString("en-IN")} questions</small></button>)}</div><p>{unitIds.length?`${selectedUnits.map(u=>u.name).join(", ")} · ${selectedUnits.reduce((n,u)=>n+(unitCounts[u.id]??0),0).toLocaleString("en-IN")} questions`:"Questions can be drawn from all units in your selected subject."}</p></section>
     <div className="sb-two-col"><section className="sb-field"><label>Question source</label><div className="sb-pills"><button className={source==="all"?"chosen":""} onClick={()=>setSource("all")}>All</button><button className={source==="pyq"?"chosen":""} onClick={()=>setSource("pyq")}>PYQ only</button><button className={source==="expected"?"chosen":""} onClick={()=>setSource("expected")}>Expected only</button></div></section><section className="sb-field"><label>Language</label><div className="sb-pills"><button className={language==="hi"?"chosen":""} onClick={()=>setLanguage("hi")}>हिन्दी</button><button className={language==="en"?"chosen":""} onClick={()=>setLanguage("en")}>English</button></div></section></div>
     
