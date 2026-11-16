@@ -43,8 +43,10 @@ export default function PracticeSessionPage(){
   if(versionError){setError(versionError.message);setLoading(false);return;}
   const versionMap=new Map((versions||[]).map((v:any)=>[v.id,v]));
   const built=(links||[]).flatMap((link:any)=>{const v:any=versionMap.get(link.question_version_id);return v?[{id:link.id,questionId:link.question_id,type:v.question_type,prompt:v.prompt||{},stimulus:v.stimulus,options:Array.isArray(v.options)?v.options:[],marks:Number(link.marks||2),negative:Number(link.negative_marks||0),responseId:link.id} as Q]:[];});
-  const {data:bookmarkRows}=await db.from("bookmarks").select("question_id").eq("student_id",auth.user.id).in("question_id",built.map((q:any)=>q.questionId));
-  const {data:responses}=await db.from("student_responses").select("test_question_id,response,is_marked_for_review").eq("attempt_id",attemptId);
+  const {data:bookmarkRows,error:bookmarkError}=await db.from("bookmarks").select("question_id").eq("student_id",auth.user.id).in("question_id",built.map((q:any)=>q.questionId));
+  if(bookmarkError){setError("Bookmarks could not be loaded: "+bookmarkError.message);setLoading(false);return;}
+  const {data:responses,error:responseError}=await db.from("student_responses").select("test_question_id,response,is_marked_for_review").eq("attempt_id",attemptId);
+  if(responseError){setError("Saved responses could not be loaded: "+responseError.message);setLoading(false);return;}
   const answerState:Record<string,any>={},reviewState:string[]=[];
   (responses||[]).forEach((r:any)=>{if(r.response!==null)answerState[r.test_question_id]=r.response;if(r.is_marked_for_review)reviewState.push(r.test_question_id);});
   const expiry=attempt.expires_at?Math.max(0,Math.floor((new Date(attempt.expires_at).getTime()-Date.now())/1000)):Math.max(1,Number(params.get("minutes")||50)*60);
@@ -150,7 +152,7 @@ export default function PracticeSessionPage(){
  return <main className="ps-shell">
   <header className="ps-header"><Link href="/dashboard" className="ps-brand"><span>M</span> MockMaster</Link><div className={seconds<300?"ps-timer danger":"ps-timer"} aria-label="Time remaining"><b>{fmt(seconds)}</b></div></header>
   <div className="ps-progress"><span style={{width:((current+1)/questions.length*100)+"%"}}/></div>
-  <div className="ps-body"><section className="ps-main"><div className="ps-meta"><span>Question {current+1} of {questions.length} · {q.type.replaceAll("_"," ")}</span><span>+{q.marks} marks · −{q.negative} negative</span></div>{saveError&&<div className="ps-save-error" role="alert"><b>Save failed</b><span>{saveError}</span><button type="button" onClick={()=>void flushPending()}>Retry save</button></div>}
+  <div className="ps-body"><section className="ps-main"><div className="ps-meta"><span>Question {current+1} of {questions.length} · {q.type.replaceAll("_"," ")}</span><span>+{q.marks} marks · −{q.negative} negative</span></div>{(saveError||error)&&<div className="ps-save-error" role="alert"><b>{saveError?"Save failed":"Notice"}</b><span>{saveError||error}</span>{saveError&&<button type="button" onClick={()=>void flushPending()}>Retry save</button>}</div>}
   <article className="ps-question">
    {q.stimulus&&<div className="ps-stimulus"><b>Read the passage / case</b><p>{String(q.stimulus?.text||q.stimulus?.content||q.stimulus)}</p></div>}
    <h1>{stem}</h1>
