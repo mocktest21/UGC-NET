@@ -16,3 +16,9 @@ small{font-size:max(12px,1em)}
  .mm-shared-student-header nav{display:none}
  .mm-shared-student-name{margin-left:auto}
 }
+
+
+/* Minimum readable type scale for student-facing interfaces */
+:where(.mm-dashboard,.mm-workspace-page,.mn-shell,.mr-shell,.ps-shell) :where(small,label,button,input,select,textarea,th,td,li,p,span,a){font-size:max(12px,1em)}
+.mm-shared-student-header .mm-profile-menu-wrap{margin-left:auto}
+.mm-shared-student-header .mm-menu-toggle{display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border:1px solid var(--border);border-radius:9px;background:#fff;color:var(--ink)}
