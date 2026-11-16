@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import {ClipboardList,Grid2X2,Target,Gauge,TrendingUp,Clock3,House,BookOpen,Radio,NotebookPen,Info,UserRound,LogOut,Menu,ChevronDown,Sparkles} from "lucide-react";
+import {ClipboardList,Grid2X2,Target,Gauge,TrendingUp,Clock3,House,BookOpen,Radio,NotebookPen,Info,UserRound,LogOut,Menu,ChevronDown,Sparkles,ClipboardList,X} from "lucide-react";
 import StudentWorkspaceHeader from "@/components/navigation/StudentWorkspaceHeader";
 
 import { useEffect, useState } from "react";
@@ -40,7 +40,7 @@ const summaryStats = [
 function EmptyAnalytics({ title, detail }: { title: string; detail: string }) {
   return (
     <div className="mm-analytics-empty">
-      <span className="mm-empty-icon">▤</span>
+      <span className="mm-empty-icon"><ClipboardList size={20}/></span>
       <strong>{title}</strong>
       <p>{detail}</p>
     </div>
@@ -350,7 +350,7 @@ export default function DashboardPage() {
       {profileDialogOpen && (
         <div className="mm-profile-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setProfileDialogOpen(false); }}>
           <section className="mm-profile-modal" role="dialog" aria-modal="true" aria-labelledby="mm-profile-title">
-            <div className="mm-profile-modal-heading"><div><span className="mm-section-kicker">ACCOUNT DETAILS</span><h2 id="mm-profile-title">My profile</h2></div><button type="button" aria-label="Close profile" onClick={() => setProfileDialogOpen(false)}>×</button></div>
+            <div className="mm-profile-modal-heading"><div><span className="mm-section-kicker">ACCOUNT DETAILS</span><h2 id="mm-profile-title">My profile</h2></div><button type="button" aria-label="Close profile" onClick={() => setProfileDialogOpen(false)}><X size={17}/></button></div>
             <div className="mm-profile-identity"><span className="mm-avatar">{initials || "S"}</span><div><strong>{student.name}</strong><span>{student.email}</span></div></div>
             <dl className="mm-profile-details">
               <div><dt>Full name</dt><dd>{student.name}</dd></div>
