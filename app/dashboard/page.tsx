@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -22,7 +23,7 @@ const desktopNavigation = [
   { label: "Practice", href: "/practice" },
   { label: "Live Test", href: "/live-test" },
   { label: "Personal Notebook", href: "/personal-notebook" },
-  { label: "About Us", href: "/About" },
+  { label: "About Us", href: "/about" },
 ];
 
 const practiceOptions = [
@@ -186,18 +187,18 @@ export default function DashboardPage() {
   return (
     <div className="mm-dashboard">
       <aside className={menuOpen ? "mm-sidebar mm-sidebar-open" : "mm-sidebar"}>
-        <a className="mm-brand" href="/"><span className="mm-brand-mark">M</span><span>MockMaster</span></a>
+        <Link className="mm-brand" href="/"><span className="mm-brand-mark">M</span><span>MockMaster</span></Link>
         <div className="mm-mobile-main-label">MAIN MENU</div>
         <nav className="mm-mobile-main-nav" aria-label="Main navigation">
           {desktopNavigation.map((item, index) => (
-            <a key={item.label} className={index === 0 ? "mm-nav-link mm-nav-active" : "mm-nav-link"} href={item.href} onClick={() => setMenuOpen(false)}>
+            <Link key={item.label} className={index === 0 ? "mm-nav-link mm-nav-active" : "mm-nav-link"} href={item.href} onClick={() => setMenuOpen(false)}>
               <span className="mm-nav-icon">{["⌂", "◎", "◷", "▤", "ⓘ"][index]}</span>{item.label}
-            </a>
+            </Link>
           ))}
         </nav>
         <nav className="mm-desktop-nav" aria-label="Main navigation">
           {desktopNavigation.map((item, index) => (
-            <a key={item.label} className={index === 0 ? "mm-nav-link mm-nav-active" : "mm-nav-link"} href={item.href}>{item.label}</a>
+            <Link key={item.label} className={index === 0 ? "mm-nav-link mm-nav-active" : "mm-nav-link"} href={item.href}>{item.label}</Link>
           ))}
         </nav>
         <div className="mm-sidebar-profile">{profileMenu}</div>
@@ -228,7 +229,7 @@ export default function DashboardPage() {
       <div className="mm-main">
         <header className="mm-topbar">
           <button className="mm-menu-toggle" aria-label={menuOpen ? "Close navigation" : "Open navigation"} aria-expanded={menuOpen} onClick={() => setMenuOpen((open) => !open)}>☰</button>
-          <a className="mm-mobile-topbar-brand" href="/dashboard"><span className="mm-brand-mark">M</span><span>MockMaster</span></a>
+          <Link className="mm-mobile-topbar-brand" href="/dashboard"><span className="mm-brand-mark">M</span><span>MockMaster</span></Link>
           <div className="mm-topbar-right">{profileMenu}</div>
         </header>
 
