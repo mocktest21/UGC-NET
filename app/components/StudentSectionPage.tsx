@@ -5,27 +5,31 @@ import {useRouter} from "next/navigation";
 import {createSupabaseBrowserClient} from "@/lib/supabase/client";
 
 type Section="practice"|"live-test"|"personal-notebook";
-type CompletedLiveTest={id:string;title:string;description:string|null;duration_seconds:number;total_marks:number;ends_at:string;question_count:number};
+type LiveTest={id:string;title:string;description:string|null;duration_seconds:number;total_marks:number;starts_at:string;ends_at:string;question_count:number};
 const links=[{label:"Dashboard",href:"/dashboard"},{label:"Practice",href:"/practice"},{label:"Live Test",href:"/live-test"},{label:"Personal Notebook",href:"/personal-notebook"},{label:"About Us",href:"/About"}];
 const content={practice:{title:"Practice centre",subtitle:"Your selected papers and subjects, ready for focused practice."},"live-test":{title:"Live tests",subtitle:"Find your scheduled mock tests and attempt them within the test window."},"personal-notebook":{title:"Personal notebook",subtitle:"Keep your important learning points and revision notes in one place."}};
 export default function StudentSectionPage({section}:{section:Section}){
  const router=useRouter();
- const [name,setName]=useState("Student"),[loading,setLoading]=useState(true),[completedTests,setCompletedTests]=useState<CompletedLiveTest[]>([]),[startingTest,setStartingTest]=useState(""),[error,setError]=useState("");
+ const [name,setName]=useState("Student"),[loading,setLoading]=useState(true),[completedTests,setCompletedTests]=useState<LiveTest[]>([]),[startingTest,setStartingTest]=useState(""),[error,setError]=useState("");
  useEffect(()=>{let active=true;void(async()=>{
   const db=createSupabaseBrowserClient();
   const {data:auth,error:authError}=await db.auth.getUser();
   if(authError||!auth.user){router.replace("/login");return;}
   const fullName=(auth.user.user_metadata?.full_name as string)||"Student";
   if(active)setName(fullName.trim().split(/\s+/)[0]||"Student");
-  if(section==="practice"){
-   const {data:exam}=await db.from("exams").select("id,name").eq("code","UGC_NET").eq("is_active",true).maybeSingle();
-   if(exam){
-    // Completed live tests become ready-made practice tests after their scheduled end.
-    const {data:liveRows,error:liveError}=await db.from("tests")
-      .select("id,title,description,duration_seconds,total_marks,ends_at")
-      .eq("exam_id",exam.id).eq("mode","live").eq("status","published")
-      .lte("ends_at",new Date().toISOString())
-      .order("ends_at",{ascending:false}).limit(50);
+  if(section==="practice"||section==="live-test"){
+   const {data:preferences,error:preferenceError}=await db.from("student_exam_preferences")
+     .select("exam_id").eq("student_id",auth.user.id);
+   if(preferenceError&&active)setError(preferenceError.message);
+   const examIds=Array.from(new Set((preferences||[]).map((row:any)=>row.exam_id).filter(Boolean)));
+   if(examIds.length){
+    const now=new Date().toISOString();
+    const query=db.from("tests")
+      .select("id,title,description,duration_seconds,total_marks,starts_at,ends_at")
+      .in("exam_id",examIds).eq("mode","live").eq("status","published");
+    const {data:liveRows,error:liveError}=section==="live-test"
+      ?await query.gt("ends_at",now).order("starts_at",{ascending:true}).limit(100)
+      :await query.lte("ends_at",now).order("ends_at",{ascending:false}).limit(50);
     if(liveError&&active)setError(liveError.message);
     const liveIds=(liveRows||[]).map((test:any)=>test.id);
     const questionCounts:Record<string,number>={};
@@ -35,7 +39,7 @@ export default function StudentSectionPage({section}:{section:Section}){
       for(const link of questionLinks||[])questionCounts[link.test_id]=(questionCounts[link.test_id]||0)+1;
     }
     if(active)setCompletedTests((liveRows||[]).map((test:any)=>({...test,question_count:questionCounts[test.id]||0})).filter((test:any)=>test.question_count>0));
-   }
+   }else if(active){setCompletedTests([]);}
   }
   if(active)setLoading(false);
  })().catch(e=>{if(active){setError(e instanceof Error?e.message:"Unable to load your workspace.");setLoading(false);}});
@@ -66,7 +70,30 @@ export default function StudentSectionPage({section}:{section:Section}){
       }}>{startingTest===test.id?"Preparing test…":"Practice Again →"}</button>
     </article>)}</div>:<div className="mm-workspace-empty mm-completed-live-empty"><span>◷</span><h2>No completed live tests yet</h2><p>Once a scheduled live test ends, it will automatically appear here as a ready-made practice test.</p></div>}
    </div>}
-   {section==="live-test"&&<div className="mm-workspace-empty"><span>◷</span><h2>No live test is scheduled right now</h2><p>Your upcoming and active tests will be listed here.</p></div>}
+   {section==="live-test"&&<div className="mm-practice-dashboard">
+    <div className="mm-practice-section-heading"><div><span>YOUR EXAMINATIONS</span><h2>Upcoming & active tests</h2><p>Published live tests for the examinations in your profile.</p></div><span className="mm-practice-count">{completedTests.length} available</span></div>
+    {error&&<div className="mm-workspace-error">{error}</div>}
+    {completedTests.length?<div className="mm-completed-live-grid">{completedTests.map(test=>{
+      const now=Date.now(),starts=new Date(test.starts_at).getTime(),ends=new Date(test.ends_at).getTime();
+      const isActive=starts<=now&&ends>now;
+      return <article className="mm-completed-live-card" key={test.id}>
+       <div className="mm-completed-live-top"><span className="mm-course-icon">◷</span><span className="mm-completed-live-status">{isActive?"LIVE NOW":"UPCOMING"}</span></div>
+       <h3>{test.title}</h3>
+       {test.description&&<p>{test.description}</p>}
+       <div className="mm-completed-live-meta"><span>{test.question_count} Questions</span><span>{Math.ceil(test.duration_seconds/60)} Minutes</span><span>{Number(test.total_marks).toLocaleString("en-IN")} Marks</span></div>
+       <small className="mm-completed-live-date">{isActive?"Ends ":"Starts "}{new Date(isActive?test.ends_at:test.starts_at).toLocaleString("en-IN",{day:"numeric",month:"short",year:"numeric",hour:"numeric",minute:"2-digit"})}</small>
+       <button type="button" disabled={!isActive||startingTest===test.id} onClick={async()=>{
+        setError("");setStartingTest(test.id);
+        const db=createSupabaseBrowserClient();
+        const {data,error}=await db.rpc("student_start_live_test",{p_test_id:test.id});
+        setStartingTest("");
+        if(error){setError(error.message);return;}
+        const result=data as {test_id:string;attempt_id:string;duration_seconds:number};
+        router.push("/practice/session?"+new URLSearchParams({test:result.test_id,attempt:result.attempt_id,minutes:String(Math.ceil(result.duration_seconds/60))}).toString());
+       }}>{startingTest===test.id?"Preparing test…":isActive?"Start live test →":"Starts soon"}</button>
+      </article>;
+    })}</div>:<div className="mm-workspace-empty mm-completed-live-empty"><span>◷</span><h2>No upcoming or active live tests</h2><p>Published tests for your selected examinations will appear here during their scheduled window.</p></div>}
+   </div>}
    {section==="personal-notebook"&&<div className="mm-workspace-empty"><span>✎</span><h2>Your notebook is ready</h2><p>Saved notes and bookmarked questions will appear here.</p></div>}
   </section><footer className="mm-workspace-footer">© {new Date().getFullYear()} MockMaster <span>Practice. Improve. Achieve.</span></footer>
  </main>;
