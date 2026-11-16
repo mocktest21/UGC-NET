@@ -1,6 +1,7 @@
 
 
 @import "./styles/tokens.css";
+@import "./styles/navigation.css";
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 body {
@@ -2089,4 +2090,3 @@ button{font-family:var(--mm-font);font-weight:600}
 }
 
 
-@import "./styles/navigation.css";
