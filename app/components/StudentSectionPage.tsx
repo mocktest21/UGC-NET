@@ -22,11 +22,14 @@ export default function StudentSectionPage({section}:{section:Section}){
      .select("exam_id").eq("student_id",auth.user.id);
    if(preferenceError&&active)setError(preferenceError.message);
    const examIds=Array.from(new Set((preferences||[]).map((row:any)=>row.exam_id).filter(Boolean)));
-   if(examIds.length){
+   {
     const now=new Date().toISOString();
-    const query=db.from("tests")
+    const baseQuery=db.from("tests")
       .select("id,title,description,duration_seconds,total_marks,starts_at,ends_at")
-      .in("exam_id",examIds).eq("mode","live").eq("status","published");
+      .eq("mode","live").eq("status","published");
+    // Keep exam-specific filtering when preferences exist; otherwise show all
+    // published live tests so students without a saved preference can see them.
+    const query=examIds.length?baseQuery.in("exam_id",examIds):baseQuery;
     const {data:liveRows,error:liveError}=section==="live-test"
       ?await query.gt("ends_at",now).order("starts_at",{ascending:true}).limit(100)
       :await query.lte("ends_at",now).order("ends_at",{ascending:false}).limit(50);
@@ -39,7 +42,7 @@ export default function StudentSectionPage({section}:{section:Section}){
       for(const link of questionLinks||[])questionCounts[link.test_id]=(questionCounts[link.test_id]||0)+1;
     }
     if(active)setCompletedTests((liveRows||[]).map((test:any)=>({...test,question_count:questionCounts[test.id]||0})).filter((test:any)=>test.question_count>0));
-   }else if(active){setCompletedTests([]);}
+   }
   }
   if(active)setLoading(false);
  })().catch(e=>{if(active){setError(e instanceof Error?e.message:"Unable to load your workspace.");setLoading(false);}});
