@@ -24,7 +24,8 @@ export default function StudentSectionPage({section}:{section:Section}){
  useEffect(()=>{let active=true;void(async()=>{
   const db=createSupabaseBrowserClient();
   const {data:auth,error:authError}=await db.auth.getUser();
-  if(authError||!auth.user){router.replace("/login");return;}
+  if(authError){if(active){setError("Could not verify your sign-in. Please retry.");setLoading(false);}return;}
+  if(!auth.user){router.replace("/login");return;}
   const fullName=(auth.user.user_metadata?.full_name as string)||"Student";
   if(active)setName(fullName.trim().split(/\s+/)[0]||"Student");
   if(section==="practice"||section==="live-test"){
