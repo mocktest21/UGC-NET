@@ -67,13 +67,16 @@ export default function PracticeSessionPage(){
  },[db,attemptId]);
  const save=useCallback(async(id:string,value:any,flag=review.includes(id))=>persist(id,value,flag),[persist,review]);
  const flushPending=useCallback(async()=>{
-  const entries=Array.from(pendingSaves.current.entries());
-  if(!entries.length)return true;
-  for(const [id] of entries){const timer=saveTimers.current.get(id);if(timer)clearTimeout(timer);saveTimers.current.delete(id);}
+  for(const id of pendingSaves.current.keys()){const timer=saveTimers.current.get(id);if(timer)clearTimeout(timer);saveTimers.current.delete(id);}
   let ok=true;
-  for(const [id,item] of entries){
-    const success=await persist(id,item.value,item.flag);
-    if(success)pendingSaves.current.delete(id);else ok=false;
+  while(pendingSaves.current.size){
+    const entries=Array.from(pendingSaves.current.entries());
+    for(const [id,item] of entries){
+      const success=await persist(id,item.value,item.flag);
+      if(!success){ok=false;break;}
+      if(pendingSaves.current.get(id)===item)pendingSaves.current.delete(id);
+    }
+    if(!ok)break;
   }
   const complete=ok&&pendingSaves.current.size===0;if(complete)setSaveError("");return complete;
  },[persist]);
