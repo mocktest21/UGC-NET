@@ -22,3 +22,7 @@ small{font-size:max(12px,1em)}
 :where(.mm-dashboard,.mm-workspace-page,.mn-shell,.mr-shell,.ps-shell) :where(small,label,button,input,select,textarea,th,td,li,p,span,a){font-size:max(12px,1em)}
 .mm-shared-student-header .mm-profile-menu-wrap{margin-left:auto}
 .mm-shared-student-header .mm-menu-toggle{display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border:1px solid var(--border);border-radius:9px;background:#fff;color:var(--ink)}
+
+
+/* Keep public and student-facing text readable; admin screens retain their existing typography. */
+body:not(:has(.aw-shell,.aq-shell,.tb-shell)) :where(small,label,button,input,select,textarea,th,td,li,p,span,a){font-size:max(12px,1em)}
