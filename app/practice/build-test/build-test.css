@@ -37,7 +37,7 @@
   padding:clamp(22px,3vw,38px);
   border:1px solid #e8e3d9;
   border-radius:20px;
-  background:var(--surface)efa;
+  background:var(--surface);
   box-shadow:0 12px 38px rgba(23,32,51,.045);
 }
 .sb-title {align-items:flex-start}
