@@ -80,7 +80,7 @@ export default function StudentSectionPage({section}:{section:Section}){
    <div className="mm-workspace-intro"><span>MOCKMASTER WORKSPACE</span><h1>{page.title}</h1><p>{page.subtitle}</p>{section==="practice"&&<Link className="mm-practice-builder-cta" href="/practice/build-test"><strong>＋ Build your own test</strong><span>Choose units, question count and duration →</span></Link>}</div>
    {section==="practice"&&<div className="mm-practice-dashboard">
     <div className="mm-practice-section-heading"><div><span>READY-MADE PRACTICE</span><h2>Previous Live Tests</h2><p>Completed live tests are available here to practise again.</p></div><span className="mm-practice-count">{completedTests.length} available</span></div>
-    {error&&<div className="mm-workspace-error">{error}</div>}
+    {error&&<div className="mm-workspace-error" role="alert">{error} <button type="button" onClick={()=>window.location.reload()}>Retry</button></div>}
     {completedTests.length?<div className="mm-completed-live-grid mm-practice-live-grid">{completedTests.map(test=><article className="mm-completed-live-card" key={test.id}>
       <div className="mm-live-card-top"><span className="mm-live-status is-completed"><i/>COMPLETED</span><span className="mm-live-card-mark">{Number(test.total_marks).toLocaleString("en-IN")} Marks</span></div>
       <h3>{test.title}</h3>
