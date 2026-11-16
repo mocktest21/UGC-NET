@@ -29,6 +29,7 @@ begin
       and t.status='published'
       and (
         public.is_mockmaster_admin()
+        or not exists(select 1 from public.student_exam_preferences p0 where p0.student_id=v_student)
         or exists(
           select 1 from public.student_exam_preferences p
           where p.student_id=v_student and p.exam_id=t.exam_id
