@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import {ClipboardList,Grid2X2,Target,Gauge,TrendingUp,Clock3,House,BookOpen,Radio,NotebookPen,Info,UserRound,LogOut,Menu} from "lucide-react";
+import {ClipboardList,Grid2X2,Target,Gauge,TrendingUp,Clock3,House,BookOpen,Radio,NotebookPen,Info,UserRound,LogOut,Menu,ChevronDown,Sparkles} from "lucide-react";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -25,12 +25,6 @@ const desktopNavigation = [
   { label: "Live Test", href: "/live-test" },
   { label: "Personal Notebook", href: "/personal-notebook" },
   { label: "About Us", href: "/about" },
-];
-
-const practiceOptions = [
-  { title: "UGC NET Paper 1", detail: "Teaching & Research Aptitude", tag: "Common paper", icon: "📘" },
-  { title: "Commerce", detail: "UGC NET Paper 2 · Subject code 08", tag: "Paper 2", icon: "📊" },
-  { title: "Management", detail: "UGC NET Paper 2 · Subject code 17", tag: "Paper 2", icon: "💼" },
 ];
 
 const summaryStats = [
@@ -179,7 +173,7 @@ export default function DashboardPage() {
       if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setProfileOpen(false);
     }}>
       <button type="button" className="mm-profile-trigger" aria-haspopup="menu" aria-expanded={profileOpen} aria-label="Open account menu" onClick={() => setProfileOpen((open) => !open)}>
-        <span className="mm-avatar">{initials || "S"}</span><span>{firstName}</span><span className="mm-profile-chevron" aria-hidden="true">⌄</span>
+        <span className="mm-avatar">{initials || "S"}</span><span>{firstName}</span><span className="mm-profile-chevron" aria-hidden="true"><ChevronDown size={14}/></span>
       </button>
       {profileOpen && (
         <div className="mm-profile-dropdown" role="menu">
@@ -216,14 +210,14 @@ export default function DashboardPage() {
               <span><strong>{student.name}</strong><small>{student.email}</small></span>
             </div>
             <button type="button" className="mm-mobile-account-action" onClick={() => { setMenuOpen(false); setProfileDialogOpen(true); }}>
-              <span aria-hidden="true">♙</span> View Profile
+              <span aria-hidden="true"><UserRound size={15}/></span> View Profile
             </button>
             <button type="button" className="mm-mobile-account-action mm-mobile-logout" disabled={signingOut} onClick={() => void handleSignOut()}>
-              <span aria-hidden="true">↪</span> {signingOut ? "Logging out..." : "Log Out"}
+              <span aria-hidden="true"><LogOut size={15}/></span> {signingOut ? "Logging out..." : "Log Out"}
             </button>
           </div>
           <div className="mm-help-card">
-            <span className="mm-help-icon">✦</span>
+            <span className="mm-help-icon"><Sparkles size={18}/></span>
             <strong>Keep your momentum</strong>
             <p>Consistent practice builds measurable progress.</p>
           </div>
