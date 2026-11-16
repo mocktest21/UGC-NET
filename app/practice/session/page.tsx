@@ -123,6 +123,12 @@ export default function PracticeSessionPage(){
  useEffect(()=>()=>{for(const timer of saveTimers.current.values())clearTimeout(timer);},[]);
  useEffect(()=>{
   if(loading||submitted)return;
+  const onBeforeUnload=(event:BeforeUnloadEvent)=>{event.preventDefault();event.returnValue="Your test is still in progress.";};
+  window.addEventListener("beforeunload",onBeforeUnload);
+  return()=>window.removeEventListener("beforeunload",onBeforeUnload);
+ },[loading,submitted]);
+ useEffect(()=>{
+  if(loading||submitted)return;
   window.history.pushState({mmTestSession:true},"",window.location.href);
   const onPopState=()=>{window.history.pushState({mmTestSession:true},"",window.location.href);setShowExitConfirm(true);};
   window.addEventListener("popstate",onPopState);
@@ -151,7 +157,7 @@ export default function PracticeSessionPage(){
  if(submitted)return <main className="ps-result"><div><span>MOCKMASTER · PRACTICE</span><h1>Test submitted</h1><p>Your responses have been saved. You can review your attempt from your dashboard when results are available.</p><div className="ps-result-stats"><b>{questions.length}<small>Total questions</small></b><b>{answered}<small>Answered</small></b><b>{questions.length-answered}<small>Unanswered</small></b></div><button onClick={()=>router.push("/practice/build-test")}>Create another test</button><button className="ps-secondary" onClick={()=>router.push("/dashboard")}>Dashboard</button></div></main>;
  if(!q)return null;
  return <main className="ps-shell">
-  <header className="ps-header"><Link href="/dashboard" className="ps-brand"><span>M</span> MockMaster</Link><div className={seconds<300?"ps-timer danger":"ps-timer"} aria-label="Time remaining"><b>{fmt(seconds)}</b></div></header>
+  <header className="ps-header"><Link href="/dashboard" className="ps-brand" onClick={event=>{event.preventDefault();setShowExitConfirm(true);}}><span>M</span> MockMaster</Link><div className={seconds<300?"ps-timer danger":"ps-timer"} aria-label="Time remaining"><b>{fmt(seconds)}</b></div></header>
   <div className="ps-progress"><span style={{width:((current+1)/questions.length*100)+"%"}}/></div>
   <div className="ps-body"><section className="ps-main"><div className="ps-meta"><span>Question {current+1} of {questions.length} · {q.type.replaceAll("_"," ")}</span><span>+{q.marks} marks · −{q.negative} negative</span></div>{(saveError||error)&&<div className="ps-save-error" role="alert"><b>{saveError?"Save failed":"Notice"}</b><span>{saveError||error}</span>{saveError&&<button type="button" onClick={()=>void flushPending()}>Retry save</button>}</div>}
   <article className="ps-question">
