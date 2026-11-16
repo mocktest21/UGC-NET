@@ -36,7 +36,7 @@ begin
       )
   ),
   all_attempts as (
-    select a.test_id,a.student_id,a.status,a.score,a.max_score,a.submitted_at
+    select a.test_id,a.student_id,a.status,a.score,a.max_score,a.submitted_at,a.result_published_at
     from public.test_attempts a
     join eligible_tests et on et.id=a.test_id
   ),
