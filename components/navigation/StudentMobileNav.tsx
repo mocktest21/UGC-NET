@@ -13,7 +13,7 @@ const items = [
 
 export default function StudentMobileNav() {
   const pathname = usePathname();
-  const hiddenRoutes = ["/login", "/signup", "/onboarding", "/forgot-password", "/reset-password"];
+  const hiddenRoutes = ["/login", "/signup", "/onboarding", "/forgot-password", "/reset-password", "/about", "/contact", "/terms", "/privacy"];
   const isPublicOrAdmin = pathname === "/" || pathname.startsWith("/admin") || pathname.startsWith("/auth") || hiddenRoutes.some(path => pathname === path || pathname.startsWith(path + "/"));
   const isTestWindow = pathname.startsWith("/practice/session") || pathname.startsWith("/test/");
   if (isPublicOrAdmin || isTestWindow) return null;
