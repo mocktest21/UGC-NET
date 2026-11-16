@@ -113,6 +113,7 @@ export default function StudentSectionPage({section}:{section:Section}){
           {kind==="upcoming"&&<div className="mm-live-lifecycle-foot"><span>Opens in <b>{formatCountdown(starts,currentTime)}</b></span><span className="mm-live-schedule"><CalendarDays size={13}/>{new Date(starts).toLocaleString("en-IN",{day:"numeric",month:"short",hour:"numeric",minute:"2-digit"})}</span></div>}
           {kind==="active"&&<div className="mm-live-lifecycle-foot is-live"><span>Ends in <b>{formatCountdown(ends,currentTime)}</b></span><span className="mm-live-schedule"><CalendarDays size={13}/>{new Date(ends).toLocaleString("en-IN",{day:"numeric",month:"short",hour:"numeric",minute:"2-digit"})}</span></div>}
           {kind==="recent"&&<div className="mm-live-recent-summary">
+            <span><CalendarDays size={13}/>{new Date(ends).toLocaleString("en-IN",{day:"numeric",month:"short",year:"numeric"})}</span>
             <span>{stats.my_score!==null?<>Your score <b>{stats.my_score} / {Number(test.total_marks).toLocaleString("en-IN")}</b></>:"No score recorded"}</span>
             {stats.my_rank!==null&&<span><Medal size={13}/> Rank <b>#{stats.my_rank}</b></span>}
           </div>}
