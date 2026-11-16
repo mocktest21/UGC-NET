@@ -38,7 +38,7 @@ export default function StudentSectionPage({section}:{section:Section}){
     // published live tests so students without a saved preference can see them.
     const query=examIds.length?baseQuery.in("exam_id",examIds):baseQuery;
     const {data:liveRows,error:liveError}=section==="live-test"
-      ?await query.order("starts_at",{ascending:true}).limit(100)
+      ?await query.order("starts_at",{ascending:false}).limit(100)
       :await query.lte("ends_at",now).order("ends_at",{ascending:false}).limit(50);
     if(liveError&&active)setError(liveError.message);
     const liveIds=(liveRows||[]).map((test:any)=>test.id);
@@ -90,7 +90,7 @@ export default function StudentSectionPage({section}:{section:Section}){
        <h3>{test.title}</h3>
        {test.description&&<p className="mm-live-card-description">{test.description}</p>}
        <div className="mm-live-card-stats"><span><FileQuestion size={14}/>{test.question_count} Qs</span><span><Clock3 size={14}/>{Math.ceil(test.duration_seconds/60)} min</span></div>
-       <div className={isActive?"mm-live-card-date mm-live-card-date-single is-active":"mm-live-card-date mm-live-card-date-single"}><CalendarDays size={14}/><span>{isActive?"Ends ":"Starts "}{new Date(isActive?ends:starts).toLocaleString("en-IN",{day:"numeric",month:"short",hour:"numeric",minute:"2-digit"})}</span>{!isEnded&&<b>{formatCountdown(isActive?ends:starts,now)}</b>}</div>
+       <div className={isActive?"mm-live-card-date mm-live-card-date-single is-active":"mm-live-card-date mm-live-card-date-single"}><CalendarDays size={14}/><span>{isEnded?"Test ended":isActive?"Ends ":"Starts "}{!isEnded&&new Date(isActive?ends:starts).toLocaleString("en-IN",{day:"numeric",month:"short",hour:"numeric",minute:"2-digit"})}</span>{!isEnded&&<b>{formatCountdown(isActive?ends:starts,now)}</b>}</div>
        <button type="button" disabled={(!isActive&&!isEnded)||startingTest===test.id} onClick={async()=>{
         if(isEnded){router.push("/live-test/leaderboard?"+new URLSearchParams({test:test.id}).toString());return;}
         setError("");setStartingTest(test.id);
