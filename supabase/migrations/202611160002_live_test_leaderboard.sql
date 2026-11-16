@@ -33,10 +33,12 @@ begin
     raise exception 'Leaderboard will be available after the live test ends';
   end if;
 
-  if not exists(
-    select 1 from public.student_exam_preferences p
-    where p.student_id=v_student and p.exam_id=v_test.exam_id
-  ) and not public.is_mockmaster_admin() then
+  if not public.is_mockmaster_admin()
+     and exists(select 1 from public.student_exam_preferences p0 where p0.student_id=v_student)
+     and not exists(
+       select 1 from public.student_exam_preferences p
+       where p.student_id=v_student and p.exam_id=v_test.exam_id
+     ) then
     raise exception 'This leaderboard is not available for your exam profile';
   end if;
 
