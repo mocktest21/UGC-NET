@@ -1,6 +1,6 @@
 import { BookOpen, Target, Landmark, Building2, TrainFront, Compass, ChartNoAxesColumnIncreasing, ClipboardList, Search, Smartphone, GraduationCap } from "lucide-react";
 import Link from "next/link";
-import {Sparkles,BookOpen,Clock3,ArrowRight} from "lucide-react";
+import {Sparkles,Clock3,ArrowRight} from "lucide-react";
 const exams = [
   { icon: <BookOpen size={21} strokeWidth={1.8} />, name: "UGC NET", desc: "Paper 1 and subject-wise Paper 2 practice", href: "/exams/ugc-net" },
   { icon: <Target size={21} strokeWidth={1.8} />, name: "SSC", desc: "Prepare for SSC competitive examinations", href: "/exams/ssc" },
