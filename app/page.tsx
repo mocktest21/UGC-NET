@@ -57,7 +57,7 @@ export default function Home() {
       <div className="footer-brand"><Link className="brand" href="/" style={{color:"white"}}><span className="brand-mark">M</span>MockMaster</Link><p>Practice with purpose. Discover mock tests and previous-year questions for your competitive examination journey.</p></div>
       <div className="footer-col"><h4>Explore</h4><Link href="/exams">All examinations</Link><Link href="/mock-tests">Mock tests</Link><Link href="/pyq">Previous-year questions</Link><Link href="/about">About MockMaster</Link></div>
       <div className="footer-col"><h4>Examinations</h4>{exams.map(e=><Link href={e.href} key={e.name}>{e.name}</Link>)}</div>
-      <div className="footer-col"><h4>Information</h4><Link href="/privacy">Privacy policy</Link><Link href="/terms">Terms & conditions</Link><Link href="/cookies">Cookie policy</Link><Link href="/disclaimer">Disclaimer</Link><Link href="/contact">Contact</Link></div>
+      <div className="footer-col"><h4>Information</h4><Link href="/privacy">Privacy policy</Link><Link href="/terms">Terms & conditions</Link>undefined<Link href="/contact">Contact</Link></div>
     </div><div className="footer-bottom"><span>© {new Date().getFullYear()} MockMaster. All rights reserved.</span><span>Practice. Improve. Achieve.</span></div></div></footer>
   </>;
 }
