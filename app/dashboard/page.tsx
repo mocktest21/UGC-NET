@@ -116,12 +116,15 @@ export default function DashboardPage() {
     else if(dateFilter==="today"){const d=new Date();d.setHours(0,0,0,0);from=d.toISOString();}
     else if(dateFilter==="custom"){from=customFrom?new Date(customFrom+"T00:00:00").toISOString():null;to=customTo?new Date(customTo+"T23:59:59").toISOString():null;}
     setAnalyticsLoading(true);setAnalyticsError("");
-    void db.rpc("student_get_dashboard_analytics",{p_from:from,p_to:to}).then(({data,error})=>{
-      if(!active)return;
-      if(error){setAnalyticsError("Analytics could not be loaded. Retry in a moment. "+error.message);setDashboardData(null);}
-      else setDashboardData(data);
-      setAnalyticsLoading(false);
-    }).catch((e:any)=>{if(active){setAnalyticsError(e?.message||"Analytics could not be loaded.");setAnalyticsLoading(false);}});
+    void (async()=>{
+      try{
+        const {data,error}=await db.rpc("student_get_dashboard_analytics",{p_from:from,p_to:to});
+        if(!active)return;
+        if(error){setAnalyticsError("Analytics could not be loaded. Retry in a moment. "+error.message);setDashboardData(null);}
+        else setDashboardData(data);
+      }catch(e:any){if(active){setAnalyticsError(e?.message||"Analytics could not be loaded.");setDashboardData(null);}}
+      finally{if(active)setAnalyticsLoading(false);}
+    })();
     return()=>{active=false;};
   },[student,dateFilter,customFrom,customTo,analyticsRefresh]);
 
