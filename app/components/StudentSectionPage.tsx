@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 
 import {useEffect,useState} from "react";
 import {useRouter} from "next/navigation";
@@ -75,7 +76,7 @@ export default function StudentSectionPage({section}:{section:Section}){
  return <main className="mm-workspace-page">
   <StudentWorkspaceHeader name={name}/>
   <section className="mm-workspace-content">
-   <div className="mm-workspace-intro"><span>MOCKMASTER WORKSPACE</span><h1>{page.title}</h1><p>{page.subtitle}</p>{section==="practice"&&<a className="mm-practice-builder-cta" href="/practice/build-test"><strong>＋ Build your own test</strong><span>Choose units, question count and duration →</span></a>}</div>
+   <div className="mm-workspace-intro"><span>MOCKMASTER WORKSPACE</span><h1>{page.title}</h1><p>{page.subtitle}</p>{section==="practice"&&<Link className="mm-practice-builder-cta" href="/practice/build-test"><strong>＋ Build your own test</strong><span>Choose units, question count and duration →</span></Link>}</div>
    {section==="practice"&&<div className="mm-practice-dashboard">
     <div className="mm-practice-section-heading"><div><span>READY-MADE PRACTICE</span><h2>Previous Live Tests</h2><p>Completed live tests are available here to practise again.</p></div><span className="mm-practice-count">{completedTests.length} available</span></div>
     {error&&<div className="mm-workspace-error">{error}</div>}
