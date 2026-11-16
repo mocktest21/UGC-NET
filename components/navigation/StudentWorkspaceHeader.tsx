@@ -8,7 +8,7 @@ const items=[
  {href:"/dashboard",label:"Dashboard",Icon:House},
  {href:"/practice",label:"Practice",Icon:BookOpen},
  {href:"/live-test",label:"Live Test",Icon:Radio},
- {href:"/personal-notebook",label:"Personal Notebook",Icon:ChartNoAxesColumn},
+ {href:"/personal-notebook",label:"Personal Notebook",Icon:BookMarked},
  {href:"/about",label:"About Us",Icon:Info},
 ];
 export default function StudentWorkspaceHeader({name,rightSlot,leftSlot,showNav=true}:{name?:string;rightSlot?:React.ReactNode;leftSlot?:React.ReactNode;showNav?:boolean}){
