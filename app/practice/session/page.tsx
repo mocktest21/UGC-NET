@@ -30,7 +30,8 @@ export default function PracticeSessionPage(){
 
  useEffect(()=>{if(!db||!params)return;let live=true;void(async()=>{
   const {data:auth,error:authError}=await db.auth.getUser();
-  if(authError||!auth.user){router.replace("/login");return;}
+  if(authError){if(active){setError("Could not verify your sign-in. Please retry.");setLoading(false);}return;}
+  if(!auth.user){router.replace("/login");return;}
   if(live){setStudent((auth.user.user_metadata?.full_name as string)||"Student");setStudentId(auth.user.id);}
   if(!testId||!attemptId){setError("Your practice attempt is missing. Return to the test builder.");setLoading(false);return;}
   const {data:attempt,error:attemptError}=await db.from("test_attempts").select("id,status,expires_at").eq("id",attemptId).maybeSingle();
