@@ -1,4 +1,5 @@
 "use client";
+import StudentWorkspaceHeader from "@/components/navigation/StudentWorkspaceHeader";
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -95,7 +96,7 @@ export default function StudentBuildTestPage(){
  }
  if(loading)return <main className="sb-state">Loading your practice builder…</main>;
  return <main className="sb-page">
-  <header className="sb-header"><a className="sb-brand" href="/dashboard"><span>M</span>MockMaster</a><nav><a href="/dashboard">Dashboard</a><a className="active" href="/practice">Practice</a><a href="/live-test">Live Test</a><a href="/personal-notebook">My Stuff</a></nav><a className="sb-account" href="/dashboard">My Dashboard ↗</a></header>
+  <StudentWorkspaceHeader/>
   <div className="sb-layout"><section className="sb-main">
    <div className="sb-title"><div><span>PERSONALISED PRACTICE</span><h1>Build your test</h1><p>Choose your paper, units, question count and time. Your practice set is tailored to your selection.</p></div><span className="sb-exam">UGC NET ▾</span></div>
    <div className="sb-rule"/>
