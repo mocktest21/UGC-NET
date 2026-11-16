@@ -11,11 +11,12 @@ const items=[
  {href:"/personal-notebook",label:"Personal Notebook",Icon:ChartNoAxesColumn},
  {href:"/about",label:"About Us",Icon:Info},
 ];
-export default function StudentWorkspaceHeader({name}:{name?:string}){
+export default function StudentWorkspaceHeader({name,rightSlot,leftSlot,showNav=true}:{name?:string;rightSlot?:React.ReactNode;leftSlot?:React.ReactNode;showNav?:boolean}){
  const pathname=usePathname();
  return <header className="mm-shared-student-header">
+  {leftSlot}
   <Link className="mm-brand" href="/dashboard"><span className="mm-brand-mark">M</span><span>MockMaster</span></Link>
-  <nav aria-label="Student navigation">{items.map(({href,label,Icon})=><Link key={href} href={href} className={pathname===href?"active":""}><Icon size={15}/>{label}</Link>)}</nav>
-  {name&&<span className="mm-shared-student-name">Hey, {name}!</span>}
+  {showNav&&<nav aria-label="Student navigation">{items.map(({href,label,Icon})=><Link key={href} href={href} className={pathname===href?"active":""}><Icon size={15}/>{label}</Link>)}</nav>}
+  {rightSlot}{name&&<span className="mm-shared-student-name">Hey, {name}!</span>}
  </header>;
 }
