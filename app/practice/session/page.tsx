@@ -117,6 +117,13 @@ export default function PracticeSessionPage(){
  useEffect(()=>{if(!loading&&!submitted&&questions.length>0&&seconds<=0)void finish();},[loading,submitted,questions.length,seconds,finish]);
  useEffect(()=>()=>{for(const timer of saveTimers.current.values())clearTimeout(timer);},[]);
  useEffect(()=>{
+  if(loading||submitted)return;
+  window.history.pushState({mmTestSession:true},"",window.location.href);
+  const onPopState=()=>{window.history.pushState({mmTestSession:true},"",window.location.href);setShowExitConfirm(true);};
+  window.addEventListener("popstate",onPopState);
+  return()=>window.removeEventListener("popstate",onPopState);
+ },[loading,submitted]);
+ useEffect(()=>{
   if(!confirm&&!showExitConfirm)return;
   const onKey=(event:KeyboardEvent)=>{if(event.key==="Escape"){setConfirm(false);setShowExitConfirm(false);}};
   document.addEventListener("keydown",onKey);
