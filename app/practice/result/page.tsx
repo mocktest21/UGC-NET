@@ -5,6 +5,7 @@ import {useRouter} from "next/navigation";
 import {createSupabaseBrowserClient} from "@/lib/supabase/client";
 import "./result.css";
 import StudentWorkspaceHeader from "@/components/navigation/StudentWorkspaceHeader";
+import {CheckCircle2,XCircle,MinusCircle,Clock3,Bookmark,RefreshCw} from "lucide-react";
 
 type Attempt={id:string;test_id:string;attempt_number:number;score:number|null;max_score:number|null;accuracy:number|null;correct_count:number;incorrect_count:number;unanswered_count:number;questions_attempted:number;time_taken_seconds:number|null;submitted_at:string|null};
 type Q={question_id:string;bank_question_id?:string;position:number;question_type:string;prompt:any;stimulus:any;options:any[];explanation:any;response:any;is_correct:boolean|null;awarded_marks:number;marks:number;negative_marks:number;answer_key:any};
@@ -37,15 +38,15 @@ export default function PracticeResultPage(){
    <div className="mr-heading"><span>ATTEMPT {a.attempt_number} · SUBMITTED {a.submitted_at?new Date(a.submitted_at).toLocaleString("en-IN"):""}</span><h1>Your test result</h1><p>Review your performance and identify what to improve next.</p></div>
    <section className="mr-score-card"><div className="mr-score-main"><small>YOUR SCORE</small><strong>{score.toFixed(2)} <i>/ {max.toFixed(2)}</i></strong><span>{pct.toFixed(1)}% of maximum marks</span></div><div className="mr-score-ring" style={{"--score":pct+"%"} as React.CSSProperties}><b>{Number(a.accuracy??0).toFixed(1)}%</b><small>Accuracy</small></div></section>
    <section className="mr-stat-grid">
-    <article><span className="correct">✓</span><b>{a.correct_count}</b><small>Correct</small></article>
-    <article><span className="incorrect">×</span><b>{a.incorrect_count}</b><small>Incorrect</small></article>
-    <article><span className="unattempted">—</span><b>{a.unanswered_count}</b><small>Unattempted</small></article>
-    <article><span className="time">◷</span><b>{formatTime(a.time_taken_seconds)}</b><small>Time taken</small></article>
+    <article><span className="correct"><CheckCircle2 size={18}/></span><b>{a.correct_count}</b><small>Correct</small></article>
+    <article><span className="incorrect"><XCircle size={18}/></span><b>{a.incorrect_count}</b><small>Incorrect</small></article>
+    <article><span className="unattempted"><MinusCircle size={18}/></span><b>{a.unanswered_count}</b><small>Unattempted</small></article>
+    <article><span className="time"><Clock3 size={18}/></span><b>{formatTime(a.time_taken_seconds)}</b><small>Time taken</small></article>
    </section>
    {error&&<p className="mr-error">{error}</p>}
    <section className="mr-panel"><div className="mr-panel-heading"><div><span>QUESTION REVIEW</span><h2>Detailed analysis</h2><p>Check your response against the answer key.</p></div><button onClick={()=>setShowAnalysis(v=>!v)}>{showAnalysis?"Hide":"Show"} analysis</button></div>
     {showAnalysis&&<div className="mr-question-list">{data.questions.map((q,i)=>{const correct=q.is_correct===true;const blank=q.response===null||q.response===undefined||q.response==="";const answer=answerOf(q.answer_key);const explanation=textOf(q.explanation);return <article className="mr-question" key={q.question_id}>
-      <div className="mr-question-top"><b>Question {i+1}</b><span className={blank?"neutral":correct?"good":"bad"}>{blank?"Unattempted":correct?"Correct":"Incorrect"}</span><small>{Number(q.awarded_marks??0)>=0?"+":""}{Number(q.awarded_marks??0).toFixed(2)} marks</small>{q.bank_question_id&&<button type="button" className="mr-bookmark-button" onClick={()=>void toggleBookmark(q.bank_question_id!)}>{bookmarked.includes(q.bank_question_id)?"★ Bookmarked":"☆ Bookmark"}</button>}</div>
+      <div className="mr-question-top"><b>Question {i+1}</b><span className={blank?"neutral":correct?"good":"bad"}>{blank?"Unattempted":correct?"Correct":"Incorrect"}</span><small>{Number(q.awarded_marks??0)>=0?"+":""}{Number(q.awarded_marks??0).toFixed(2)} marks</small>{q.bank_question_id&&<button type="button" className="mr-bookmark-button" onClick={()=>void toggleBookmark(q.bank_question_id!)}><Bookmark size={14}/>{bookmarked.includes(q.bank_question_id)?"Bookmarked":"Bookmark"}</button>}</div>
       <h3>{textOf(q.prompt)||"Question text unavailable"}</h3>
       {q.stimulus&&<p className="mr-stimulus">{textOf(q.stimulus)}</p>}
       {Array.isArray(q.options)&&q.options.length>0&&<div className="mr-options">{q.options.map((o:any,j:number)=>{const id=String(o.id??o.value??j);const chosen=Array.isArray(q.response)?q.response.map(String).includes(id):String(q.response)===id;const keyValue=Array.isArray(answer)?answer.map(String).includes(id):String(answer)===id;return <div key={id} className={(keyValue?"key ":"")+(chosen&&!keyValue?"wrong-choice":"")}><b>{String.fromCharCode(65+j)}.</b><span>{String(o.text??o.label??o.value??"")}</span>{keyValue&&<em>Correct answer</em>}{chosen&&!keyValue&&<em>Your answer</em>}</div>})}</div>}
@@ -58,7 +59,7 @@ export default function PracticeResultPage(){
     {history.length>0?<div className="mr-history-wrap"><table className="mr-history"><thead><tr><th>Attempt</th><th>Score</th><th>Accuracy</th><th>Correct</th><th>Time taken</th><th>Date</th></tr></thead><tbody>{history.map((h,i)=><tr key={h.id} className={h.id===a.id?"current":""}><td>#{h.attempt_number}{h.id===a.id?" · Current":""}</td><td>{h.score===null?"—":Number(h.score).toFixed(2)+" / "+Number(h.max_score??0).toFixed(2)}</td><td>{h.accuracy===null?"—":Number(h.accuracy).toFixed(1)+"%"}</td><td>{h.correct_count}</td><td>{formatTime(h.time_taken_seconds)}</td><td>{h.submitted_at?new Date(h.submitted_at).toLocaleDateString("en-IN"):"—"}</td></tr>)}</tbody></table></div>:<p className="mr-muted">Your completed attempts will appear here.</p>}
     {history.length>1&&<p className="mr-improvement">Score change from first to latest: <b>{(Number(history[history.length-1]?.score??0)-Number(history[0]?.score??0)).toFixed(2)} marks</b></p>}
    </section>
-   <div className="mr-actions"><button className="mr-primary" disabled={busy} onClick={()=>void reattempt()}>{busy?"Preparing…":"↻ Reattempt test"}</button><button className="mr-secondary" onClick={()=>router.push("/dashboard")}>Go to dashboard</button><button className="mr-secondary" onClick={()=>router.push("/practice")}>Practice centre</button></div>
+   <div className="mr-actions"><button className="mr-primary" disabled={busy} onClick={()=>void reattempt()}>{busy?"Preparing…":<><RefreshCw size={15}/> Reattempt test</>}</button><button className="mr-secondary" onClick={()=>router.push("/dashboard")}>Go to dashboard</button><button className="mr-secondary" onClick={()=>router.push("/practice")}>Practice centre</button></div>
   </section>
  </main>;
 }
