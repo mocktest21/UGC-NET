@@ -28,7 +28,7 @@ export default function PracticeResultPage(){
  const toggleBookmark=async(questionId:string)=>{if(!studentId)return;const exists=bookmarked.includes(questionId);setBookmarked(old=>exists?old.filter(x=>x!==questionId):[...old,questionId]);const db=createSupabaseBrowserClient();const result=exists?await db.from("bookmarks").delete().eq("student_id",studentId).eq("question_id",questionId):await db.from("bookmarks").insert({student_id:studentId,question_id:questionId});if(result.error){setBookmarked(old=>exists?[...old,questionId]:old.filter(x=>x!==questionId));setError(result.error.message);}};
  const reattempt=async()=>{if(!data)return;setBusy(true);setError("");const db=createSupabaseBrowserClient();const {data:next,error}=await db.rpc("student_reattempt_test",{p_attempt_id:data.attempt.id});setBusy(false);if(error){setError(error.message);return;}const n=next as {test_id:string;attempt_id:string;duration_seconds:number};router.push("/practice/session?"+new URLSearchParams({test:n.test_id,attempt:n.attempt_id,minutes:String(Math.ceil(n.duration_seconds/60))}));};
  if(loading)return <main className="mr-state">Preparing your result…</main>;
- if(error&&!data)return <main className="mr-state"><div><h2>Result unavailable</h2><p>{error}</p><button onClick={()=>router.push("/dashboard")}>Go to dashboard</button></div></main>;
+ if(error&&!data)return <main className="mr-state"><div><h2>Result unavailable</h2><p>{error}</p><button onClick={()=>void load()}>Retry</button><button onClick={()=>router.push("/dashboard")}>Go to dashboard</button></div></main>;
  if(!data)return null;
  const a=data.attempt,score=Number(a.score??0),max=Number(a.max_score??0),pct=max>0?Math.max(0,Math.min(100,score/max*100)):0;
  const history=data.history||[];
