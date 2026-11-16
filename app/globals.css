@@ -2109,3 +2109,34 @@ button{font-family:var(--mm-font);font-weight:600}
 .mm-live-lifecycle-card .mm-live-recent-summary{grid-column:1 / -1;grid-row:4;min-width:0;gap:8px}
 .mm-live-lifecycle-card>button{grid-column:1 / -1;grid-row:5;align-self:center;justify-self:stretch;min-width:112px}
 @media(max-width:520px){.mm-live-lifecycle-card{grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto auto auto auto;gap:7px 8px}.mm-live-lifecycle-card .mm-live-card-top{grid-column:1 / -1;grid-row:1}.mm-live-lifecycle-card>h3{grid-column:1;grid-row:2}.mm-live-lifecycle-card .mm-live-participants{grid-column:2;grid-row:2;font-size:8px}.mm-live-lifecycle-card .mm-live-card-stats{grid-column:1 / -1;grid-row:3}.mm-live-lifecycle-card .mm-live-recent-summary{grid-column:1 / -1;grid-row:4;gap:6px}.mm-live-lifecycle-card>button{grid-column:1 / -1;grid-row:5;min-width:96px}}
+
+
+/* MockMaster student workspace visual system — aligned with the teal dashboard */
+.mm-workspace-page,.mn-shell,.mr-shell,.sb-page,.ps-shell{background:var(--bg-page);color:var(--ink)}
+.mm-workspace-header{min-height:66px;height:auto;display:flex;align-items:center;gap:18px;padding:10px clamp(14px,4vw,38px);border-bottom:1px solid var(--border);background:rgba(255,255,255,.94);backdrop-filter:blur(12px)}
+.mm-workspace-header .mm-brand{display:flex;align-items:center;gap:9px;color:var(--ink);font:800 17px var(--font-poppins),Arial,sans-serif;white-space:nowrap}
+.mm-workspace-header .mm-brand-mark{display:grid;width:36px;height:36px;place-items:center;border-radius:11px;background:var(--primary);color:#fff;font:800 17px var(--font-poppins),Arial,sans-serif}
+.mm-workspace-nav{display:flex;flex:1;align-items:center;justify-content:center;gap:clamp(8px,1.8vw,22px);min-width:0}
+.mm-workspace-nav a{display:inline-flex;align-items:center;gap:6px;padding:8px 10px;border-radius:9px;color:var(--muted);font-size:11px;font-weight:650;white-space:nowrap}
+.mm-workspace-nav a:hover,.mm-workspace-nav a.active{background:var(--primary-tint);color:var(--primary-hover)}
+.mm-workspace-user{margin-left:auto;padding:8px 13px;border:1px solid var(--border);border-radius:999px;background:var(--surface);color:var(--ink);font-size:11px;font-weight:700;white-space:nowrap}
+.mm-workspace-page .mm-workspace-content{width:min(1160px,calc(100% - 40px));padding:34px 0 54px}
+.mm-workspace-intro h1,.mn-intro h1,.mr-heading h1,.sb-title h1{color:var(--ink);font-family:var(--font-poppins),Arial,sans-serif;font-weight:800;letter-spacing:-.6px}
+.mm-workspace-intro>span,.mn-intro>span,.mr-heading>span,.sb-title>div>span{color:var(--primary);font-weight:800;letter-spacing:1.2px}
+.mm-workspace-cards article,.mm-completed-live-card,.mm-live-lifecycle-card,.mn-question-card,.mr-panel,.mr-score-card,.sb-main,.sb-side,.ps-question,.ps-side{border:1px solid var(--border);border-radius:16px;background:var(--surface);box-shadow:0 4px 14px rgba(23,32,51,.035)}
+.mm-practice-count,.mm-count-pill,.mm-coming-pill{border:1px solid var(--primary-border);background:var(--primary-tint);color:var(--primary-hover)}
+.mm-workspace-empty,.mm-live-empty-inline,.mn-empty{border:1px dashed var(--border-strong);border-radius:15px;background:rgba(255,255,255,.58)}
+.mm-workspace-footer{color:var(--muted)}
+@media(max-width:760px){
+ .mm-workspace-header{min-height:58px;height:58px;flex-wrap:nowrap;gap:9px;padding:8px 14px}
+ .mm-workspace-header .mm-brand{font-size:15px;gap:7px}
+ .mm-workspace-header .mm-brand-mark{width:32px;height:32px;flex:0 0 32px;border-radius:10px;font-size:15px}
+ .mm-workspace-nav{display:none}
+ .mm-workspace-user{margin-left:auto;padding:6px 10px;font-size:10px}
+ .mm-workspace-page .mm-workspace-content{width:auto;padding:23px 14px 88px}
+ .mm-workspace-intro{margin-bottom:20px}
+ .mm-workspace-intro h1{font-size:24px}
+ .mm-workspace-intro p{font-size:12px}
+ .mm-workspace-footer{display:none}
+}
+@media(min-width:761px){.mm-workspace-page{min-height:100vh}.mm-workspace-page .mm-workspace-content{min-height:calc(100vh - 120px)}}
