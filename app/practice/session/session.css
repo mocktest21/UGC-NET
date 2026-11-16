@@ -224,3 +224,10 @@
 .ps-bookmark{border:1px solid #dbe4f0;border-radius:8px;background:#fff;color:#2563eb;padding:10px 12px;font-size:10px;font-weight:750;cursor:pointer}
 .ps-bookmark.active{border-color:#f59e0b;background:#fffbeb;color:#b45309}
 @media(max-width:560px){.ps-actions .ps-bookmark{min-height:42px}}
+
+
+.ps-save-error{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 12px;padding:10px 12px;border:1px solid #fecaca;border-radius:9px;background:#fef2f2;color:#991b1b;font-size:12px}
+.ps-save-error span{flex:1;min-width:180px}
+.ps-save-error button{border:1px solid #dc2626;border-radius:7px;background:#fff;color:#991b1b;padding:6px 10px;font-size:12px;font-weight:700}
+.ps-next:disabled,.ps-dialog button:disabled{opacity:.5;cursor:not-allowed}
+.ps-dialog[role=dialog]:focus{outline:3px solid #93c5fd;outline-offset:3px}
