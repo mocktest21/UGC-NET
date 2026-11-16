@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import {usePathname} from "next/navigation";
-import {BookOpen,ChartNoAxesColumn,House,Info,Radio} from "lucide-react";
+import {BookOpen,BookMarked,House,Info,Radio} from "lucide-react";
 
 const items=[
  {href:"/dashboard",label:"Dashboard",Icon:House},
