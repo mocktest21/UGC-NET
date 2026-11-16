@@ -133,7 +133,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
 
               {!isSignup && <div className="auth-inline-row"><span /> <a href="/forgot-password">Forgot password?</a></div>}
 
-              {error && <div className="auth-notice" role="alert">{error}</div>}
+              {error && <div className="auth-error" role="alert">{error}</div>}
               {notice && <div className="auth-notice" role="status">{notice}</div>}
 
               <button className="btn btn-primary auth-submit" type="submit" disabled={isSubmitting}>
