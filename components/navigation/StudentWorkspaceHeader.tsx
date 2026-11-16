@@ -13,10 +13,10 @@ const items=[
 ];
 export default function StudentWorkspaceHeader({name,rightSlot,leftSlot,showNav=true}:{name?:string;rightSlot?:React.ReactNode;leftSlot?:React.ReactNode;showNav?:boolean}){
  const pathname=usePathname();
- return <header className="mm-shared-student-header">
+ return <header className="mm-workspace-header mm-shared-student-header">
   {leftSlot}
   <Link className="mm-brand" href="/dashboard"><span className="mm-brand-mark">M</span><span>MockMaster</span></Link>
-  {showNav&&<nav aria-label="Student navigation">{items.map(({href,label,Icon})=><Link key={href} href={href} className={pathname===href?"active":""}><Icon size={15}/>{label}</Link>)}</nav>}
-  {rightSlot}{name&&<span className="mm-shared-student-name">Hey, {name}!</span>}
+  {showNav&&<nav className="mm-workspace-nav" aria-label="Student navigation">{items.map(({href,label,Icon})=><Link key={href} href={href} className={pathname===href?"active":""}><Icon size={15}/>{label}</Link>)}</nav>}
+  {rightSlot}{name&&<span className="mm-workspace-user">{name}</span>}
  </header>;
 }
