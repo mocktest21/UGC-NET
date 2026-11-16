@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import {Poppins} from "next/font/google";
-const poppins=Poppins({subsets:["latin"],weight:["400","500","600","700","800"],display:"swap",variable:"--font-poppins"});
 import StudentOnboardingGate from "@/components/auth/StudentOnboardingGate";
 import StudentMobileNav from "@/components/navigation/StudentMobileNav";
+
+const poppins=Poppins({subsets:["latin"],weight:["400","500","600","700","800"],display:"swap",variable:"--font-poppins"});
 
 export const metadata: Metadata = {
   title: "MockMaster — Practice. Improve. Achieve.",
