@@ -3,12 +3,13 @@
 import {useEffect,useState} from "react";
 import {useRouter} from "next/navigation";
 import {CalendarDays,Clock3,FileQuestion,Users,Trophy,Medal} from "lucide-react";
+import StudentWorkspaceHeader from "@/components/navigation/StudentWorkspaceHeader";
 import {createSupabaseBrowserClient} from "@/lib/supabase/client";
 
 type Section="practice"|"live-test"|"personal-notebook";
 type LiveTest={id:string;title:string;description:string|null;duration_seconds:number;total_marks:number;starts_at:string;ends_at:string;question_count:number};
 type LiveOverview={participant_count:number;my_score:number|null;my_rank:number|null;my_attempt_status:string|null};
-const links=[{label:"Dashboard",href:"/dashboard"},{label:"Practice",href:"/practice"},{label:"Live Test",href:"/live-test"},{label:"Personal Notebook",href:"/personal-notebook"},{label:"About Us",href:"/About"}];
+
 const content={practice:{title:"Practice centre",subtitle:"Your selected papers and subjects, ready for focused practice."},"live-test":{title:"Live tests",subtitle:"Find your scheduled mock tests and attempt them within the test window."},"personal-notebook":{title:"Personal notebook",subtitle:"Keep your important learning points and revision notes in one place."}};
 function formatCountdown(target:number,now:number){
  const seconds=Math.max(0,Math.floor((target-now)/1000));
@@ -72,7 +73,7 @@ export default function StudentSectionPage({section}:{section:Section}){
  if(loading)return <main className="mm-loading"><span className="mm-loading-mark">M</span><p>Loading your MockMaster workspace...</p></main>;
  const page=content[section];
  return <main className="mm-workspace-page">
-  <header className="mm-workspace-header"><a className="mm-brand" href="/"><span className="mm-brand-mark">M</span><span>MockMaster</span></a><nav aria-label="Main navigation" className="mm-workspace-nav">{links.map(link=><a key={link.href} href={link.href} className={link.href==="/"+section?"active":""}>{link.label}</a>)}</nav><span className="mm-workspace-user">Hey, {name}!</span></header>
+  <StudentWorkspaceHeader name={name}/>
   <section className="mm-workspace-content">
    <div className="mm-workspace-intro"><span>MOCKMASTER WORKSPACE</span><h1>{page.title}</h1><p>{page.subtitle}</p>{section==="practice"&&<a className="mm-practice-builder-cta" href="/practice/build-test"><strong>＋ Build your own test</strong><span>Choose units, question count and duration →</span></a>}</div>
    {section==="practice"&&<div className="mm-practice-dashboard">
