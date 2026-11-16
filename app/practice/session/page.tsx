@@ -51,7 +51,7 @@ export default function PracticeSessionPage(){
 
  const persist=useCallback((id:string,value:any,flag:boolean)=>{
   if(!db||!attemptId)return Promise.resolve(false);
-  setSaving(true);setSaveError("");
+  setSaving(true);
   const task=saveChain.current.then(async()=>{
     const {error}=await db.rpc("student_save_practice_response",{p_attempt_id:attemptId,p_test_question_id:id,p_response:value===undefined?null:value===null?null:value,p_marked_for_review:flag});
     if(error){setSaveError("Your response could not be saved. Please retry before continuing. "+error.message);return false;}
@@ -70,7 +70,7 @@ export default function PracticeSessionPage(){
     const success=await persist(id,item.value,item.flag);
     if(success)pendingSaves.current.delete(id);else ok=false;
   }
-  return ok&&pendingSaves.current.size===0;
+  const complete=ok&&pendingSaves.current.size===0;if(complete)setSaveError("");return complete;
  },[persist]);
  const updateAnswer=(id:string,value:any)=>{
   setAnswers(old=>({...old,[id]:value}));
