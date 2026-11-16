@@ -76,10 +76,8 @@ export default function DashboardPage() {
       try {
         const supabase = createSupabaseBrowserClient();
         const { data, error } = await supabase.auth.getUser();
-        if (error || !data.user) {
-          router.replace("/login");
-          return;
-        }
+        if(error){setAnalyticsError("Could not verify your sign-in. Please retry.");setLoading(false);return;}
+        if(!data.user){router.replace("/login");return;}
 
         if (!active) return;
         const profile = data.user.user_metadata as StudentProfile;
