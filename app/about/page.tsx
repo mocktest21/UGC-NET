@@ -1,3 +1,5 @@
+import type {Metadata} from "next";
+export const metadata:Metadata={title:"About MockMaster",description:"Learn about the MockMaster exam practice platform."};
 import Link from "next/link";
 const sections = [["🎯","Our mission","Make exam practice easier to discover, structured to follow and meaningful to review."],["🌱","Our vision","Build a dependable preparation space that can grow with learners and their goals."],["📚","Our approach","Bring practice, previous-year questions and organised subject pathways together."]];
 export default function About() {
