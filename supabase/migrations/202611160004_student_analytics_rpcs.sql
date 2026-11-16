@@ -53,20 +53,16 @@ begin
  ),
  papers as (
    select coalesce(jsonb_agg(jsonb_build_object(
-     'id',p.id,'name',p.name,'tests',p.tests,'average',p.average,'accuracy',p.accuracy,'correct',p.correct,'incorrect',p.incorrect
-   ) order by p.name),'[]'::jsonb) as rows
-   from (
-     select pa.paper_id as id,coalesce(max(pp.name),'Paper') as name,count(distinct pa.id) as tests,
-       round(avg(pa.score/pa.max_score*100) filter(where pa.score is not null and pa.max_score>0),1) as average,
-       count(*) filter(where pr.is_correct=true) as correct,
-       count(*) filter(where pr.is_correct=false) as incorrect,
-       case when count(*) filter(where pr.is_correct is not null)>0 then round(100.0*count(*) filter(where pr.is_correct=true)/count(*) filter(where pr.is_correct is not null),1) else null end as accuracy
-     from filtered pa
-     join public.papers pp on pp.id=pa.paper_id
-     left join filtered_response pr on pr.attempt_id=pa.id
-     where pa.paper_id is not null
-     group by pa.paper_id
-   ) p
+     'id',pp.id,'name',pp.name,
+     'tests',(select count(*) from filtered pa where pa.paper_id=pp.id),
+     'average',(select round(avg(pa.score/pa.max_score*100),1) from filtered pa where pa.paper_id=pp.id and pa.score is not null and pa.max_score>0),
+     'accuracy',(select case when count(*) filter(where fr.is_correct is not null)>0 then round(100.0*count(*) filter(where fr.is_correct=true)/count(*) filter(where fr.is_correct is not null),1) else null end
+       from filtered_response fr join filtered pa on pa.id=fr.attempt_id where pa.paper_id=pp.id),
+     'correct',(select count(*) from filtered_response fr join filtered pa on pa.id=fr.attempt_id where pa.paper_id=pp.id and fr.is_correct=true),
+     'incorrect',(select count(*) from filtered_response fr join filtered pa on pa.id=fr.attempt_id where pa.paper_id=pp.id and fr.is_correct=false)
+   ) order by pp.name),'[]'::jsonb) as rows
+   from public.papers pp
+   where exists(select 1 from filtered f where f.paper_id=pp.id)
  ),
  units as (
    select coalesce(jsonb_agg(jsonb_build_object(
