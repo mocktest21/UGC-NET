@@ -38,7 +38,7 @@ export default function StudentSectionPage({section}:{section:Section}){
     // published live tests so students without a saved preference can see them.
     const query=examIds.length?baseQuery.in("exam_id",examIds):baseQuery;
     const {data:liveRows,error:liveError}=section==="live-test"
-      ?await query.gt("ends_at",now).order("starts_at",{ascending:true}).limit(100)
+      ?await query.order("starts_at",{ascending:true}).limit(100)
       :await query.lte("ends_at",now).order("ends_at",{ascending:false}).limit(50);
     if(liveError&&active)setError(liveError.message);
     const liveIds=(liveRows||[]).map((test:any)=>test.id);
@@ -68,7 +68,6 @@ export default function StudentSectionPage({section}:{section:Section}){
       <h3>{test.title}</h3>
       {test.description&&<p className="mm-live-card-description">{test.description}</p>}
       <div className="mm-live-card-stats"><span><FileQuestion size={14}/>{test.question_count} Qs</span><span><Clock3 size={14}/>{Math.ceil(test.duration_seconds/60)} min</span></div>
-      <div className="mm-live-card-date mm-live-card-date-single"><CalendarDays size={14}/><span>Ended {new Date(test.ends_at).toLocaleString("en-IN",{day:"numeric",month:"short",hour:"numeric",minute:"2-digit"})}</span></div>
       <button type="button" disabled={startingTest===test.id} onClick={async()=>{
         setError("");setStartingTest(test.id);
         const db=createSupabaseBrowserClient();
@@ -85,14 +84,15 @@ export default function StudentSectionPage({section}:{section:Section}){
     {error&&<div className="mm-workspace-error">{error}</div>}
     {completedTests.length?<div className="mm-completed-live-grid">{completedTests.map(test=>{
       const now=currentTime,starts=new Date(test.starts_at).getTime(),ends=new Date(test.ends_at).getTime();
-      const isActive=starts<=now&&ends>now,isUpcoming=starts>now;
+      const isActive=starts<=now&&ends>now,isUpcoming=starts>now,isEnded=ends<=now;
       return <article className="mm-completed-live-card" key={test.id}>
-       <div className="mm-live-card-top"><span className={isActive?"mm-live-status is-live":"mm-live-status"}><i/>{isActive?"LIVE NOW":"UPCOMING"}</span><span className="mm-live-card-mark">{Number(test.total_marks).toLocaleString("en-IN")} Marks</span></div>
+       <div className="mm-live-card-top"><span className={isActive?"mm-live-status is-live":isEnded?"mm-live-status is-completed":"mm-live-status"}><i/>{isActive?"LIVE NOW":isEnded?"COMPLETED":"UPCOMING"}</span><span className="mm-live-card-mark">{Number(test.total_marks).toLocaleString("en-IN")} Marks</span></div>
        <h3>{test.title}</h3>
        {test.description&&<p className="mm-live-card-description">{test.description}</p>}
        <div className="mm-live-card-stats"><span><FileQuestion size={14}/>{test.question_count} Qs</span><span><Clock3 size={14}/>{Math.ceil(test.duration_seconds/60)} min</span></div>
-       <div className={isActive?"mm-live-card-date mm-live-card-date-single is-active":"mm-live-card-date mm-live-card-date-single"}><CalendarDays size={14}/><span>{isActive?"Ends ":"Starts "}{new Date(isActive?ends:starts).toLocaleString("en-IN",{day:"numeric",month:"short",hour:"numeric",minute:"2-digit"})}</span><b>{isActive?"Ends in": "Starts in"} {formatCountdown(isActive?ends:starts,now)}</b></div>
-       <button type="button" disabled={!isActive||startingTest===test.id} onClick={async()=>{
+       <div className={isActive?"mm-live-card-date mm-live-card-date-single is-active":"mm-live-card-date mm-live-card-date-single"}><CalendarDays size={14}/><span>{isActive?"Ends ":"Starts "}{new Date(isActive?ends:starts).toLocaleString("en-IN",{day:"numeric",month:"short",hour:"numeric",minute:"2-digit"})}</span>{!isEnded&&<b>{formatCountdown(isActive?ends:starts,now)}</b>}</div>
+       <button type="button" disabled={(!isActive&&!isEnded)||startingTest===test.id} onClick={async()=>{
+        if(isEnded){router.push("/live-test/leaderboard?"+new URLSearchParams({test:test.id}).toString());return;}
         setError("");setStartingTest(test.id);
         const db=createSupabaseBrowserClient();
         const {data,error}=await db.rpc("student_start_live_test",{p_test_id:test.id});
@@ -100,7 +100,7 @@ export default function StudentSectionPage({section}:{section:Section}){
         if(error){setError(error.message);return;}
         const result=data as {test_id:string;attempt_id:string;duration_seconds:number};
         router.push("/practice/session?"+new URLSearchParams({test:result.test_id,attempt:result.attempt_id,minutes:String(Math.ceil(result.duration_seconds/60))}).toString());
-       }}><span>{startingTest===test.id?"Preparing…":"Start test"}</span></button>
+       }}><span>{startingTest===test.id?"Preparing…":isEnded?"View leaderboard":"Start test"}</span></button>
       </article>;
     })}</div>:<div className="mm-workspace-empty mm-completed-live-empty"><span>◷</span><h2>No upcoming or active live tests</h2><p>Published tests for your selected examinations will appear here during their scheduled window.</p></div>}
    </div>}
