@@ -61,6 +61,7 @@ export default function DashboardPage() {
   const [dashboardData,setDashboardData]=useState<any>(null);
   const [analyticsLoading,setAnalyticsLoading]=useState(false);
   const [analyticsError,setAnalyticsError]=useState("");
+  const [analyticsRefresh,setAnalyticsRefresh]=useState(0);
   const [dateFilter,setDateFilter]=useState("week");
   const [customFrom,setCustomFrom]=useState("");
   const [customTo,setCustomTo]=useState("");
@@ -119,7 +120,7 @@ export default function DashboardPage() {
       setAnalyticsLoading(false);
     }).catch((e:any)=>{if(active){setAnalyticsError(e?.message||"Analytics could not be loaded.");setAnalyticsLoading(false);}});
     return()=>{active=false;};
-  },[student,dateFilter,customFrom,customTo]);
+  },[student,dateFilter,customFrom,customTo,analyticsRefresh]);
 
   async function handleSignOut() {
     setSigningOut(true);
@@ -269,7 +270,7 @@ export default function DashboardPage() {
                 <label>To <input type="date" value={customTo} min={customFrom || undefined} onChange={(event) => setCustomTo(event.target.value)} /></label>
               </div>
             )}
-            {(actionError||analyticsError) && <p className="mm-dashboard-action-error" role="alert">{actionError||analyticsError} <button type="button" onClick={()=>setDateFilter(x=>x)}>Retry</button></p>}
+            {(actionError||analyticsError) && <p className="mm-dashboard-action-error" role="alert">{actionError||analyticsError} <button type="button" onClick={()=>setAnalyticsRefresh(x=>x+1)}>Retry</button></p>}
             {analyticsLoading&&<p className="mm-analytics-loading">Updating analytics…</p>}
             {filteredAttempts.length ? (
               <div className="mm-dashboard-recent-tests">
