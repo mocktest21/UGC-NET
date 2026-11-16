@@ -1,13 +1,15 @@
 "use client";
 
 import {useEffect,useState} from "react";
-import {useRouter,useSearchParams} from "next/navigation";
+import {useRouter} from "next/navigation";
 import {ArrowLeft,Trophy,Medal,RefreshCw} from "lucide-react";
 import {createSupabaseBrowserClient} from "@/lib/supabase/client";
 
 type Row={leaderboard_rank:number;student_id:string;student_name:string;score:number;max_score:number};
 export default function LiveTestLeaderboardPage(){
- const router=useRouter(),params=useSearchParams(),testId=params.get("test")||"";
+ const router=useRouter();
+ const [testId,setTestId]=useState("");
+ useEffect(()=>{setTestId(new URLSearchParams(window.location.search).get("test")||"");},[]);
  const [db]=useState(()=>createSupabaseBrowserClient());
  const [rows,setRows]=useState<Row[]>([]),[title,setTitle]=useState("Live test leaderboard"),[studentId,setStudentId]=useState("");
  const [loading,setLoading]=useState(true),[error,setError]=useState("");
