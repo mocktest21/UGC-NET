@@ -1810,16 +1810,16 @@ button, a, summary { touch-action: manipulation; }
   --mm-radius-card: 14px;
   --mm-radius-control: 9px;
   --mm-border: #E7E1D5;
-  --mm-border-soft: #EEEAE2;
-  --mm-primary: #2563EB;
-  --mm-primary-hover: #1D4ED8;
+  --mm-border-soft: var(--border);
+  --mm-primary: var(--primary);
+  --mm-primary-hover: var(--primary-hover);
   --mm-success: #16A34A;
   --mm-success-bg: #DCFCE7;
   --mm-danger: #DC2626;
   --mm-danger-bg: #FEE2E2;
   --mm-warning: #D97706;
   --mm-warning-bg: #FEF3C7;
-  --mm-active-bg: #EFF6FF;
+  --mm-active-bg: var(--primary-tint);
 }
 html,body,button,input,textarea,select{
   font-family:var(--mm-font);
