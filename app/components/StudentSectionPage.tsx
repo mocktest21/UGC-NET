@@ -63,12 +63,12 @@ export default function StudentSectionPage({section}:{section:Section}){
    {section==="practice"&&<div className="mm-practice-dashboard">
     <div className="mm-practice-section-heading"><div><span>READY-MADE PRACTICE</span><h2>Previous Live Tests</h2><p>Completed live tests are available here to practise again.</p></div><span className="mm-practice-count">{completedTests.length} available</span></div>
     {error&&<div className="mm-workspace-error">{error}</div>}
-    {completedTests.length?<div className="mm-completed-live-grid">{completedTests.map(test=><article className="mm-completed-live-card" key={test.id}>
-      <div className="mm-completed-live-top"><span className="mm-course-icon">◷</span><span className="mm-completed-live-status">COMPLETED</span></div>
+    {completedTests.length?<div className="mm-completed-live-grid mm-practice-live-grid">{completedTests.map(test=><article className="mm-completed-live-card" key={test.id}>
+      <div className="mm-live-card-top"><span className="mm-live-status is-completed"><i/>COMPLETED</span><span className="mm-live-card-mark">{Number(test.total_marks).toLocaleString("en-IN")} Marks</span></div>
       <h3>{test.title}</h3>
-      {test.description&&<p>{test.description}</p>}
-      <div className="mm-completed-live-meta"><span>{test.question_count} Questions</span><span>{Math.ceil(test.duration_seconds/60)} Minutes</span><span>{Number(test.total_marks).toLocaleString("en-IN")} Marks</span></div>
-      <small className="mm-completed-live-date">Ended {new Date(test.ends_at).toLocaleString("en-IN",{day:"numeric",month:"short",year:"numeric"})}</small>
+      {test.description&&<p className="mm-live-card-description">{test.description}</p>}
+      <div className="mm-live-card-stats"><span><FileQuestion size={14}/>{test.question_count} Qs</span><span><Clock3 size={14}/>{Math.ceil(test.duration_seconds/60)} min</span></div>
+      <div className="mm-live-card-date mm-live-card-date-single"><CalendarDays size={14}/><span>Ended {new Date(test.ends_at).toLocaleString("en-IN",{day:"numeric",month:"short",hour:"numeric",minute:"2-digit"})}</span></div>
       <button type="button" disabled={startingTest===test.id} onClick={async()=>{
         setError("");setStartingTest(test.id);
         const db=createSupabaseBrowserClient();
@@ -77,7 +77,7 @@ export default function StudentSectionPage({section}:{section:Section}){
         if(error){setError(error.message);return;}
         const result=data as {test_id:string;attempt_id:string;duration_seconds:number};
         router.push("/practice/session?"+new URLSearchParams({test:result.test_id,attempt:result.attempt_id,minutes:String(Math.ceil(result.duration_seconds/60))}).toString());
-      }}>{startingTest===test.id?"Preparing test…":"Practice Again →"}</button>
+      }}><span>{startingTest===test.id?"Preparing…":"Practice again"}</span></button>
     </article>)}</div>:<div className="mm-workspace-empty mm-completed-live-empty"><span>◷</span><h2>No completed live tests yet</h2><p>Once a scheduled live test ends, it will automatically appear here as a ready-made practice test.</p></div>}
    </div>}
    {section==="live-test"&&<div className="mm-practice-dashboard">
@@ -87,12 +87,12 @@ export default function StudentSectionPage({section}:{section:Section}){
       const now=currentTime,starts=new Date(test.starts_at).getTime(),ends=new Date(test.ends_at).getTime();
       const isActive=starts<=now&&ends>now,isUpcoming=starts>now;
       return <article className="mm-completed-live-card" key={test.id}>
-       <div className="mm-live-card-top"><span className={isActive?"mm-live-status is-live":"mm-live-status"}><i/>{isActive?"LIVE NOW":isUpcoming?"UPCOMING":"ENDED"}</span><span className="mm-live-card-mark">{Number(test.total_marks).toLocaleString("en-IN")} Marks</span></div>
+       <div className="mm-live-card-top"><span className={isActive?"mm-live-status is-live":"mm-live-status"}><i/>{isActive?"LIVE NOW":"UPCOMING"}</span><span className="mm-live-card-mark">{Number(test.total_marks).toLocaleString("en-IN")} Marks</span></div>
        <h3>{test.title}</h3>
        {test.description&&<p className="mm-live-card-description">{test.description}</p>}
        <div className="mm-live-card-stats"><span><FileQuestion size={14}/>{test.question_count} Qs</span><span><Clock3 size={14}/>{Math.ceil(test.duration_seconds/60)} min</span></div>
        <div className="mm-live-card-date"><CalendarDays size={14}/><span>{isActive?"Ends ":"Starts "}{new Date(isActive?test.ends_at:test.starts_at).toLocaleString("en-IN",{day:"numeric",month:"short",hour:"numeric",minute:"2-digit"})}</span></div>
-       <div className={isActive?"mm-live-countdown is-active":"mm-live-countdown"}><Clock3 size={14}/><span>{isActive?"Ends in":isUpcoming?"Starts in":"Test window ended"}</span>{(isActive||isUpcoming)&&<strong>{formatCountdown(isActive?ends:starts,now)}</strong>}</div>
+       <div className={isActive?"mm-live-card-date mm-live-card-date-single is-active":"mm-live-card-date mm-live-card-date-single"}><CalendarDays size={14}/><span>{isActive?"Ends ":"Starts "}{new Date(isActive?ends:starts).toLocaleString("en-IN",{day:"numeric",month:"short",hour:"numeric",minute:"2-digit"})}</span><b>{isActive?"Ends in": "Starts in"} {formatCountdown(isActive?ends:starts,now)}</b></div>
        <button type="button" disabled={!isActive||startingTest===test.id} onClick={async()=>{
         setError("");setStartingTest(test.id);
         const db=createSupabaseBrowserClient();
@@ -101,7 +101,7 @@ export default function StudentSectionPage({section}:{section:Section}){
         if(error){setError(error.message);return;}
         const result=data as {test_id:string;attempt_id:string;duration_seconds:number};
         router.push("/practice/session?"+new URLSearchParams({test:result.test_id,attempt:result.attempt_id,minutes:String(Math.ceil(result.duration_seconds/60))}).toString());
-       }}><span>{startingTest===test.id?"Preparing…":isActive?"Start test":isUpcoming?"Starts at scheduled time":"Test ended"}</span></button>
+       }}><span>{startingTest===test.id?"Preparing…":"Start test"}</span></button>
       </article>;
     })}</div>:<div className="mm-workspace-empty mm-completed-live-empty"><span>◷</span><h2>No upcoming or active live tests</h2><p>Published tests for your selected examinations will appear here during their scheduled window.</p></div>}
    </div>}
