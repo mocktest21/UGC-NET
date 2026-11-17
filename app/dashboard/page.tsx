@@ -240,16 +240,26 @@ export default function DashboardPage() {
             </div>
           </section>
 
-          <section className="mm-analytics-summary" aria-label="Overall performance statistics">
-            {summaryStats.map((stat) => (
-              <article className="mm-analytics-stat" key={stat.label}>
-                <span className="mm-analytics-stat-icon" aria-hidden="true"><stat.Icon size={18} strokeWidth={1.8}/></span>
-                <div className="mm-analytics-stat-copy">
-                  <span>{stat.label}</span>
-                  <strong>{stat.label==="Accuracy"?(overall.accuracy===null||overall.accuracy===undefined?"—":Number(overall.accuracy).toFixed(1)+"%"):stat.label==="Total tests attempted"?Number(overall.attempts||0):stat.label==="Average score"?(overall.average_score===null||overall.average_score===undefined?"—":Number(overall.average_score).toFixed(1)+"%"):stat.label==="Total questions"?Number(overall.total_questions||0):stat.label==="Unique questions attempted"?Number(overall.unique_questions||0):formatDuration(overall.average_time===null?null:Number(overall.average_time))}</strong>
+          <section className="mm-analytics-summary mm-dashboard-overview" aria-label="Overall performance statistics">
+            <div className="mm-overview-card">
+              <div className="mm-overview-main">
+                <div className="mm-overview-ring" role="img" aria-label={`Average score ${overall.average_score===null||overall.average_score===undefined?"not available":Number(overall.average_score).toFixed(1)+" percent"}`}>
+                  <svg viewBox="0 0 100 100" aria-hidden="true"><circle className="mm-overview-ring-track" cx="50" cy="50" r="42"/><circle className="mm-overview-ring-value" cx="50" cy="50" r="42" style={{strokeDasharray:263.9,strokeDashoffset:263.9*(1-Math.max(0,Math.min(100,Number(overall.average_score)||0))/100)}}/></svg>
+                  <strong>{overall.average_score===null||overall.average_score===undefined?"—":Math.round(Number(overall.average_score))+"%"}</strong>
+                  <small>Avg score</small>
                 </div>
-              </article>
-            ))}
+                <div className="mm-overview-details">
+                  <div><span>Accuracy</span><strong>{overall.accuracy===null||overall.accuracy===undefined?"—":Number(overall.accuracy).toFixed(1)+"%"}</strong></div>
+                  <div className="mm-overview-detail-line"><span style={{width:Math.max(0,Math.min(100,Number(overall.accuracy)||0))+"%"}}/></div>
+                  <div><span>Time / question</span><strong>{formatDuration(overall.average_time===null?null:Number(overall.average_time))}</strong></div>
+                </div>
+              </div>
+              <div className="mm-overview-mini-stats">
+                <div><strong>{Number(overall.attempts||0)}</strong><span>Tests taken</span></div>
+                <div><strong>{Number(overall.total_questions||0)}</strong><span>Questions</span></div>
+                <div><strong>{Number(overall.unique_questions||0)}</strong><span>Unique</span></div>
+              </div>
+            </div>
           </section>
 
           <section className="mm-analytics-panel mm-overall-panel" id="performance">
