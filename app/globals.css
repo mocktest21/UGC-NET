@@ -2241,3 +2241,14 @@ button{font-family:var(--mm-font);font-weight:600}
   .mm-unit-panel .mm-unit-cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
   .mm-analysis-reference-card{padding:17px 18px}
 }
+
+
+/* Smart Quiz entry beside the custom test builder */
+.mm-practice-quick-actions{display:flex;align-items:stretch;gap:12px;flex-wrap:wrap;margin-top:20px}
+.mm-practice-quick-actions .mm-practice-builder-cta{flex:1 1 280px;max-width:none;margin-top:0}
+.mm-practice-smart-quiz-cta{display:flex;flex:1 1 280px;align-items:center;justify-content:space-between;gap:14px;min-width:0;padding:15px 18px;border:1px solid var(--primary-border);border-radius:12px;background:var(--surface);color:var(--primary-hover);font:inherit;text-align:left;cursor:pointer}
+.mm-practice-smart-quiz-cta strong{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:800}
+.mm-practice-smart-quiz-cta span{color:var(--muted);font-size:10px;text-align:right}
+.mm-practice-smart-quiz-cta:hover:not(:disabled){border-color:var(--primary);background:var(--primary-tint)}
+.mm-practice-smart-quiz-cta:disabled{opacity:.55;cursor:not-allowed}
+@media(max-width:600px){.mm-practice-quick-actions{flex-direction:column}.mm-practice-smart-quiz-cta{align-items:flex-start;flex-direction:column}.mm-practice-smart-quiz-cta span{text-align:left}}
