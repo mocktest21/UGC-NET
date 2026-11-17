@@ -89,7 +89,6 @@ export default function StudentBuildTestPage(){
  const summary=useMemo(()=>({paper:selectedPaper?.name||"Select a paper",unit:unitIds.length?selectedUnits.map(u=>u.name).join(", "):"All units"}),[selectedPaper,selectedUnits,unitIds]);
  async function start(){
   if(!canStart||!supabase)return;
-  void requestExamFullscreen();
   setBusy(true);setError("");
   const {data,error}=await db.rpc("student_start_practice_test",{
    p_exam_id:examId,p_paper_id:paperId,p_subject_id:subjectId||null,
