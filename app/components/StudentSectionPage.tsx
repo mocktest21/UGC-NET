@@ -138,7 +138,7 @@ export default function StudentSectionPage({section}:{section:Section}){
           </div>}
           {kind==="upcoming"&&<div className="mm-live-action-placeholder">Scheduled test</div>}
           {kind==="active"&&<button type="button" disabled={startingTest===test.id} onClick={async()=>{
-            requestExamFullscreen();
+            beginExamLaunch();
             setError("");setStartingTest(test.id);
             const db=createSupabaseBrowserClient();
             const {data,error}=await db.rpc("student_start_live_test",{p_test_id:test.id});
