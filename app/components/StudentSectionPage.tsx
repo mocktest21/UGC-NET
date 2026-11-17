@@ -8,6 +8,14 @@ import StudentWorkspaceHeader from "@/components/navigation/StudentWorkspaceHead
 import {createSupabaseBrowserClient} from "@/lib/supabase/client";
 
 type Section="practice"|"live-test"|"personal-notebook";
+function requestExamFullscreen(){
+ if(typeof document==="undefined")return;
+ const root=document.documentElement;
+ if(!document.fullscreenElement&&root.requestFullscreen){
+  void root.requestFullscreen().catch(()=>{});
+ }
+}
+
 type LiveTest={id:string;title:string;description:string|null;duration_seconds:number;total_marks:number;starts_at:string;ends_at:string;question_count:number};
 type LiveOverview={participant_count:number;my_score:number|null;my_rank:number|null;my_attempt_status:string|null};
 
@@ -82,7 +90,7 @@ export default function StudentSectionPage({section}:{section:Section}){
  return <main className="mm-workspace-page">
   <StudentWorkspaceHeader name={name}/>
   <section className="mm-workspace-content">
-   <div className="mm-workspace-intro"><span>MOCKMASTER WORKSPACE</span><h1>{page.title}</h1><p>{page.subtitle}</p>{section==="practice"&&<div className="mm-practice-quick-actions"><Link className="mm-practice-builder-cta mm-practice-action-card" href="/practice/build-test"><span className="mm-practice-action-icon"><FileQuestion size={18}/></span><span className="mm-practice-action-copy"><strong>Build Your Own Test</strong><small>Create a test from your selected units</small></span><span className="mm-practice-action-arrow">→</span></Link><button className="mm-practice-smart-quiz-cta mm-practice-action-card" type="button" disabled={startingSmartQuiz||smartQuizCount===0} onClick={async()=>{setError("");setStartingSmartQuiz(true);const db=createSupabaseBrowserClient();const {data,error}=await db.rpc("student_start_smart_quiz");setStartingSmartQuiz(false);if(error){setError(error.message);return;}const result=data as {test_id:string;attempt_id:string;duration_seconds:number};router.push("/practice/session?"+new URLSearchParams({test:result.test_id,attempt:result.attempt_id,minutes:String(Math.ceil(result.duration_seconds/60))}).toString());}}><span className="mm-practice-action-icon"><Sparkles size={18}/></span><span className="mm-practice-action-copy"><strong>{startingSmartQuiz?"Preparing Smart Quiz…":"Smart Quiz"}</strong><small>{smartQuizCount} incorrect question{smartQuizCount===1?"":"s"} to revise</small></span><span className="mm-practice-action-arrow">→</span></button></div>}</div>
+   <div className="mm-workspace-intro"><span>MOCKMASTER WORKSPACE</span><h1>{page.title}</h1><p>{page.subtitle}</p>{section==="practice"&&<div className="mm-practice-quick-actions"><Link className="mm-practice-builder-cta mm-practice-action-card" href="/practice/build-test"><span className="mm-practice-action-icon"><FileQuestion size={18}/></span><span className="mm-practice-action-copy"><strong>Build Your Own Test</strong><small>Create a test from your selected units</small></span><span className="mm-practice-action-arrow">→</span></Link><button className="mm-practice-smart-quiz-cta mm-practice-action-card" type="button" disabled={startingSmartQuiz||smartQuizCount===0} onClick={async()=>{requestExamFullscreen();setError("");setStartingSmartQuiz(true);const db=createSupabaseBrowserClient();const {data,error}=await db.rpc("student_start_smart_quiz");setStartingSmartQuiz(false);if(error){setError(error.message);return;}const result=data as {test_id:string;attempt_id:string;duration_seconds:number};router.push("/practice/session?"+new URLSearchParams({test:result.test_id,attempt:result.attempt_id,minutes:String(Math.ceil(result.duration_seconds/60))}).toString());}}><span className="mm-practice-action-icon"><Sparkles size={18}/></span><span className="mm-practice-action-copy"><strong>{startingSmartQuiz?"Preparing Smart Quiz…":"Smart Quiz"}</strong><small>{smartQuizCount} incorrect question{smartQuizCount===1?"":"s"} to revise</small></span><span className="mm-practice-action-arrow">→</span></button></div>}</div>
    {section==="practice"&&<div className="mm-practice-dashboard">
     <div className="mm-practice-section-heading"><div><span>READY-MADE PRACTICE</span><h2>Previous Live Tests</h2><p>Completed live tests are available here to practise again.</p></div><span className="mm-practice-count">{completedTests.length} available</span></div>
     {error&&<div className="mm-workspace-error" role="alert">{error} <button type="button" onClick={()=>window.location.reload()}>Retry</button></div>}
@@ -127,6 +135,7 @@ export default function StudentSectionPage({section}:{section:Section}){
           </div>}
           {kind==="upcoming"&&<div className="mm-live-action-placeholder">Scheduled test</div>}
           {kind==="active"&&<button type="button" disabled={startingTest===test.id} onClick={async()=>{
+            requestExamFullscreen();
             setError("");setStartingTest(test.id);
             const db=createSupabaseBrowserClient();
             const {data,error}=await db.rpc("student_start_live_test",{p_test_id:test.id});
