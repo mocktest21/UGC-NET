@@ -8,6 +8,14 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import "./build-test.css";
 
 type Row={id:string;name:string;code?:string|null;unit_number?:number|null};
+function requestExamFullscreen(){
+ if(typeof document==="undefined")return;
+ const root=document.documentElement;
+ if(!document.fullscreenElement&&root.requestFullscreen){
+  void root.requestFullscreen().catch(()=>{});
+ }
+}
+
 export default function StudentBuildTestPage(){
  const router=useRouter();
  const [supabase]=useState(()=>typeof window==="undefined"?null:createSupabaseBrowserClient());
@@ -88,7 +96,9 @@ export default function StudentBuildTestPage(){
  const canStart=!!paperId&&subjectReadyForPaper===paperId&&!availableLoading&&available>0&&actualCount>0&&minutes>0;
  const summary=useMemo(()=>({paper:selectedPaper?.name||"Select a paper",unit:unitIds.length?selectedUnits.map(u=>u.name).join(", "):"All units"}),[selectedPaper,selectedUnits,unitIds]);
  async function start(){
-  if(!canStart||!supabase)return;setBusy(true);setError("");
+  if(!canStart||!supabase)return;
+  requestExamFullscreen();
+  setBusy(true);setError("");
   const {data,error}=await db.rpc("student_start_practice_test",{
    p_exam_id:examId,p_paper_id:paperId,p_subject_id:subjectId||null,
    p_unit_ids:unitIds,p_question_count:actualCount,
