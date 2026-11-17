@@ -3,7 +3,7 @@ import Link from "next/link";
 
 import {useEffect,useState} from "react";
 import {useRouter} from "next/navigation";
-import {CalendarDays,Clock3,FileQuestion,Users,Trophy,Medal} from "lucide-react";
+import {CalendarDays,Clock3,FileQuestion,Users,Trophy,Medal,Sparkles} from "lucide-react";
 import StudentWorkspaceHeader from "@/components/navigation/StudentWorkspaceHeader";
 import {createSupabaseBrowserClient} from "@/lib/supabase/client";
 
@@ -19,7 +19,7 @@ function formatCountdown(target:number,now:number){
 }
 export default function StudentSectionPage({section}:{section:Section}){
  const router=useRouter();
- const [name,setName]=useState("Student"),[loading,setLoading]=useState(true),[completedTests,setCompletedTests]=useState<LiveTest[]>([]),[liveTests,setLiveTests]=useState<LiveTest[]>([]),[overview,setOverview]=useState<Record<string,LiveOverview>>({}),[startingTest,setStartingTest]=useState(""),[error,setError]=useState(""),[currentTime,setCurrentTime]=useState(()=>Date.now());
+ const [name,setName]=useState("Student"),[loading,setLoading]=useState(true),[completedTests,setCompletedTests]=useState<LiveTest[]>([]),[liveTests,setLiveTests]=useState<LiveTest[]>([]),[overview,setOverview]=useState<Record<string,LiveOverview>>({}),[startingTest,setStartingTest]=useState(""),[startingSmartQuiz,setStartingSmartQuiz]=useState(false),[smartQuizCount,setSmartQuizCount]=useState(0),[error,setError]=useState(""),[currentTime,setCurrentTime]=useState(()=>Date.now());
  useEffect(()=>{if(section!=="live-test")return;const timer=window.setInterval(()=>setCurrentTime(Date.now()),1000);return()=>window.clearInterval(timer);},[section]);
  useEffect(()=>{let active=true;void(async()=>{
   const db=createSupabaseBrowserClient();
@@ -28,6 +28,11 @@ export default function StudentSectionPage({section}:{section:Section}){
   if(!auth.user){router.replace("/login");return;}
   const fullName=(auth.user.user_metadata?.full_name as string)||"Student";
   if(active)setName(fullName.trim().split(/\s+/)[0]||"Student");
+  if(section==="practice"){
+   const {data:notebook,error:notebookError}=await db.rpc("student_get_personal_notebook");
+   if(notebookError&&active)setError(notebookError.message);
+   if(active&&!notebookError)setSmartQuizCount(Array.isArray((notebook as any)?.incorrect)?(notebook as any).incorrect.length:0);
+  }
   if(section==="practice"||section==="live-test"){
    const {data:preferences,error:preferenceError}=await db.from("student_exam_preferences")
      .select("exam_id").eq("student_id",auth.user.id);
@@ -77,7 +82,7 @@ export default function StudentSectionPage({section}:{section:Section}){
  return <main className="mm-workspace-page">
   <StudentWorkspaceHeader name={name}/>
   <section className="mm-workspace-content">
-   <div className="mm-workspace-intro"><span>MOCKMASTER WORKSPACE</span><h1>{page.title}</h1><p>{page.subtitle}</p>{section==="practice"&&<Link className="mm-practice-builder-cta" href="/practice/build-test"><strong>＋ Build your own test</strong><span>Choose units, question count and duration →</span></Link>}</div>
+   <div className="mm-workspace-intro"><span>MOCKMASTER WORKSPACE</span><h1>{page.title}</h1><p>{page.subtitle}</p>{section==="practice"&&<div className="mm-practice-quick-actions"><Link className="mm-practice-builder-cta" href="/practice/build-test"><strong>＋ Build your own test</strong><span>Choose units, question count and duration →</span></Link><button className="mm-practice-smart-quiz-cta" type="button" disabled={startingSmartQuiz||smartQuizCount===0} onClick={async()=>{setError("");setStartingSmartQuiz(true);const db=createSupabaseBrowserClient();const {data,error}=await db.rpc("student_start_smart_quiz");setStartingSmartQuiz(false);if(error){setError(error.message);return;}const result=data as {test_id:string;attempt_id:string;duration_seconds:number};router.push("/practice/session?"+new URLSearchParams({test:result.test_id,attempt:result.attempt_id,minutes:String(Math.ceil(result.duration_seconds/60))}).toString());}}><strong><Sparkles size={16}/>{startingSmartQuiz?"Preparing Smart Quiz…":"Smart Quiz"}</strong><span>{smartQuizCount} incorrect question{smartQuizCount===1?"":"s"} to revise →</span></button></div>}</div>
    {section==="practice"&&<div className="mm-practice-dashboard">
     <div className="mm-practice-section-heading"><div><span>READY-MADE PRACTICE</span><h2>Previous Live Tests</h2><p>Completed live tests are available here to practise again.</p></div><span className="mm-practice-count">{completedTests.length} available</span></div>
     {error&&<div className="mm-workspace-error" role="alert">{error} <button type="button" onClick={()=>window.location.reload()}>Retry</button></div>}
