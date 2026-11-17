@@ -2358,3 +2358,8 @@ button{font-family:var(--mm-font);font-weight:600}
 @media(max-width:360px){
   .mm-practice-quick-actions{grid-template-columns:1fr}
 }
+
+/* Override legacy full-width CTA span rules inside the new compact cards. */
+.mm-practice-quick-actions .mm-practice-action-copy{flex:1 1 auto;text-align:left;color:var(--ink);font-size:inherit}
+.mm-practice-quick-actions .mm-practice-action-arrow{flex:0 0 auto;text-align:center;font-size:17px;color:var(--primary)}
+@media(max-width:600px){.mm-practice-quick-actions .mm-practice-action-arrow{font-size:14px}}
