@@ -21,6 +21,7 @@ export default function PracticeSessionPage(){
  const [current,setCurrent]=useState(0);
  const [seconds,setSeconds]=useState(0);
  const [loading,setLoading]=useState(true),[error,setError]=useState("");
+ const [introSeconds,setIntroSeconds]=useState(0);
  const [submitted,setSubmitted]=useState(false),[confirm,setConfirm]=useState(false),[student,setStudent]=useState("Student"),[studentId,setStudentId]=useState("");
  const [saving,setSaving]=useState(false),[showPalette,setShowPalette]=useState(false),[showExitConfirm,setShowExitConfirm]=useState(false),[saveError,setSaveError]=useState(""),[expiresAt,setExpiresAt]=useState<string|null>(null);
  const allowUnload=useRef(false);
@@ -30,6 +31,7 @@ export default function PracticeSessionPage(){
  const testId=params?.get("test")||"",attemptId=params?.get("attempt")||"";
  const fmt=(n:number)=>String(Math.floor(n/3600)).padStart(2,"0")+":"+String(Math.floor(n%3600/60)).padStart(2,"0")+":"+String(n%60).padStart(2,"0");
 
+ useEffect(()=>{if(!params)return;const deadline=Number(window.sessionStorage.getItem("mm-exam-start-deadline")||0);if(!deadline)return;const tick=()=>{const remaining=Math.max(0,Math.ceil((deadline-Date.now())/1000));setIntroSeconds(remaining);if(remaining===0)window.sessionStorage.removeItem("mm-exam-start-deadline");};tick();const timer=window.setInterval(tick,200);return()=>window.clearInterval(timer);},[params]);
  useEffect(()=>{if(!db||!params)return;let live=true;void(async()=>{
   const {data:auth,error:authError}=await db.auth.getUser();
   if(authError){setError("Could not verify your sign-in. Please retry.");setLoading(false);return;}
@@ -156,7 +158,7 @@ export default function PracticeSessionPage(){
  const isChoice=["single_choice","assertion_reason"].includes(q?.type)||(q?.type==="passage"&&options.length>0);
  const isMulti=q?.type==="multiple_choice";
  const renderChoice=()=> <div className="ps-options">{options.map((o,i)=>{const id=optionId(o,i),value=selected(q.id);const active=isMulti?Array.isArray(value)&&value.includes(id):value===id;return <button key={id} className={active?"selected":""} onClick={()=>{if(isMulti){const next=Array.isArray(value)?value.slice():[];updateAnswer(q.id,next.includes(id)?next.filter(x=>x!==id):[...next,id]);}else updateAnswer(q.id,id);}}><i>{String.fromCharCode(65+i)}</i><span>{optionText(o)}</span>{active&&<b><Check size={15}/></b>}</button>;})}</div>;
- if(loading)return <main className="ps-state">Preparing your test…</main>;
+ if(loading||introSeconds>0)return <main className="ps-launch-screen"><div className="ps-launch-brand">M</div><div className="ps-launch-count">{introSeconds>0?introSeconds:""}</div><h1>{introSeconds>0?"Get ready for your test":"Preparing your test"}</h1><p>Loading questions and restoring your exam workspace…</p><div className="ps-launch-dots"><i/><i/><i/></div></main>;
  if(error&&!questions.length)return <main className="ps-state"><div><h2>Unable to start test</h2><p>{error}</p><button onClick={()=>router.push("/practice/build-test")}>Back to test builder</button></div></main>;
  if(submitted)return <main className="ps-result"><div><span>MOCKMASTER · PRACTICE</span><h1>Test submitted</h1><p>Your responses have been saved. You can review your attempt from your dashboard when results are available.</p><div className="ps-result-stats"><b>{questions.length}<small>Total questions</small></b><b>{answered}<small>Answered</small></b><b>{questions.length-answered}<small>Unanswered</small></b></div><button onClick={()=>router.push("/practice/build-test")}>Create another test</button><button className="ps-secondary" onClick={()=>router.push("/dashboard")}>Dashboard</button></div></main>;
  if(!q)return null;
