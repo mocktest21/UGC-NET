@@ -95,6 +95,7 @@ export default function StudentBuildTestPage(){
    p_unit_ids:unitIds,p_question_count:actualCount,
    p_duration_seconds:minutes*60,p_language_code:null,p_source:source
   });
+  if(error||!data){setError(error?.message||"Could not prepare your practice test.");setBusy(false);return;}
   const result=data as {test_id:string;attempt_id:string;question_count:number};
   const params=new URLSearchParams({test:result.test_id,attempt:result.attempt_id,minutes:String(minutes)});
   router.push("/practice/session?"+params.toString());
