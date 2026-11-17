@@ -267,3 +267,53 @@
 }
 .sb-unit-options button small{white-space:nowrap}
 .sb-label-row span{transition:opacity .15s ease}
+
+
+/* Organised unit picker: clear card hierarchy, consistent counts and selection state. */
+.sb-unit-picker{display:grid;gap:10px}
+.sb-unit-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.sb-unit-card{
+  position:relative;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  width:100%;
+  min-width:0;
+  min-height:68px;
+  padding:11px 12px;
+  border:1px solid var(--border);
+  border-radius:11px;
+  background:var(--surface);
+  color:var(--ink);
+  text-align:left;
+  cursor:pointer;
+  transition:border-color .15s ease,background .15s ease,box-shadow .15s ease;
+}
+.sb-unit-card:hover:not(:disabled){border-color:var(--primary-border);background:var(--primary-tint)}
+.sb-unit-card.chosen{border:1.5px solid var(--primary);background:var(--primary-tint);box-shadow:0 0 0 2px rgba(15,118,110,.07)}
+.sb-unit-card:disabled{opacity:.5;cursor:not-allowed}
+.sb-unit-card-check{
+  display:grid;
+  flex:0 0 22px;
+  width:22px;
+  height:22px;
+  place-items:center;
+  border:1px solid var(--border);
+  border-radius:7px;
+  background:var(--surface);
+  color:var(--primary);
+}
+.sb-unit-card.chosen .sb-unit-card-check{border-color:var(--primary);background:var(--primary);color:#fff}
+.sb-unit-card-copy{display:flex;min-width:0;flex:1;flex-direction:column;gap:5px}
+.sb-unit-card-copy b{color:var(--ink);font-size:11px;font-weight:750;line-height:1.4;overflow-wrap:anywhere}
+.sb-unit-card-copy small{color:var(--muted);font-size:9px;font-weight:550;line-height:1.3}
+.sb-all-units{min-height:58px}
+.sb-all-units .sb-unit-card-copy b{font-size:12px}
+@media(max-width:560px){
+ .sb-unit-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ .sb-unit-card{min-height:76px;padding:9px;gap:7px;border-radius:10px}
+ .sb-unit-card-check{flex-basis:19px;width:19px;height:19px;border-radius:6px}
+ .sb-unit-card-copy b{font-size:10px}
+ .sb-unit-card-copy small{font-size:8px}
+}
+@media(max-width:350px){.sb-unit-grid{grid-template-columns:1fr}}
