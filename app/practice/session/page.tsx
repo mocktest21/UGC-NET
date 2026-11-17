@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import {Check,Bookmark,ArrowLeft,ArrowRight} from "lucide-react";
+import {Check,Bookmark,ArrowLeft,ArrowRight,Maximize2} from "lucide-react";
 
 import {useCallback,useEffect,useMemo,useRef,useState} from "react";
 import {useRouter} from "next/navigation";
@@ -22,6 +22,7 @@ export default function PracticeSessionPage(){
  const [seconds,setSeconds]=useState(0);
  const [loading,setLoading]=useState(true),[error,setError]=useState("");
  const [introSeconds,setIntroSeconds]=useState(0);
+ const [isFullscreen,setIsFullscreen]=useState(false);
  const [submitted,setSubmitted]=useState(false),[confirm,setConfirm]=useState(false),[student,setStudent]=useState("Student"),[studentId,setStudentId]=useState("");
  const [saving,setSaving]=useState(false),[showPalette,setShowPalette]=useState(false),[showExitConfirm,setShowExitConfirm]=useState(false),[saveError,setSaveError]=useState(""),[expiresAt,setExpiresAt]=useState<string|null>(null);
  const allowUnload=useRef(false);
@@ -31,6 +32,8 @@ export default function PracticeSessionPage(){
  const testId=params?.get("test")||"",attemptId=params?.get("attempt")||"";
  const fmt=(n:number)=>String(Math.floor(n/3600)).padStart(2,"0")+":"+String(Math.floor(n%3600/60)).padStart(2,"0")+":"+String(n%60).padStart(2,"0");
 
+ useEffect(()=>{const update=()=>setIsFullscreen(!!document.fullscreenElement);document.addEventListener("fullscreenchange",update);update();return()=>document.removeEventListener("fullscreenchange",update);},[]);
+ const enterFullscreen=async()=>{if(typeof document==="undefined")return;try{await document.documentElement.requestFullscreen?.({navigationUI:"hide"});setIsFullscreen(!!document.fullscreenElement);}catch{setError("Fullscreen was blocked by your browser. Use the browser Full Screen option (F11 on desktop) and continue.");}};
  useEffect(()=>{if(!params)return;const deadline=Number(window.sessionStorage.getItem("mm-exam-start-deadline")||0);if(!deadline)return;const tick=()=>{const remaining=Math.max(0,Math.ceil((deadline-Date.now())/1000));setIntroSeconds(remaining);if(remaining===0)window.sessionStorage.removeItem("mm-exam-start-deadline");};tick();const timer=window.setInterval(tick,200);return()=>window.clearInterval(timer);},[params]);
  useEffect(()=>{if(!db||!params)return;let live=true;void(async()=>{
   const {data:auth,error:authError}=await db.auth.getUser();
@@ -163,7 +166,7 @@ export default function PracticeSessionPage(){
  if(submitted)return <main className="ps-result"><div><span>MOCKMASTER · PRACTICE</span><h1>Test submitted</h1><p>Your responses have been saved. You can review your attempt from your dashboard when results are available.</p><div className="ps-result-stats"><b>{questions.length}<small>Total questions</small></b><b>{answered}<small>Answered</small></b><b>{questions.length-answered}<small>Unanswered</small></b></div><button onClick={()=>router.push("/practice/build-test")}>Create another test</button><button className="ps-secondary" onClick={()=>router.push("/dashboard")}>Dashboard</button></div></main>;
  if(!q)return null;
  return <main className="ps-shell">
-  <header className="ps-header"><Link href="/dashboard" className="ps-brand" onClick={event=>{event.preventDefault();setShowExitConfirm(true);}}><span>M</span> MockMaster</Link><div className={seconds<60?"ps-timer danger":seconds<300?"ps-timer warn":"ps-timer"} aria-label="Time remaining"><b>{fmt(seconds)}</b></div></header>
+  <header className="ps-header"><Link href="/dashboard" className="ps-brand" onClick={event=>{event.preventDefault();setShowExitConfirm(true);}}><span>M</span> MockMaster</Link><div className={seconds<60?"ps-timer danger":seconds<300?"ps-timer warn":"ps-timer"} aria-label="Time remaining"><b>{fmt(seconds)}</b></div>{!isFullscreen&&<button type="button" className="ps-fullscreen-btn" onClick={()=>void enterFullscreen()}><Maximize2 size={15}/> Full Screen</button>}</header>
   <div className="ps-progress"><span style={{width:((current+1)/questions.length*100)+"%"}}/></div>
   <div className="ps-body"><section className="ps-main"><div className="ps-meta"><span>Question {current+1} of {questions.length} · {q.type.replaceAll("_"," ")}</span><span>+{q.marks} marks · −{q.negative} negative</span></div>{(saveError||error)&&<div className="ps-save-error" role="alert"><b>{saveError?"Save failed":"Notice"}</b><span>{saveError||error}</span>{saveError&&<button type="button" onClick={()=>void flushPending()}>Retry save</button>}</div>}
   <article className="ps-question">
