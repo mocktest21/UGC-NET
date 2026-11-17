@@ -30,7 +30,6 @@ export default function StudentBuildTestPage(){
  const [unitCountsLoading,setUnitCountsLoading]=useState(false);
  const [availableLoading,setAvailableLoading]=useState(false);
  const [error,setError]=useState("");
- const [language,setLanguage]=useState("en");
  const [source,setSource]=useState("all");
  const [busy,setBusy]=useState(false);
 
@@ -70,19 +69,18 @@ export default function StudentBuildTestPage(){
 
 
  useEffect(()=>{if(!supabase||!subjectId||!units.length){setUnitCounts({});setUnitCountsLoading(false);return;}let live=true;setUnitCountsLoading(true);setUnitCounts({});void(async()=>{
-  const entries=await Promise.all(units.map(async unit=>{let q=db.from("questions").select("id",{count:"exact",head:true}).eq("exam_id",examId).eq("paper_id",paperId).eq("subject_id",subjectId).eq("unit_id",unit.id).eq("status","approved");if(language)q=q.eq("language_code",language);if(source==="pyq")q=q.eq("source_type","previous_year");if(source==="expected")q=q.eq("source_type","admin_created");const {count}=await q;return [unit.id,count||0] as const;}));
+  const entries=await Promise.all(units.map(async unit=>{let q=db.from("questions").select("id",{count:"exact",head:true}).eq("exam_id",examId).eq("paper_id",paperId).eq("subject_id",subjectId).eq("unit_id",unit.id).eq("status","approved");if(source==="pyq")q=q.eq("source_type","previous_year");if(source==="expected")q=q.eq("source_type","admin_created");const {count}=await q;return [unit.id,count||0] as const;}));
   if(live){setUnitCounts(Object.fromEntries(entries));setUnitCountsLoading(false);}
- })();return()=>{live=false;};},[supabase,examId,paperId,subjectId,units,language,source]);
+ })();return()=>{live=false;};},[supabase,examId,paperId,subjectId,units,source]);
 
  useEffect(()=>{if(!supabase||!examId||!paperId||subjectReadyForPaper!==paperId){setAvailable(0);setAvailableLoading(false);return;}let live=true;setAvailable(0);setAvailableLoading(true);void(async()=>{
   let q=db.from("questions").select("id",{count:"exact",head:true}).eq("exam_id",examId).eq("paper_id",paperId).eq("status","approved");
   if(subjectId)q=q.eq("subject_id",subjectId);
   if(unitIds.length)q=q.in("unit_id",unitIds);
-  if(language)q=q.eq("language_code",language);
   if(source==="pyq")q=q.eq("source_type","previous_year");
   if(source==="expected")q=q.eq("source_type","admin_created");
   const {count,error}=await q;if(live){setAvailable(count||0);setAvailableLoading(false);if(error)setError(error.message);}
- })();return()=>{live=false;};},[examId,paperId,subjectId,subjectReadyForPaper,unitIds,language,source,supabase]);
+ })();return()=>{live=false;};},[examId,paperId,subjectId,subjectReadyForPaper,unitIds,source,supabase]);
 
  const selectedPaper=papers.find(p=>p.id===paperId);
  const selectedUnits=units.filter(u=>unitIds.includes(u.id));
@@ -94,7 +92,7 @@ export default function StudentBuildTestPage(){
   const {data,error}=await db.rpc("student_start_practice_test",{
    p_exam_id:examId,p_paper_id:paperId,p_subject_id:subjectId||null,
    p_unit_ids:unitIds,p_question_count:actualCount,
-   p_duration_seconds:minutes*60,p_language_code:language,p_source:source
+   p_duration_seconds:minutes*60,p_language_code:null,p_source:source
   });
   if(error){setError(error.message);setBusy(false);return;}
   const result=data as {test_id:string;attempt_id:string;question_count:number};
@@ -110,7 +108,7 @@ export default function StudentBuildTestPage(){
    <div className="sb-fields">
     <section className="sb-field"><label>Paper</label><div className="sb-choice-grid">{papers.map(p=><button key={p.id} className={paperId===p.id?"chosen":""} aria-pressed={paperId===p.id} onClick={()=>{setPaperId(p.id);setSubjectId(p.id===preferredSubjectPaperId?preferredSubjectId:"");setSubjectReadyForPaper("");setUnits([]);setUnitCounts({});setUnitIds([]);setAvailable(0);setError("");}}><b>{p.name}</b><span className="sb-paper-check" aria-hidden="true">{paperId===p.id?<Check size={14}/>:null}</span></button>)}</div></section>
     <section className="sb-field"><div className="sb-label-row"><label>Units</label><span>{unitsLoading?"Loading units…":units.length?`${units.length} available` :"Select a paper to view its units"}</span></div><div className="sb-unit-picker"><div className="sb-unit-grid">{units.map(u=>{const selected=unitIds.includes(u.id);return <button type="button" key={u.id} className={`sb-unit-card ${selected?"chosen":""}`} aria-pressed={selected} onClick={()=>setUnitIds(old=>old.includes(u.id)?old.filter(id=>id!==u.id):[...old,u.id])}><span className="sb-unit-card-check">{selected?<Check size={14}/>:null}</span><span className="sb-unit-card-copy"><b>{u.name}</b><small>{unitCountsLoading?"Loading questions…":`${(unitCounts[u.id]??0).toLocaleString("en-IN")} questions`}</small></span></button>})}</div></div><p>{unitIds.length?`${selectedUnits.length} unit${selectedUnits.length===1?"":"s"} selected · ${selectedUnits.reduce((n,u)=>n+(unitCounts[u.id]??0),0).toLocaleString("en-IN")} questions`:"Questions can be drawn from all units in your selected subject."}</p></section>
-    <div className="sb-two-col"><section className="sb-field"><label>Question source</label><div className="sb-pills"><button className={source==="all"?"chosen":""} onClick={()=>setSource("all")}>All</button><button className={source==="pyq"?"chosen":""} onClick={()=>setSource("pyq")}>PYQ only</button><button className={source==="expected"?"chosen":""} onClick={()=>setSource("expected")}>Expected only</button></div></section><section className="sb-field"><label>Language</label><div className="sb-pills"><button className={language==="hi"?"chosen":""} onClick={()=>setLanguage("hi")}>हिन्दी</button><button className={language==="en"?"chosen":""} onClick={()=>setLanguage("en")}>English</button></div></section></div>
+    <section className="sb-field"><label>Question source</label><div className="sb-pills"><button className={source==="all"?"chosen":""} onClick={()=>setSource("all")}>All</button><button className={source==="pyq"?"chosen":""} onClick={()=>setSource("pyq")}>PYQ only</button><button className={source==="expected"?"chosen":""} onClick={()=>setSource("expected")}>Expected only</button></div></section>
     
     <section className="sb-field"><div className="sb-label-row"><label>Number of questions</label><span>{availableLoading?"Checking availability…":`${available.toLocaleString("en-IN")} available`}</span></div><div className="sb-count-options">{[10,25,50,100].map(n=><button key={n} className={count===n?"chosen":""} onClick={()=>setCount(n)}>{n}</button>)}<button className={count===available?"chosen":""} onClick={()=>setCount(Math.max(1,available))} disabled={!available}>All available</button></div>{!availableLoading&&available>0&&count>available&&<p className="sb-warning">Only {available} questions match your filters. Your test will use {available}.</p>}</section>
     <section className="sb-field"><div className="sb-label-row"><label>Time limit</label><span>Minutes</span></div><div className="sb-count-options">{[10,25,50,90,120,180].map(n=><button key={n} className={minutes===n?"chosen":""} onClick={()=>setMinutes(n)}>{n} min</button>)}</div><div className="sb-custom-time"><label htmlFor="custom-time">Custom time</label><input id="custom-time" type="number" min="1" max="360" value={minutes} onChange={e=>setMinutes(Math.max(1,Math.min(360,Number(e.target.value)||1)))}/><span>minutes</span></div></section>
