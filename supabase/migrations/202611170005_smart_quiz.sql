@@ -127,18 +127,25 @@ declare v_student uuid:=auth.uid(); v_result jsonb;
 begin
  if v_student is null then raise exception 'Authentication required' using errcode='28000'; end if;
  with bookmarked as (
-  select q.id,qv.prompt,qv.stimulus,qv.options,
+  select q.id,qv.prompt,qv.stimulus,qv.options,qv.explanation,
+   coalesce(ak.answer_key,qak.answer_key) as correct_answer,
    coalesce(s.name,'Subject not tagged') as subject,coalesce(u.name,'Unit not tagged') as unit
   from public.bookmarks b
   join public.questions q on q.id=b.question_id
   left join public.subjects s on s.id=q.subject_id
   left join public.units u on u.id=q.unit_id
-  left join lateral (select prompt,stimulus,options from public.question_versions v where v.question_id=q.id order by version_number desc limit 1) qv on true
+  left join lateral (
+    select v.id,v.prompt,v.stimulus,v.options,v.explanation
+    from public.question_versions v where v.question_id=q.id order by v.version_number desc limit 1
+  ) qv on true
+  left join public.question_version_answer_keys ak on ak.question_version_id=qv.id
+  left join public.question_answer_keys qak on qak.question_id=q.id
   where b.student_id=v_student
   order by b.created_at desc
  ),
  incorrect as (
-  select distinct on (q.id) q.id,qv.prompt,qv.stimulus,qv.options,
+  select distinct on (q.id) q.id,qv.prompt,qv.stimulus,qv.options,qv.explanation,
+   coalesce(ak.answer_key,qak.answer_key) as correct_answer,
    coalesce(s.name,'Subject not tagged') as subject,coalesce(u.name,'Unit not tagged') as unit,
    sr.response,t.title as test_title,a.submitted_at as date,
    (select count(distinct a2.id) from public.student_responses sr2
@@ -153,7 +160,12 @@ begin
   join public.tests t on t.id=a.test_id
   left join public.subjects s on s.id=q.subject_id
   left join public.units u on u.id=q.unit_id
-  left join lateral (select prompt,stimulus,options from public.question_versions v where v.question_id=q.id order by version_number desc limit 1) qv on true
+  left join lateral (
+    select v.id,v.prompt,v.stimulus,v.options,v.explanation
+    from public.question_versions v where v.question_id=q.id order by v.version_number desc limit 1
+  ) qv on true
+  left join public.question_version_answer_keys ak on ak.question_version_id=qv.id
+  left join public.question_answer_keys qak on qak.question_id=q.id
   where a.status in ('submitted','auto_submitted') and sr.is_correct=false
     and not exists (
       select 1 from public.student_responses good_sr
@@ -166,10 +178,10 @@ begin
   order by q.id,a.submitted_at desc
  )
  select jsonb_build_object(
-  'bookmarks',coalesce((select jsonb_agg(to_jsonb(bookmarked)) from bookmarked),'[]'::jsonb),
+  'bookmarks',coalesce((select jsonb_agg(jsonb_build_object('id',bookmarked.id,'prompt',bookmarked.prompt,'stimulus',bookmarked.stimulus,'options',bookmarked.options,'explanation',bookmarked.explanation,'correctAnswer',bookmarked.correct_answer,'subject',bookmarked.subject,'unit',bookmarked.unit)) from bookmarked),'[]'::jsonb),
   'incorrect',coalesce((select jsonb_agg(jsonb_build_object(
    'id',incorrect.id,'prompt',incorrect.prompt,'stimulus',incorrect.stimulus,'options',incorrect.options,
-   'subject',incorrect.subject,'unit',incorrect.unit,'response',incorrect.response,
+   'subject',incorrect.subject,'unit',incorrect.unit,'response',incorrect.response,'explanation',incorrect.explanation,'correctAnswer',incorrect.correct_answer,
    'testTitle',incorrect.test_title,'date',incorrect.date,'wrongCount',incorrect.wrong_count
   )) from incorrect),'[]'::jsonb)
  ) into v_result;
