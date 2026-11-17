@@ -1754,13 +1754,10 @@ button, a, summary { touch-action: manipulation; }
   border-radius:0;
   box-shadow:none;
 }
-.mm-analytics-stat-icon{display:none!important}
 .mm-analytics-stat:nth-child(1){border-top-left-radius:14px}
 .mm-analytics-stat:nth-child(3){border-top-right-radius:14px}
 .mm-analytics-stat:nth-child(4){border-bottom-left-radius:14px}
 .mm-analytics-stat:nth-child(6){border-bottom-right-radius:14px}
-.mm-analytics-stat:nth-child(1),.mm-analytics-stat:nth-child(2),.mm-analytics-stat:nth-child(4),.mm-analytics-stat:nth-child(5){border-right:1px solid var(--border)}
-.mm-analytics-stat:nth-child(-n+3){border-bottom:1px solid var(--border)}
 .mm-analytics-stat-copy{gap:6px}
 .mm-analytics-stat-copy strong{color:#172033}
 .mm-analytics-stat-copy span{color:var(--muted)}
@@ -2169,8 +2166,6 @@ button{font-family:var(--mm-font);font-weight:600}
 .mm-trend-card .mm-unit-card-heading>span{flex-shrink:0;color:var(--muted);font-size:9px}
 .mm-trend-card .mm-unit-metrics{gap:6px}
 .mm-trend-card .mm-unit-metrics>div{min-height:49px;padding:6px 3px;border-radius:9px}
-.mm-trend-card .mm-unit-metrics strong{font-size:17px}
-.mm-trend-card .mm-unit-metrics small{font-size:8px}
 .mm-trend-card .mm-unit-coverage{height:5px;margin-top:0}
 .mm-trend-card .mm-trend-card-meta{display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px;color:var(--muted);font-size:9px}
 .mm-trend-card .mm-dashboard-test-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:auto}
