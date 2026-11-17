@@ -191,39 +191,37 @@ export default function AdminQuestionsPage() {
     try { return JSON.parse(String(value)); } catch { return fallback; }
   }
   async function downloadMasterExcel() {
-    setMessage("Preparing complete Question Bank Excel…");
-    try {
-      const all: any[] = [];
-      for (let from=0;;from+=1000) {
-        const {data,error}=await supabase.from("questions").select("*").order("created_at",{ascending:true}).range(from,from+999);
-        if(error) throw error; all.push(...(data||[])); if(!data||data.length<1000) break;
-      }
-      const ids=all.map(q=>q.id), versions:any[]=[], keys:any[]=[];
-      for(let i=0;i<ids.length;i+=500) {
-        const chunk=ids.slice(i,i+500);
-        const [v,k]=await Promise.all([
-          supabase.from("question_versions").select("*").in("question_id",chunk).order("version_number",{ascending:false}),
-          supabase.from("question_answer_keys").select("question_id,answer_key").in("question_id",chunk)
-        ]);
-        if(v.error) throw v.error; if(k.error) throw k.error;
-        versions.push(...(v.data||[])); keys.push(...(k.data||[]));
-      }
-      const latest=new Map<string,any>(); versions.forEach(v=>{if(!latest.has(v.question_id))latest.set(v.question_id,v);});
-      const answerMap=new Map<string,any>(keys.map(k=>[k.question_id,k.answer_key]));
-      const rows=all.map(q=>{
-        const v=latest.get(q.id);
-        return {question_id:q.id,exam_id:q.exam_id,paper_id:q.paper_id,subject_id:q.subject_id,unit_id:q.unit_id||"",topic_id:q.topic_id||"",question_type:q.question_type,difficulty:q.difficulty||"moderate",language_code:q.language_code||"en",source_type:q.source_type||"admin_created",source_label:q.source_label||"",source_year:q.source_year||"",question:v?.prompt?.stem?.text||v?.prompt?.text||"",options_json:JSON.stringify(v?.options||[]),answer_key_json:JSON.stringify(answerMap.get(q.id)||{}),explanation:v?.explanation?.text||"",marks:v?.default_marks??2,negative_marks:v?.default_negative_marks??0,status:q.status};
-      });
-      const wb=XLSX.utils.book_new();
-      const ws=XLSX.utils.json_to_sheet(rows,{header:MASTER_COLUMNS});
-      ws["!cols"]=MASTER_COLUMNS.map(h=>({wch:Math.max(16,Math.min(34,h.length+5))}));
-      XLSX.utils.book_append_sheet(wb,ws,"Question Bank");
-      const guide=XLSX.utils.aoa_to_sheet([["MOCKMASTER MASTER QUESTION BANK"],["Append new questions below existing rows. Never delete or change question_id for existing records."],["For new questions, leave question_id blank. Use taxonomy IDs from existing rows."],["options_json and answer_key_json must contain valid JSON."],["Single choice answer example: {\"correct_option_id\":\"A\"}"],["Multiple choice example: {\"correct_option_ids\":[\"A\",\"C\"]}"],["Imported questions are Draft and must be reviewed and approved in Admin."],["Columns:"],MASTER_COLUMNS]);
-      XLSX.utils.book_append_sheet(wb,guide,"Instructions");
-      XLSX.writeFile(wb,"MockMaster_Master_Question_Bank.xlsx",{compression:true});
-      setMessage("Master Excel downloaded with "+rows.length+" existing questions. Append new rows at the bottom and upload the same file.");
-    } catch(e:any) { setMessage(e?.message||"Could not export Question Bank."); }
+    const columns = ["exam_id","paper_id","subject_id","unit_id","topic_id","question_format","question","stimulus","list_i","list_ii","option_a","option_b","option_c","option_d","correct_answer","explanation","difficulty","marks","negative_marks","source_label","source_year"];
+    const sample = {
+      exam_id: "Paste exam ID", paper_id: "Paste paper ID", subject_id: "Paste subject ID",
+      unit_id: "", topic_id: "", question_format: "matching",
+      question: "Match the following items:", stimulus: "",
+      list_i: "A. First item\\nB. Second item", list_ii: "1. First match\\n2. Second match",
+      option_a: "A. A-1, B-2", option_b: "B. A-2, B-1", option_c: "C. A-1, B-1", option_d: "D. A-2, B-2",
+      correct_answer: "A", explanation: "Explain the correct match.",
+      difficulty: "moderate", marks: 2, negative_marks: 0.5, source_label: "", source_year: ""
+    };
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet([sample], { header: columns });
+    ws["!cols"] = columns.map((h) => ({ wch: Math.max(14, Math.min(30, h.length + 5)) }));
+    XLSX.utils.book_append_sheet(wb, ws, "Questions");
+    const guide = XLSX.utils.aoa_to_sheet([
+      ["MOCKMASTER SIMPLE QUESTION TEMPLATE"],
+      ["One question per row. Delete the sample row before adding your own questions."],
+      ["Required: exam_id, paper_id, subject_id, question, option_a to option_d, correct_answer."],
+      ["Use taxonomy IDs from your existing Question Bank. unit_id and topic_id are optional."],
+      ["question_format is for the presentation style (e.g. single_mcq, multiple_statement, matching, assertion_reason, passage, chronology, data_interpretation, numerical, case_study)."],
+      ["For matching: fill list_i and list_ii, then write four complete matching combinations in option_a to option_d."],
+      ["For passage/case/data questions: put shared text or data in stimulus. Repeat it for each linked question row."],
+      ["correct_answer must be one letter only: A, B, C or D. Students always select one option."],
+      ["No JSON is required. Imported questions are saved as Draft for review."],
+      ["Supported difficulty values: easy, moderate, hard. Default marks: 2; negative marks: 0."]
+    ]);
+    XLSX.utils.book_append_sheet(wb, guide, "Read Me");
+    XLSX.writeFile(wb, "MockMaster_Simple_Question_Template.xlsx", { compression: true });
+    setMessage("Simple Excel template downloaded. Fill one question per row; no JSON formatting is needed.");
   }
+
   async function importMasterRows() {
     if(!importRows.length||importErrors.length)return;
     setImporting(true);setMessage("");
@@ -249,15 +247,18 @@ export default function AdminQuestionsPage() {
         const normal=(v:unknown)=>String(v??"").toLowerCase().replace(/\\s+/g," ").trim();
         const fingerprint=[row.exam_id,row.paper_id,row.subject_id,row.unit_id,row.question].map(normal).join("|");
         if(seen.has(fingerprint)||existingFingerprints.has(fingerprint)){duplicates++;continue;} seen.add(fingerprint);
-        const options=parseJsonCell(row.options_json,["option_a","option_b","option_c","option_d"].filter(k=>String(row[k]||"").trim()).map((k,i)=>({id:String.fromCharCode(65+i),text:String(row[k])})));
+        const options=parseJsonCell(row.options_json,["option_a","option_b","option_c","option_d"].filter(k=>String(row[k]||"").trim()).map((k,i)=>({id:String.fromCharCode(65+i),text:String(row[k]).replace(/^[A-D][.)-]\\s*/,"")})));
+        const answerLetter=String(row.correct_answer||"").trim().toUpperCase();
         let answer=parseJsonCell(row.answer_key_json,null);
-        if(!answer){const a=String(row.correct_answer||"").trim();answer=a.startsWith("{")?parseJsonCell(a,{}):{correct_option_id:a.toUpperCase()};}
-        if(!row.exam_id||!row.paper_id||!row.subject_id||!String(row.question||"").trim()||!answer||!Object.keys(answer).length){errors.push("Row "+rowNo+": missing taxonomy IDs, question or answer key.");continue;}
-        const kind=String(row.question_type||"single_choice").toLowerCase();
-        const questionType=QUESTION_TYPES.some(([v])=>v===kind)?kind:"single_choice";
+        if(!answer) answer={correct_option_id:answerLetter};
+        const questionText=[String(row.question||"").trim(),String(row.stimulus||"").trim(),String(row.list_i||"").trim()? "List I:\\n"+String(row.list_i).trim():"",String(row.list_ii||"").trim()? "List II:\\n"+String(row.list_ii).trim():""].filter(Boolean).join("\\n\\n");
+        if(!row.exam_id||!row.paper_id||!row.subject_id||!questionText||!answerLetter.match(/^[A-D]$/)||!Array.isArray(options)||options.length!==4){errors.push("Row "+rowNo+": enter taxonomy IDs, question, four options and one correct_answer (A-D).");continue;}
+        // All supplied formats are single-response MCQs. The format is presentation metadata;
+        // the student always chooses exactly one of A/B/C/D.
+        const questionType="single_choice";
         const {error}=await supabase.rpc("admin_create_question",{
           p_question:{exam_id:String(row.exam_id),paper_id:String(row.paper_id),subject_id:String(row.subject_id),unit_id:String(row.unit_id||"")||null,topic_id:String(row.topic_id||"")||null,question_type:questionType,difficulty:String(row.difficulty||"moderate"),language_code:String(row.language_code||"en"),source_type:String(row.source_type||"admin_created"),source_label:String(row.source_label||"")||null,source_year:String(row.source_year||"")||null,tags:[]},
-          p_version:{prompt:{stem:{text:String(row.question),html:null},instructions:null,assets:[]},options:Array.isArray(options)?options:[],explanation:String(row.explanation||"").trim()?{text:String(row.explanation)}:null,default_marks:Number(row.marks||2),default_negative_marks:Number(row.negative_marks||0)},
+          p_version:{prompt:{stem:{text:questionText,html:null},instructions:String(row.question_format||"single_mcq"),assets:[]},options:Array.isArray(options)?options:[],explanation:String(row.explanation||"").trim()?{text:String(row.explanation)}:null,default_marks:Number(row.marks||2),default_negative_marks:Number(row.negative_marks||0)},
           p_answer_key:answer
         });
         if(error)errors.push("Row "+rowNo+": "+error.message);else added++;
@@ -287,7 +288,7 @@ export default function AdminQuestionsPage() {
       if (!rows.length) errors.push("The first worksheet is empty.");
       rows.forEach((row, index) => {
         if (!String(row.question || "").trim()) errors.push(`Row ${index + 2}: question is blank.`);
-        if (!String(row.answer_key_json || row.correct_answer || "").trim()) errors.push("Row "+(index+2)+": answer_key_json or correct_answer is blank.");
+        if (!String(row.correct_answer || row.answer_key_json || "").trim()) errors.push("Row "+(index+2)+": correct_answer is blank.");
       });
       setImportRows(rows);
       setImportErrors(errors);
@@ -367,9 +368,9 @@ export default function AdminQuestionsPage() {
           </form>}
 
           {tab === "import" && <section className="aq-card">
-            <div className="aq-card-heading"><div><h2>Master Question Bank Excel</h2><p>Download all existing questions, append new rows at the bottom, then upload the same workbook. Existing records are preserved.</p></div><span className="aq-status aq-review">MASTER FILE</span></div><div className="aq-master-actions"><div><b>1. Download complete Question Bank</b><p>Includes every question, permanent ID, classification, options, answer key, explanation and status.</p><button className="aq-primary" onClick={() => void downloadMasterExcel()}>↓ Download Master Excel</button></div><div><b>2. Upload updated workbook</b><p>Leave Question ID blank for new rows. Existing IDs are skipped; new questions are saved as Draft.</p></div></div>
+            <div className="aq-card-heading"><div><h2>Master Question Bank Excel</h2><p>Use a simple one-question-per-row workbook. No JSON fields or formatting are required.</p></div><span className="aq-status aq-review">MASTER FILE</span></div><div className="aq-master-actions"><div><b>1. Download simple Excel template</b><p>Includes clear columns for question, four options, correct answer and optional matching/passage content.</p><button className="aq-primary" onClick={() => void downloadMasterExcel()}>↓ Download Master Excel</button></div><div><b>2. Upload completed workbook</b><p>Fill the taxonomy IDs, add one question per row and upload. New questions are saved as Draft.</p></div></div>
             <div className="aq-import-drop"><div className="aq-upload-icon">⇧</div><b>{fileName || "Choose an Excel workbook"}</b><p>Maximum 5,000 rows per import batch. Files are parsed in your browser; only row data is sent to Supabase staging.</p><label className="aq-secondary aq-file-button">Browse files<input type="file" accept=".xlsx,.xls" onChange={readWorkbook} /></label></div>
-            <div className="aq-template"><b>Master Excel rules</b><p><code>question_id</code> · <code>exam_id</code> · <code>paper_id</code> · <code>subject_id</code> · <code>unit_id</code> · <code>question_type</code> · <code>question</code> · <code>options_json</code> · <code>answer_key_json</code></p><small>Keep existing IDs unchanged. Add new questions as new rows and leave question_id blank. Imported questions enter Draft status.</small></div>
+            <div className="aq-template"><b>Simple Excel rules</b><p><code>question</code> · <code>option_a</code>–<code>option_d</code> · <code>correct_answer</code> · <code>question_format</code></p><small>For matching, fill List I and List II plus four matching combinations. The correct answer is one letter (A–D). Imported questions enter Draft status.</small></div>
             {importErrors.length > 0 && <div className="aq-errors"><b>Validation issues ({importErrors.length})</b><ul>{importErrors.slice(0, 12).map((e) => <li key={e}>{e}</li>)}</ul></div>}
             {importRows.length > 0 && <><div className="aq-preview-head"><b>Preview · {importRows.length} rows</b><span>{importErrors.length ? "Fix the workbook and upload again" : "Basic validation passed"}</span></div><div className="aq-table-wrap"><table className="aq-table"><thead><tr>{Object.keys(importRows[0]).slice(0, 5).map((h) => <th key={h}>{h}</th>)}</tr></thead><tbody>{importRows.slice(0, 5).map((row, i) => <tr key={i}>{Object.keys(importRows[0]).slice(0, 5).map((h) => <td key={h}>{String(row[h] ?? "").slice(0, 100)}</td>)}</tr>)}</tbody></table></div><div className="aq-form-footer"><p>Only new rows are created. Existing questions are not updated, deleted or automatically approved.</p><button className="aq-primary" disabled={!!importErrors.length || importing} onClick={() => void importMasterRows()}>{importing ? "Importing…" : "Import new questions"}</button></div></>}
           </section>}
