@@ -2140,3 +2140,50 @@ button{font-family:var(--mm-font);font-weight:600}
  .mm-workspace-footer{display:none}
 }
 @media(min-width:761px){.mm-workspace-page{min-height:100vh}.mm-workspace-page .mm-workspace-content{min-height:calc(100vh - 120px)}}
+
+
+/* Dashboard overview: compact teal performance card from approved mobile reference */
+.mm-dashboard-overview{display:block!important;margin:0 0 16px!important;padding:0!important;border:0!important;background:transparent!important;overflow:visible!important}
+.mm-overview-card{padding:15px;border:1px solid #0F766E;border-radius:18px;background:#0F766E;color:#fff;box-shadow:0 8px 22px rgba(15,118,110,.12)}
+.mm-overview-main{display:grid;grid-template-columns:100px minmax(0,1fr);align-items:center;gap:15px}
+.mm-overview-ring{position:relative;display:flex;width:100px;height:100px;flex-direction:column;align-items:center;justify-content:center;gap:1px}
+.mm-overview-ring svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
+.mm-overview-ring circle{fill:none;stroke-width:7}
+.mm-overview-ring-track{stroke:rgba(255,255,255,.2)}
+.mm-overview-ring-value{stroke:#FBBF24;stroke-linecap:round;transition:stroke-dashoffset .25s ease}
+.mm-overview-ring strong{position:relative;color:#fff;font-family:Georgia,serif;font-size:23px;line-height:1.1}
+.mm-overview-ring small{position:relative;color:rgba(255,255,255,.85);font-size:9px}
+.mm-overview-details{display:flex;flex-direction:column;gap:5px;min-width:0}
+.mm-overview-details>div:not(.mm-overview-detail-line){display:flex;align-items:center;justify-content:space-between;gap:10px;color:rgba(255,255,255,.9);font-size:10px}
+.mm-overview-details strong{color:#fff;font-size:16px;font-weight:800;white-space:nowrap}
+.mm-overview-detail-line{height:4px;margin:0 0 3px;overflow:hidden;border-radius:99px;background:rgba(255,255,255,.2)}
+.mm-overview-detail-line span{display:block;height:100%;border-radius:99px;background:#fff}
+.mm-overview-mini-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:12px}
+.mm-overview-mini-stats>div{display:flex;min-width:0;flex-direction:column;gap:1px;padding:8px 9px;border-radius:10px;background:rgba(255,255,255,.13)}
+.mm-overview-mini-stats strong{color:#fff;font-size:16px;line-height:1.2}
+.mm-overview-mini-stats span{color:rgba(255,255,255,.85);font-size:9px}
+.mm-dashboard-recent-tests{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;border:0;background:transparent;overflow:visible}
+.mm-dashboard-recent-tests>.mm-trend-card{display:flex;min-width:0;flex-direction:column;gap:9px;padding:13px;border:1px solid var(--border);border-radius:14px;background:var(--surface);box-shadow:0 3px 12px rgba(23,32,51,.035)}
+.mm-trend-card .mm-unit-card-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin:0}
+.mm-trend-card .mm-unit-card-heading h3{min-width:0;margin:0;color:var(--ink);font-size:12px;line-height:1.35}
+.mm-trend-card .mm-unit-card-heading>span{flex-shrink:0;color:var(--muted);font-size:9px}
+.mm-trend-card .mm-unit-metrics{gap:6px}
+.mm-trend-card .mm-unit-metrics>div{min-height:49px;padding:6px 3px;border-radius:9px}
+.mm-trend-card .mm-unit-metrics strong{font-size:17px}
+.mm-trend-card .mm-unit-metrics small{font-size:8px}
+.mm-trend-card .mm-unit-coverage{height:5px;margin-top:0}
+.mm-trend-card .mm-trend-card-meta{display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px;color:var(--muted);font-size:9px}
+.mm-trend-card .mm-dashboard-test-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:auto}
+.mm-trend-card .mm-dashboard-test-actions button{min-height:38px;padding:8px 9px;border-radius:9px;font-size:10px}
+@media(max-width:640px){
+ .mm-dashboard-overview{margin-bottom:14px!important}
+ .mm-overview-card{padding:13px;border-radius:16px}
+ .mm-overview-main{grid-template-columns:90px minmax(0,1fr);gap:12px}
+ .mm-overview-ring{width:90px;height:90px}
+ .mm-overview-ring strong{font-size:21px}
+ .mm-overview-mini-stats{gap:6px;margin-top:10px}
+ .mm-overview-mini-stats>div{padding:7px 8px}
+ .mm-dashboard-recent-tests{grid-template-columns:1fr;gap:9px}
+ .mm-trend-card .mm-dashboard-test-actions button{min-height:40px}
+}
+@media(min-width:641px) and (max-width:900px){.mm-dashboard-recent-tests{grid-template-columns:1fr}}
