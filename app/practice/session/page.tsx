@@ -23,6 +23,7 @@ export default function PracticeSessionPage(){
  const [loading,setLoading]=useState(true),[error,setError]=useState("");
  const [submitted,setSubmitted]=useState(false),[confirm,setConfirm]=useState(false),[student,setStudent]=useState("Student"),[studentId,setStudentId]=useState("");
  const [saving,setSaving]=useState(false),[showPalette,setShowPalette]=useState(false),[showExitConfirm,setShowExitConfirm]=useState(false),[saveError,setSaveError]=useState(""),[expiresAt,setExpiresAt]=useState<string|null>(null);
+ const allowUnload=useRef(false);
  const pendingSaves=useRef(new Map<string,{value:any;flag:boolean}>());
  const saveTimers=useRef(new Map<string,ReturnType<typeof setTimeout>>());
  const saveChain=useRef(Promise.resolve());
@@ -110,7 +111,7 @@ export default function PracticeSessionPage(){
  const finish=useCallback(async()=>{
   if(!db||!attemptId)return;const flushed=await flushPending();if(!flushed)return;setSaving(true);
   const {error}=await db.rpc("student_submit_practice_test",{p_attempt_id:attemptId});
-  setSaving(false);if(error){setError(error.message);return;}router.replace("/practice/result?"+new URLSearchParams({attempt:attemptId}).toString());
+  setSaving(false);if(error){setError(error.message);return;}allowUnload.current=true;setSubmitted(true);router.replace("/practice/result?"+new URLSearchParams({attempt:attemptId}).toString());
  },[db,attemptId,router,flushPending]);
  useEffect(()=>{
   if(loading||submitted||!expiresAt)return;
@@ -126,7 +127,7 @@ export default function PracticeSessionPage(){
  useEffect(()=>()=>{for(const timer of saveTimers.current.values())clearTimeout(timer);},[]);
  useEffect(()=>{
   if(loading||submitted)return;
-  const onBeforeUnload=(event:BeforeUnloadEvent)=>{event.preventDefault();event.returnValue="Your test is still in progress.";};
+  const onBeforeUnload=(event:BeforeUnloadEvent)=>{if(allowUnload.current)return;event.preventDefault();event.returnValue="Your test is still in progress.";};
   window.addEventListener("beforeunload",onBeforeUnload);
   return()=>window.removeEventListener("beforeunload",onBeforeUnload);
  },[loading,submitted]);
