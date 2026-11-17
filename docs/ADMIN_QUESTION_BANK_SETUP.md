@@ -8,9 +8,9 @@
 - Question versions and separately stored answer keys.
 - Draft → In review → Approved workflow, with return-to-draft and archive actions.
 - Excel `.xlsx` / `.xls` first-sheet preview and basic row validation.
-- Import batches and raw rows are written to the protected import staging tables.
+- Excel imports are sent to the database in batches of up to 50 questions per RPC; each question is saved as Draft.
 
-Excel upload currently creates a review-staging batch. It does **not** automatically create question-bank records or publish questions. Row mapping, duplicate review and staged-row approval/import are follow-on workflow work.
+Excel upload validates and previews the workbook in the browser, checks duplicates, then creates question-bank records through batched RPC calls. Imported questions are saved as Draft; they are not automatically approved or published.
 
 ## Required Supabase steps
 
@@ -18,6 +18,7 @@ Run these scripts in Supabase SQL Editor, in this order:
 
 1. `supabase/migrations/202611130001_admin_question_bank_rpcs.sql`
 2. `supabase/migrations/202611130002_admin_question_review_workflow.sql`
+3. `supabase/migrations/202611170001_bulk_question_import.sql`
 
 These scripts add narrowly scoped, security-definer RPCs. They require the Module 2 schema to have been installed already.
 
