@@ -8,15 +8,6 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import "./build-test.css";
 
 type Row={id:string;name:string;code?:string|null;unit_number?:number|null};
-async function requestExamFullscreen(){
- if(typeof document==="undefined")return false;
- const root=document.documentElement;
- if(document.fullscreenElement)return true;
- if(!root.requestFullscreen)return false;
- try{await root.requestFullscreen({navigationUI:"hide"});return !!document.fullscreenElement;}
- catch{return false;}
-}
-
 export default function StudentBuildTestPage(){
  const router=useRouter();
  const [supabase]=useState(()=>typeof window==="undefined"?null:createSupabaseBrowserClient());
@@ -41,8 +32,6 @@ export default function StudentBuildTestPage(){
  const [error,setError]=useState("");
  const [source,setSource]=useState("all");
  const [busy,setBusy]=useState(false);
- const [launchSeconds,setLaunchSeconds]=useState(0);
- useEffect(()=>{if(!launchSeconds)return;const timer=window.setInterval(()=>{const deadline=Number(window.sessionStorage.getItem("mm-exam-start-deadline")||0);setLaunchSeconds(Math.max(0,Math.ceil((deadline-Date.now())/1000)));},200);return()=>window.clearInterval(timer);},[launchSeconds>0]);
 
  useEffect(()=>{if(!supabase)return;let live=true;(async()=>{
   const {data,error}=await db.auth.getUser();if(error||!data.user){router.replace("/login");return;}
@@ -101,14 +90,12 @@ export default function StudentBuildTestPage(){
  async function start(){
   if(!canStart||!supabase)return;
   void requestExamFullscreen();
-  const deadline=Date.now()+5000;window.sessionStorage.setItem("mm-exam-start-deadline",String(deadline));setLaunchSeconds(5);
   setBusy(true);setError("");
   const {data,error}=await db.rpc("student_start_practice_test",{
    p_exam_id:examId,p_paper_id:paperId,p_subject_id:subjectId||null,
    p_unit_ids:unitIds,p_question_count:actualCount,
    p_duration_seconds:minutes*60,p_language_code:null,p_source:source
   });
-  if(error){window.sessionStorage.removeItem("mm-exam-start-deadline");setLaunchSeconds(0);setError(error.message);setBusy(false);return;}
   const result=data as {test_id:string;attempt_id:string;question_count:number};
   const params=new URLSearchParams({test:result.test_id,attempt:result.attempt_id,minutes:String(minutes)});
   router.push("/practice/session?"+params.toString());
@@ -128,6 +115,5 @@ export default function StudentBuildTestPage(){
     <section className="sb-field"><div className="sb-label-row"><label>Time limit</label><span>Minutes</span></div><div className="sb-count-options">{[10,25,50,90,120,180].map(n=><button key={n} className={minutes===n?"chosen":""} onClick={()=>setMinutes(n)}>{n} min</button>)}</div><div className="sb-custom-time"><label htmlFor="custom-time">Custom time</label><input id="custom-time" type="number" min="1" max="360" value={minutes} onChange={e=>setMinutes(Math.max(1,Math.min(360,Number(e.target.value)||1)))}/><span>minutes</span></div></section>
    </div>
   </section><aside className="sb-side"><div className="sb-summary"><h2>Your test</h2><div><span>Paper</span><b>{summary.paper}</b></div><div><span>Units</span><b>{summary.unit}</b></div><div><span>Source</span><b>{source==="all"?"All questions":source==="pyq"?"PYQ only":"Expected only"}</b></div><div><span>Questions</span><b>{actualCount}</b></div><div><span>Time limit</span><b>{minutes} min</b></div><div className="sb-summary-note">{availableLoading?"Checking questions for your selection…":available===0?"No questions match this selection yet.":actualCount+" questions selected from "+available.toLocaleString("en-IN")+" available questions."}</div>{error&&<p className="sb-error">{error}</p>}<button className="sb-start" disabled={!canStart||busy} onClick={()=>void start()}>{busy?"Preparing…":"Start test →"}</button><small className="sb-footnote">You can change your selection before starting.</small></div><div className="sb-side-tip"><b>Practice smarter</b><p>Start with one unit, review your performance, then expand to a full-paper practice set.</p></div></aside></div>
-  {launchSeconds>0&&<div className="mm-exam-launch-screen" role="status"><div className="mm-exam-launch-brand">M</div><div className="mm-exam-launch-count">{launchSeconds}</div><h1>Get ready for your test</h1><p>Preparing your questions and exam workspace…</p><div className="mm-exam-launch-dots"><i/><i/><i/></div></div>}
  </main>;
 }
