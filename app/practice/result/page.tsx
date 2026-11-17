@@ -50,8 +50,6 @@ export default function PracticeResultPage(){
       <h3>{textOf(q.prompt)||"Question text unavailable"}</h3>
       {q.stimulus&&<p className="mr-stimulus">{textOf(q.stimulus)}</p>}
       {Array.isArray(q.options)&&q.options.length>0&&<div className="mr-options">{q.options.map((o:any,j:number)=>{const id=String(o.id??o.value??j);const chosen=Array.isArray(q.response)?q.response.map(String).includes(id):String(q.response)===id;const keyValue=Array.isArray(answer)?answer.map(String).includes(id):String(answer)===id;return <div key={id} className={(keyValue?"key ":"")+(chosen&&!keyValue?"wrong-choice":"")}><b>{String.fromCharCode(65+j)}.</b><span>{String(o.text??o.label??o.value??"")}</span>{keyValue&&<em>Correct answer</em>}{chosen&&!keyValue&&<em>Your answer</em>}</div>})}</div>}
-      <div className="mr-response-row"><span>Your response</span><b>{responseText(q.response,q.options||[])}</b></div>
-      <div className="mr-response-row answer"><span>Correct answer</span><b>{responseText(answer,q.options||[])}</b></div>
       {data.test.show_solutions&&explanation&&<div className="mr-explanation"><b>Explanation</b><p>{explanation}</p></div>}
     </article>})}</div>}
    </section>
