@@ -47,21 +47,21 @@ After the update, sign out and sign back in so the browser receives a refreshed 
 
 The page checks the signed-in user's `app_metadata.role`. Database RLS and RPC functions independently check the same server-controlled claim. Hiding the route in the UI is not the security boundary.
 
-## Excel staging columns
+## Simple Excel question import
 
-Required for current basic staging validation:
+Use the **Download simple Excel template** button on `/admin/questions` → **Excel import**.
 
-- `question`
-- `correct_answer`
+- One question per row; no JSON columns are required.
+- Required: `exam_id`, `paper_id`, `subject_id`, `question`, `option_a`–`option_d`, and `correct_answer`.
+- Optional: `unit_id`, `topic_id`, `question_format`, `stimulus`, `list_i`, `list_ii`, `explanation`, `difficulty`, `marks`, `negative_marks`, `source_label`, `source_year`.
+- Taxonomy columns use the UUID IDs from the existing examination, paper, subject, unit and topic records.
+- `correct_answer` is one letter only: A, B, C or D. Every imported format is stored as a single-choice response.
+- For matching questions, put List I and List II in their own columns and provide four complete matching combinations as options A–D. Students choose one combination; no drag-and-drop or multi-select is used.
+- For passage, case-study or data-interpretation sets, put shared text/data in `stimulus`; repeat it on each question row that uses it.
+- `question_format` describes the presentation style. The student response remains one selected option.
+- Imported questions are created as Draft and must be reviewed and approved before use in a test.
 
-Recommended columns for the next import-mapping phase:
-
-- `option_a`, `option_b`, `option_c`, `option_d`
-- `question_type`
-- `exam_code`, `paper_code`, `subject_code`, `unit_number`
-- `explanation`, `marks`, `negative_marks`
-
-Maximum batch size: 5,000 rows. The first worksheet is used. Column headers are normalized to lowercase before validation.
+The old JSON-based master workbook is no longer required for new imports.
 
 ## Deployment
 
