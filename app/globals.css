@@ -2187,3 +2187,38 @@ button{font-family:var(--mm-font);font-weight:600}
  .mm-trend-card .mm-dashboard-test-actions button{min-height:40px}
 }
 @media(min-width:641px) and (max-width:900px){.mm-dashboard-recent-tests{grid-template-columns:1fr}}
+
+
+/* Paper-wise and unit-wise analysis cards — match supplied dashboard reference */
+.mm-paper-cards,.mm-unit-panel .mm-unit-cards{grid-template-columns:minmax(0,1fr);gap:12px}
+.mm-analysis-reference-card{padding:15px 16px;border:1px solid var(--border);border-radius:18px;background:var(--surface);box-shadow:0 2px 8px rgba(23,32,51,.025)}
+.mm-analysis-reference-card .mm-unit-card-heading{align-items:center;margin-bottom:13px}
+.mm-analysis-reference-card .mm-unit-card-heading h3{color:var(--ink);font-family:var(--font-poppins),Arial,sans-serif;font-size:15px;font-weight:750}
+.mm-analysis-reference-card .mm-unit-card-heading>span{color:var(--muted);font-size:11px}
+.mm-analysis-reference-card .mm-unit-metrics{gap:9px}
+.mm-analysis-reference-card .mm-unit-metrics>div{min-height:72px;padding:9px 6px;border:0;border-radius:13px;background:var(--bg-page)}
+.mm-analysis-reference-card .mm-unit-metrics strong{color:var(--ink);font-family:Georgia,serif;font-size:27px;font-weight:750;line-height:1.1}
+.mm-analysis-reference-card .mm-unit-metrics small{color:var(--muted);font-size:10px;letter-spacing:.45px;font-weight:750}
+.mm-analysis-reference-card .mm-unit-coverage{height:7px;margin-top:13px;background:var(--surface-sunken)}
+.mm-analysis-reference-card .mm-unit-coverage>span{border-radius:99px}
+.mm-analysis-reference-card .mm-paper-accuracy-bar>span{background:linear-gradient(to right,var(--ok) 0 70%,var(--error) 70% 100%)}
+.mm-paper-card-meta{display:flex;align-items:center;flex-wrap:wrap;gap:18px;margin-top:9px;color:var(--muted);font-size:12px;font-weight:650}
+.mm-paper-card-meta>span{display:inline-flex;align-items:center;gap:6px}
+.mm-paper-dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--muted)}
+.mm-paper-dot.is-correct{background:var(--ok)}
+.mm-paper-dot.is-incorrect{background:var(--error)}
+.mm-unit-reference-card .mm-unit-coverage>span{background:var(--ok)}
+.mm-unit-reference-card>p{margin:8px 0 0;color:var(--muted);font-family:var(--font-poppins),Arial,sans-serif;font-size:12px}
+@media(max-width:600px){
+ .mm-paper-cards,.mm-unit-panel .mm-unit-cards{gap:10px}
+ .mm-analysis-reference-card{padding:14px 13px;border-radius:16px}
+ .mm-analysis-reference-card .mm-unit-card-heading{margin-bottom:12px}
+ .mm-analysis-reference-card .mm-unit-card-heading h3{font-size:14px}
+ .mm-analysis-reference-card .mm-unit-card-heading>span{font-size:10px}
+ .mm-analysis-reference-card .mm-unit-metrics{gap:7px}
+ .mm-analysis-reference-card .mm-unit-metrics>div{min-height:64px;padding:8px 4px;border-radius:12px}
+ .mm-analysis-reference-card .mm-unit-metrics strong{font-size:24px}
+ .mm-analysis-reference-card .mm-unit-metrics small{font-size:9px}
+ .mm-analysis-reference-card .mm-unit-coverage{height:6px;margin-top:11px}
+ .mm-paper-card-meta{gap:14px;margin-top:8px;font-size:11px}
+}
