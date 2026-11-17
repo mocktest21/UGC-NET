@@ -21,7 +21,7 @@ export default function PracticeSessionPage(){
  const [current,setCurrent]=useState(0);
  const [seconds,setSeconds]=useState(0);
  const [loading,setLoading]=useState(true),[error,setError]=useState("");
- const [introSeconds,setIntroSeconds]=useState(0);
+ const [testStarted,setTestStarted]=useState(false);
  const [isFullscreen,setIsFullscreen]=useState(false);
  const [submitted,setSubmitted]=useState(false),[confirm,setConfirm]=useState(false),[student,setStudent]=useState("Student"),[studentId,setStudentId]=useState("");
  const [saving,setSaving]=useState(false),[showPalette,setShowPalette]=useState(false),[showExitConfirm,setShowExitConfirm]=useState(false),[saveError,setSaveError]=useState(""),[expiresAt,setExpiresAt]=useState<string|null>(null);
@@ -33,8 +33,7 @@ export default function PracticeSessionPage(){
  const fmt=(n:number)=>String(Math.floor(n/3600)).padStart(2,"0")+":"+String(Math.floor(n%3600/60)).padStart(2,"0")+":"+String(n%60).padStart(2,"0");
 
  useEffect(()=>{const update=()=>setIsFullscreen(!!document.fullscreenElement);document.addEventListener("fullscreenchange",update);update();return()=>document.removeEventListener("fullscreenchange",update);},[]);
- const enterFullscreen=async()=>{if(typeof document==="undefined")return;try{await document.documentElement.requestFullscreen?.({navigationUI:"hide"});setIsFullscreen(!!document.fullscreenElement);}catch{setError("Fullscreen was blocked by your browser. Use the browser Full Screen option (F11 on desktop) and continue.");}};
- useEffect(()=>{if(!params)return;const deadline=Number(window.sessionStorage.getItem("mm-exam-start-deadline")||0);if(!deadline)return;const tick=()=>{const remaining=Math.max(0,Math.ceil((deadline-Date.now())/1000));setIntroSeconds(remaining);if(remaining===0)window.sessionStorage.removeItem("mm-exam-start-deadline");};tick();const timer=window.setInterval(tick,200);return()=>window.clearInterval(timer);},[params]);
+ const enterFullscreen=async()=>{if(typeof document==="undefined")return false;try{if(!document.fullscreenElement&&document.documentElement.requestFullscreen)await document.documentElement.requestFullscreen({navigationUI:"hide"});const active=!!document.fullscreenElement;setIsFullscreen(active);return active;}catch{return false;}};
  useEffect(()=>{if(!db||!params)return;let live=true;void(async()=>{
   const {data:auth,error:authError}=await db.auth.getUser();
   if(authError){setError("Could not verify your sign-in. Please retry.");setLoading(false);return;}
@@ -119,7 +118,7 @@ export default function PracticeSessionPage(){
   setSaving(false);if(error){setError(error.message);return;}allowUnload.current=true;setSubmitted(true);router.replace("/practice/result?"+new URLSearchParams({attempt:attemptId}).toString());
  },[db,attemptId,router,flushPending]);
  useEffect(()=>{
-  if(loading||submitted||!expiresAt)return;
+  if(loading||!testStarted||submitted||!expiresAt)return;
   const sync=()=>setSeconds(Math.max(0,Math.floor((new Date(expiresAt).getTime()-Date.now())/1000)));
   sync();
   const tick=window.setInterval(()=>setSeconds(s=>Math.max(0,s-1)),1000);
@@ -127,15 +126,15 @@ export default function PracticeSessionPage(){
   const visible=()=>{if(document.visibilityState==="visible")sync();};
   document.addEventListener("visibilitychange",visible);
   return()=>{window.clearInterval(tick);window.clearInterval(timer);document.removeEventListener("visibilitychange",visible);};
- },[loading,submitted,expiresAt]);
- useEffect(()=>{if(!loading&&!submitted&&questions.length>0&&seconds<=0)void finish();},[loading,submitted,questions.length,seconds,finish]);
+ },[loading,testStarted,submitted,expiresAt]);
+ useEffect(()=>{if(!loading&&testStarted&&!submitted&&questions.length>0&&seconds<=0)void finish();},[loading,testStarted,submitted,questions.length,seconds,finish]);
  useEffect(()=>()=>{for(const timer of saveTimers.current.values())clearTimeout(timer);},[]);
  useEffect(()=>{
-  if(loading||submitted)return;
+  if(loading||!testStarted||submitted)return;
   const onBeforeUnload=(event:BeforeUnloadEvent)=>{if(allowUnload.current)return;event.preventDefault();event.returnValue="Your test is still in progress.";};
   window.addEventListener("beforeunload",onBeforeUnload);
   return()=>window.removeEventListener("beforeunload",onBeforeUnload);
- },[loading,submitted]);
+ },[loading,testStarted,submitted]);
  useEffect(()=>{
   if(loading||submitted)return;
   window.history.pushState({mmTestSession:true},"",window.location.href);
@@ -161,7 +160,6 @@ export default function PracticeSessionPage(){
  const isChoice=["single_choice","assertion_reason"].includes(q?.type)||(q?.type==="passage"&&options.length>0);
  const isMulti=q?.type==="multiple_choice";
  const renderChoice=()=> <div className="ps-options">{options.map((o,i)=>{const id=optionId(o,i),value=selected(q.id);const active=isMulti?Array.isArray(value)&&value.includes(id):value===id;return <button key={id} className={active?"selected":""} onClick={()=>{if(isMulti){const next=Array.isArray(value)?value.slice():[];updateAnswer(q.id,next.includes(id)?next.filter(x=>x!==id):[...next,id]);}else updateAnswer(q.id,id);}}><i>{String.fromCharCode(65+i)}</i><span>{optionText(o)}</span>{active&&<b><Check size={15}/></b>}</button>;})}</div>;
- if(loading||introSeconds>0)return <main className="ps-launch-screen"><div className="ps-launch-brand">M</div><div className="ps-launch-count">{introSeconds>0?introSeconds:""}</div><h1>{introSeconds>0?"Get ready for your test":"Preparing your test"}</h1><p>Loading questions and restoring your exam workspace…</p><div className="ps-launch-dots"><i/><i/><i/></div></main>;
  if(error&&!questions.length)return <main className="ps-state"><div><h2>Unable to start test</h2><p>{error}</p><button onClick={()=>router.push("/practice/build-test")}>Back to test builder</button></div></main>;
  if(submitted)return <main className="ps-result"><div><span>MOCKMASTER · PRACTICE</span><h1>Test submitted</h1><p>Your responses have been saved. You can review your attempt from your dashboard when results are available.</p><div className="ps-result-stats"><b>{questions.length}<small>Total questions</small></b><b>{answered}<small>Answered</small></b><b>{questions.length-answered}<small>Unanswered</small></b></div><button onClick={()=>router.push("/practice/build-test")}>Create another test</button><button className="ps-secondary" onClick={()=>router.push("/dashboard")}>Dashboard</button></div></main>;
  if(!q)return null;
