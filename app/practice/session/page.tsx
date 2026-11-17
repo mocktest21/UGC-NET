@@ -22,6 +22,7 @@ export default function PracticeSessionPage(){
  const [seconds,setSeconds]=useState(0);
  const [loading,setLoading]=useState(true),[error,setError]=useState("");
  const [testStarted,setTestStarted]=useState(false);
+ const [launchCountdown,setLaunchCountdown]=useState<number|null>(null);
  const [isFullscreen,setIsFullscreen]=useState(false);
  const [submitted,setSubmitted]=useState(false),[confirm,setConfirm]=useState(false),[student,setStudent]=useState("Student"),[studentId,setStudentId]=useState("");
  const [saving,setSaving]=useState(false),[showPalette,setShowPalette]=useState(false),[showExitConfirm,setShowExitConfirm]=useState(false),[saveError,setSaveError]=useState(""),[expiresAt,setExpiresAt]=useState<string|null>(null);
@@ -118,6 +119,12 @@ export default function PracticeSessionPage(){
   setSaving(false);if(error){setError(error.message);return;}allowUnload.current=true;setSubmitted(true);router.replace("/practice/result?"+new URLSearchParams({attempt:attemptId}).toString());
  },[db,attemptId,router,flushPending]);
  useEffect(()=>{
+  if(launchCountdown===null)return;
+  if(launchCountdown<=0){setLaunchCountdown(null);setTestStarted(true);return;}
+  const timer=window.setTimeout(()=>setLaunchCountdown(value=>value===null?null:value-1),1000);
+  return()=>window.clearTimeout(timer);
+ },[launchCountdown]);
+ useEffect(()=>{
   if(loading||!testStarted||submitted||!expiresAt)return;
   const sync=()=>setSeconds(Math.max(0,Math.floor((new Date(expiresAt).getTime()-Date.now())/1000)));
   sync();
@@ -161,7 +168,7 @@ export default function PracticeSessionPage(){
  const isMulti=q?.type==="multiple_choice";
  if(loading)return <main className="ps-launch-screen"><div className="ps-launch-brand">M</div><div className="ps-launch-dots"><i/><i/><i/></div><h1>Preparing your test</h1><p>Loading questions and restoring your exam workspace…</p></main>;
  const renderChoice=()=> <div className="ps-options">{options.map((o,i)=>{const id=optionId(o,i),value=selected(q.id);const active=isMulti?Array.isArray(value)&&value.includes(id):value===id;return <button key={id} className={active?"selected":""} onClick={()=>{if(isMulti){const next=Array.isArray(value)?value.slice():[];updateAnswer(q.id,next.includes(id)?next.filter(x=>x!==id):[...next,id]);}else updateAnswer(q.id,id);}}><i>{String.fromCharCode(65+i)}</i><span>{optionText(o)}</span>{active&&<b><Check size={15}/></b>}</button>;})}</div>;
- if(!loading&&!error&&!testStarted&&questions.length>0)return <main className="ps-launch-screen"><div className="ps-launch-brand">M</div><h1>Your test is ready</h1><p>{questions.length} questions loaded. Enter fullscreen to begin your attempt.</p><button type="button" className="ps-next" style={{marginTop:24,padding:"14px 24px"}} onClick={async()=>{const entered=await enterFullscreen();if(!entered)setError("Fullscreen could not be enabled. You can still start the test in this window.");setTestStarted(true);}}>{isFullscreen?"Start test":"Enter fullscreen & start test"}</button>{error&&<p style={{marginTop:12}}>{error}</p>}</main>;
+ if(!loading&&!error&&!testStarted&&questions.length>0)return <main className="ps-launch-screen"><div className="ps-launch-brand"><span>M</span><b>MockMaster</b></div>{launchCountdown!==null?<><div className="ps-count-label">YOUR TEST STARTS IN</div><div className="ps-count-ring"><span>{launchCountdown}</span></div><h1>Get ready for your test</h1><p className="ps-ready-status">● Ready</p><div className="ps-launch-stats"><div><b>{questions.length}</b><small>Questions</small></div><div><b>{params?.get("minutes")||50} min</b><small>Time limit</small></div><div><b>+{questions[0]?.marks||2} / {questions[0]?.negative||0}</b><small>Marking</small></div></div><ul className="ps-launch-rules"><li>The timer starts as soon as the test opens.</li><li>Your answers are saved as you go.</li><li>Stay in full screen. Leaving it is recorded.</li></ul></>:<><h1>Your test is ready</h1><p>{questions.length} questions loaded. Enter fullscreen to begin your attempt.</p><button type="button" className="ps-next" style={{marginTop:24,padding:"14px 24px"}} onClick={async()=>{await enterFullscreen();setLaunchCountdown(5);}}>{isFullscreen?"Start now":"Enter fullscreen & start test"}</button></>}{error&&<p style={{marginTop:12}}>{error}</p>}</main>;
  if(error&&!questions.length)return <main className="ps-state"><div><h2>Unable to start test</h2><p>{error}</p><button onClick={()=>router.push("/practice/build-test")}>Back to test builder</button></div></main>;
  if(submitted)return <main className="ps-result"><div><span>MOCKMASTER · PRACTICE</span><h1>Test submitted</h1><p>Your responses have been saved. You can review your attempt from your dashboard when results are available.</p><div className="ps-result-stats"><b>{questions.length}<small>Total questions</small></b><b>{answered}<small>Answered</small></b><b>{questions.length-answered}<small>Unanswered</small></b></div><button onClick={()=>router.push("/practice/build-test")}>Create another test</button><button className="ps-secondary" onClick={()=>router.push("/dashboard")}>Dashboard</button></div></main>;
  if(!q)return null;
