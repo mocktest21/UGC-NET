@@ -325,15 +325,15 @@ export default function DashboardPage() {
             <div className="mm-analytics-panel-heading">
               <div><span className="mm-section-kicker">PAPER-WISE ANALYSIS</span><h2>Performance by paper</h2><p>Compare scores and accuracy across papers.</p></div>
             </div>
-            {paperPerformance.length ? <div className="mm-unit-cards mm-paper-cards">{paperPerformance.map((item: any) => <article className="mm-unit-card mm-paper-card" key={item.id}>
+            {paperPerformance.length ? <div className="mm-unit-cards mm-paper-cards">{paperPerformance.map((item: any) => <article className="mm-unit-card mm-paper-card mm-analysis-reference-card" key={item.id}>
               <div className="mm-unit-card-heading"><h3>{item.name}</h3><span>{item.tests} completed {item.tests === 1 ? "test" : "tests"}</span></div>
               <div className="mm-unit-metrics">
                 <div><strong>{item.accuracy === null ? "—" : item.accuracy.toFixed(1) + "%"}</strong><small>ACCURACY</small></div>
                 <div><strong>{item.average === null ? "—" : item.average.toFixed(1) + "%"}</strong><small>AVG. SCORE</small></div>
                 <div><strong>{item.correct}</strong><small>RIGHT</small></div>
               </div>
-              <div className="mm-unit-coverage"><span style={{width: (item.accuracy ?? 0) + "%"}} /></div>
-              <div className="mm-paper-card-meta"><span>{item.correct} correct</span><span>{item.incorrect} incorrect</span></div>
+              <div className="mm-unit-coverage mm-paper-accuracy-bar"><span style={{width:"100%",background:`linear-gradient(to right,var(--ok) 0%,var(--ok) ${item.correct+item.incorrect>0?item.correct/(item.correct+item.incorrect)*100:0}%,var(--error) ${item.correct+item.incorrect>0?item.correct/(item.correct+item.incorrect)*100:0}%,var(--error) 100%)`}} /></div>
+              <div className="mm-paper-card-meta"><span><i className="mm-paper-dot is-correct"/> {item.correct} correct</span><span><i className="mm-paper-dot is-incorrect"/> {item.incorrect} incorrect</span></div>
             </article>)}</div> : <EmptyAnalytics title="Paper-wise statistics are not available yet" detail="Complete a test with Paper 1 or Paper 2 questions to see your performance here." />}
           </section>
 
@@ -341,7 +341,7 @@ export default function DashboardPage() {
             <div className="mm-analytics-panel-heading">
               <div><span className="mm-section-kicker">DETAILED SYLLABUS ANALYSIS</span><h2>Unit-wise performance</h2></div>
             </div>
-            {unitPerformance.length ? <div className="mm-unit-cards">{unitPerformance.map((item: any) => <article className="mm-unit-card" key={item.id}>
+            {unitPerformance.length ? <div className="mm-unit-cards">{unitPerformance.map((item: any) => <article className="mm-unit-card mm-analysis-reference-card mm-unit-reference-card" key={item.id}>
               <div className="mm-unit-card-heading"><h3>{item.name}</h3><span>{item.paperName}</span></div>
               <div className="mm-unit-metrics">
                 <div><strong>{item.accuracy.toFixed(0)}%</strong><small>ACCURACY</small></div>
