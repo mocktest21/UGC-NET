@@ -317,3 +317,13 @@
  .sb-unit-card-copy small{font-size:8px}
 }
 @media(max-width:350px){.sb-unit-grid{grid-template-columns:1fr}}
+
+
+/* Desktop unit cards use the same compact grid pattern with more columns. */
+@media(min-width:1101px){
+ .sb-unit-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+ .sb-unit-card{min-height:78px;padding:12px 10px}
+}
+@media(min-width:561px) and (max-width:1100px){
+ .sb-unit-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+}
