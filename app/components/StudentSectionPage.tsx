@@ -8,12 +8,13 @@ import StudentWorkspaceHeader from "@/components/navigation/StudentWorkspaceHead
 import {createSupabaseBrowserClient} from "@/lib/supabase/client";
 
 type Section="practice"|"live-test"|"personal-notebook";
-function requestExamFullscreen(){
- if(typeof document==="undefined")return;
+async function requestExamFullscreen(){
+ if(typeof document==="undefined")return false;
  const root=document.documentElement;
- if(!document.fullscreenElement&&root.requestFullscreen){
-  void root.requestFullscreen().catch(()=>{});
- }
+ if(document.fullscreenElement)return true;
+ if(!root.requestFullscreen)return false;
+ try{await root.requestFullscreen({navigationUI:"hide"});return !!document.fullscreenElement;}
+ catch{return false;}
 }
 
 type LiveTest={id:string;title:string;description:string|null;duration_seconds:number;total_marks:number;starts_at:string;ends_at:string;question_count:number};
@@ -30,7 +31,7 @@ export default function StudentSectionPage({section}:{section:Section}){
  const [launchSeconds,setLaunchSeconds]=useState(0);
  const [name,setName]=useState("Student"),[loading,setLoading]=useState(true),[completedTests,setCompletedTests]=useState<LiveTest[]>([]),[liveTests,setLiveTests]=useState<LiveTest[]>([]),[overview,setOverview]=useState<Record<string,LiveOverview>>({}),[startingTest,setStartingTest]=useState(""),[startingSmartQuiz,setStartingSmartQuiz]=useState(false),[smartQuizCount,setSmartQuizCount]=useState(0),[error,setError]=useState(""),[currentTime,setCurrentTime]=useState(()=>Date.now());
  useEffect(()=>{if(launchSeconds<=0)return;const timer=window.setInterval(()=>{const deadline=Number(window.sessionStorage.getItem("mm-exam-start-deadline")||0);setLaunchSeconds(Math.max(0,Math.ceil((deadline-Date.now())/1000)));},200);return()=>window.clearInterval(timer);},[launchSeconds>0]);
- const beginExamLaunch=()=>{requestExamFullscreen();window.sessionStorage.setItem("mm-exam-start-deadline",String(Date.now()+5000));setLaunchSeconds(5);};
+ const beginExamLaunch=()=>{void requestExamFullscreen();window.sessionStorage.setItem("mm-exam-start-deadline",String(Date.now()+5000));setLaunchSeconds(5);};
  useEffect(()=>{if(section!=="live-test")return;const timer=window.setInterval(()=>setCurrentTime(Date.now()),1000);return()=>window.clearInterval(timer);},[section]);
  useEffect(()=>{let active=true;void(async()=>{
   const db=createSupabaseBrowserClient();
