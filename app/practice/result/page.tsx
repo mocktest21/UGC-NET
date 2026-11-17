@@ -13,11 +13,6 @@ type ResultData={attempt:Attempt;test:{id:string;title:string;mode:string;show_s
 const textOf=(v:any)=>typeof v==="string"?v:(v?.text||v?.stem?.text||v?.content||"");
 const answerOf=(key:any)=>key?.correct_option_id??key?.correct_option_ids??key?.correct_answer??key?.answer??key;
 const formatTime=(s:number|null)=>{if(s===null)return "—";const h=Math.floor(s/3600),m=Math.floor(s%3600/60),sec=s%60;return h? h+"h "+m+"m":m+"m "+sec+"s";};
-const responseText=(v:any,options:any[])=>{
- if(v===null||v===undefined)return "Not attempted";
- const vals=Array.isArray(v)?v:[v];
- return vals.map(x=>{const opt=options.find((o:any)=>String(o.id??o.value??"")===String(x));return opt?String(opt.text??opt.label??x):typeof x==="object"?JSON.stringify(x):String(x)}).join(", ");
-};
 export default function PracticeResultPage(){
  const router=useRouter();
  const [attemptId,setAttemptId]=useState("");
