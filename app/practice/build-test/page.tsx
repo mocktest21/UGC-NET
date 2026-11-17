@@ -8,12 +8,13 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import "./build-test.css";
 
 type Row={id:string;name:string;code?:string|null;unit_number?:number|null};
-function requestExamFullscreen(){
- if(typeof document==="undefined")return;
+async function requestExamFullscreen(){
+ if(typeof document==="undefined")return false;
  const root=document.documentElement;
- if(!document.fullscreenElement&&root.requestFullscreen){
-  void root.requestFullscreen().catch(()=>{});
- }
+ if(document.fullscreenElement)return true;
+ if(!root.requestFullscreen)return false;
+ try{await root.requestFullscreen({navigationUI:"hide"});return !!document.fullscreenElement;}
+ catch{return false;}
 }
 
 export default function StudentBuildTestPage(){
@@ -99,7 +100,7 @@ export default function StudentBuildTestPage(){
  const summary=useMemo(()=>({paper:selectedPaper?.name||"Select a paper",unit:unitIds.length?selectedUnits.map(u=>u.name).join(", "):"All units"}),[selectedPaper,selectedUnits,unitIds]);
  async function start(){
   if(!canStart||!supabase)return;
-  requestExamFullscreen();
+  void requestExamFullscreen();
   const deadline=Date.now()+5000;window.sessionStorage.setItem("mm-exam-start-deadline",String(deadline));setLaunchSeconds(5);
   setBusy(true);setError("");
   const {data,error}=await db.rpc("student_start_practice_test",{
