@@ -377,3 +377,6 @@
  .ps-launch-stats small{font-size:10px}
  .ps-launch-rules{font-size:12px;gap:9px}
 }
+
+/* Countdown progress is driven by the actual 5-to-0 value in React. */
+.ps-count-ring:before{display:none}
