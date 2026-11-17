@@ -240,6 +240,7 @@ export default function AdminQuestionsPage() {
         const latest=new Map<string,any>();(data||[]).forEach(v=>{if(!latest.has(v.question_id))latest.set(v.question_id,v);});
         chunk.forEach(q=>{const prompt=latest.get(q.id)?.prompt;const stem=prompt?.stem?.text||prompt?.text||"";const normal=(v:unknown)=>String(v??"").toLowerCase().replace(/\\s+/g," ").trim();existingFingerprints.add([q.exam_id,q.paper_id,q.subject_id,q.unit_id,stem].map(normal).join("|"));});
       }
+      const pendingItems:any[]=[];
       for(let index=0;index<importRows.length;index++){
         const row=importRows[index], rowNo=index+2;
         const id=String(row.question_id||"").trim();
@@ -253,15 +254,18 @@ export default function AdminQuestionsPage() {
         if(!answer) answer={correct_option_id:answerLetter};
         const questionText=[String(row.question||"").trim(),String(row.stimulus||"").trim(),String(row.list_i||"").trim()? "List I:\\n"+String(row.list_i).trim():"",String(row.list_ii||"").trim()? "List II:\\n"+String(row.list_ii).trim():""].filter(Boolean).join("\\n\\n");
         if(!row.exam_id||!row.paper_id||!row.subject_id||!questionText||!answerLetter.match(/^[A-D]$/)||!Array.isArray(options)||options.length!==4){errors.push("Row "+rowNo+": enter taxonomy IDs, question, four options and one correct_answer (A-D).");continue;}
-        // All supplied formats are single-response MCQs. The format is presentation metadata;
-        // the student always chooses exactly one of A/B/C/D.
-        const questionType="single_choice";
-        const {error}=await supabase.rpc("admin_create_question",{
-          p_question:{exam_id:String(row.exam_id),paper_id:String(row.paper_id),subject_id:String(row.subject_id),unit_id:String(row.unit_id||"")||null,topic_id:String(row.topic_id||"")||null,question_type:questionType,difficulty:String(row.difficulty||"moderate"),language_code:String(row.language_code||"en"),source_type:String(row.source_type||"admin_created"),source_label:String(row.source_label||"")||null,source_year:String(row.source_year||"")||null,tags:[]},
-          p_version:{prompt:{stem:{text:questionText,html:null},instructions:String(row.question_format||"single_mcq"),assets:[]},options:Array.isArray(options)?options:[],explanation:String(row.explanation||"").trim()?{text:String(row.explanation)}:null,default_marks:Number(row.marks||2),default_negative_marks:Number(row.negative_marks||0)},
-          p_answer_key:answer
+        pendingItems.push({
+          row_number:rowNo,
+          question:{exam_id:String(row.exam_id),paper_id:String(row.paper_id),subject_id:String(row.subject_id),unit_id:String(row.unit_id||"")||null,topic_id:String(row.topic_id||"")||null,question_type:"single_choice",difficulty:String(row.difficulty||"moderate"),language_code:String(row.language_code||"en"),source_type:String(row.source_type||"admin_created"),source_label:String(row.source_label||"")||null,source_year:String(row.source_year||"")||null,tags:[]},
+          version:{prompt:{stem:{text:questionText,html:null},instructions:String(row.question_format||"single_mcq"),assets:[]},options,explanation:String(row.explanation||"").trim()?{text:String(row.explanation)}:null,default_marks:Number(row.marks||2),default_negative_marks:Number(row.negative_marks||0)},
+          answer_key:answer
         });
-        if(error)errors.push("Row "+rowNo+": "+error.message);else added++;
+      }
+      for(let i=0;i<pendingItems.length;i+=50){
+        const {data,error}=await supabase.rpc("admin_import_questions_bulk",{p_items:pendingItems.slice(i,i+50)});
+        if(error)throw error;
+        added+=Number(data?.added||0);
+        (data?.errors||[]).forEach((item:any)=>errors.push("Row "+item.row_number+": "+item.message));
       }
       setMessage("Import complete. Added: "+added+". Duplicate rows skipped: "+duplicates+". Existing IDs skipped: "+existingSkipped+". Errors: "+errors.length+". "+errors.slice(0,5).join(" | "));
       setImportRows([]);setImportErrors([]);setFileName("");setTab("bank");await loadQuestions();
