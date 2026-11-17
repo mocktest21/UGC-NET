@@ -2190,7 +2190,7 @@ button{font-family:var(--mm-font);font-weight:600}
 
 
 /* Paper-wise and unit-wise analysis cards — match supplied dashboard reference */
-.mm-paper-cards,.mm-unit-panel .mm-unit-cards{grid-template-columns:minmax(0,1fr);gap:12px}
+.mm-paper-cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.mm-unit-panel .mm-unit-cards{grid-template-columns:minmax(0,1fr);gap:12px}
 .mm-analysis-reference-card{padding:15px 16px;border:1px solid var(--border);border-radius:18px;background:var(--surface);box-shadow:0 2px 8px rgba(23,32,51,.025)}
 .mm-analysis-reference-card .mm-unit-card-heading{align-items:center;margin-bottom:13px}
 .mm-analysis-reference-card .mm-unit-card-heading h3{color:var(--ink);font-family:var(--font-poppins),Arial,sans-serif;font-size:15px;font-weight:750}
@@ -2210,7 +2210,7 @@ button{font-family:var(--mm-font);font-weight:600}
 .mm-unit-reference-card .mm-unit-coverage>span{background:var(--ok)}
 .mm-unit-reference-card>p{margin:8px 0 0;color:var(--muted);font-family:var(--font-poppins),Arial,sans-serif;font-size:12px}
 @media(max-width:600px){
- .mm-paper-cards,.mm-unit-panel .mm-unit-cards{gap:10px}
+ .mm-paper-cards,.mm-unit-panel .mm-unit-cards{gap:10px}.mm-paper-cards{grid-template-columns:1fr}
  .mm-analysis-reference-card{padding:14px 13px;border-radius:16px}
  .mm-analysis-reference-card .mm-unit-card-heading{margin-bottom:12px}
  .mm-analysis-reference-card .mm-unit-card-heading h3{font-size:14px}
