@@ -8,15 +8,6 @@ import StudentWorkspaceHeader from "@/components/navigation/StudentWorkspaceHead
 import {createSupabaseBrowserClient} from "@/lib/supabase/client";
 
 type Section="practice"|"live-test"|"personal-notebook";
-async function requestExamFullscreen(){
- if(typeof document==="undefined")return false;
- const root=document.documentElement;
- if(document.fullscreenElement)return true;
- if(!root.requestFullscreen)return false;
- try{await root.requestFullscreen({navigationUI:"hide"});return !!document.fullscreenElement;}
- catch{return false;}
-}
-
 type LiveTest={id:string;title:string;description:string|null;duration_seconds:number;total_marks:number;starts_at:string;ends_at:string;question_count:number};
 type LiveOverview={participant_count:number;my_score:number|null;my_rank:number|null;my_attempt_status:string|null};
 
@@ -28,10 +19,7 @@ function formatCountdown(target:number,now:number){
 }
 export default function StudentSectionPage({section}:{section:Section}){
  const router=useRouter();
- const [launchSeconds,setLaunchSeconds]=useState(0);
  const [name,setName]=useState("Student"),[loading,setLoading]=useState(true),[completedTests,setCompletedTests]=useState<LiveTest[]>([]),[liveTests,setLiveTests]=useState<LiveTest[]>([]),[overview,setOverview]=useState<Record<string,LiveOverview>>({}),[startingTest,setStartingTest]=useState(""),[startingSmartQuiz,setStartingSmartQuiz]=useState(false),[smartQuizCount,setSmartQuizCount]=useState(0),[error,setError]=useState(""),[currentTime,setCurrentTime]=useState(()=>Date.now());
- useEffect(()=>{if(launchSeconds<=0)return;const timer=window.setInterval(()=>{const deadline=Number(window.sessionStorage.getItem("mm-exam-start-deadline")||0);setLaunchSeconds(Math.max(0,Math.ceil((deadline-Date.now())/1000)));},200);return()=>window.clearInterval(timer);},[launchSeconds>0]);
- const beginExamLaunch=()=>{void requestExamFullscreen();window.sessionStorage.setItem("mm-exam-start-deadline",String(Date.now()+5000));setLaunchSeconds(5);};
  useEffect(()=>{if(section!=="live-test")return;const timer=window.setInterval(()=>setCurrentTime(Date.now()),1000);return()=>window.clearInterval(timer);},[section]);
  useEffect(()=>{let active=true;void(async()=>{
   const db=createSupabaseBrowserClient();
@@ -94,7 +82,6 @@ export default function StudentSectionPage({section}:{section:Section}){
  return <main className="mm-workspace-page">
   <StudentWorkspaceHeader name={name}/>
   <section className="mm-workspace-content">
-   <div className="mm-workspace-intro"><span>MOCKMASTER WORKSPACE</span><h1>{page.title}</h1><p>{page.subtitle}</p>{section==="practice"&&<div className="mm-practice-quick-actions"><Link className="mm-practice-builder-cta mm-practice-action-card" href="/practice/build-test"><span className="mm-practice-action-icon"><FileQuestion size={18}/></span><span className="mm-practice-action-copy"><strong>Build Your Own Test</strong><small>Create a test from your selected units</small></span><span className="mm-practice-action-arrow">→</span></Link><button className="mm-practice-smart-quiz-cta mm-practice-action-card" type="button" disabled={startingSmartQuiz||smartQuizCount===0} onClick={async()=>{beginExamLaunch();setError("");setStartingSmartQuiz(true);const db=createSupabaseBrowserClient();const {data,error}=await db.rpc("student_start_smart_quiz");setStartingSmartQuiz(false);if(error){window.sessionStorage.removeItem("mm-exam-start-deadline");setLaunchSeconds(0);setError(error.message);return;}const result=data as {test_id:string;attempt_id:string;duration_seconds:number};router.push("/practice/session?"+new URLSearchParams({test:result.test_id,attempt:result.attempt_id,minutes:String(Math.ceil(result.duration_seconds/60))}).toString());}}><span className="mm-practice-action-icon"><Sparkles size={18}/></span><span className="mm-practice-action-copy"><strong>{startingSmartQuiz?"Preparing Smart Quiz…":"Smart Quiz"}</strong><small>{smartQuizCount} incorrect question{smartQuizCount===1?"":"s"} to revise</small></span><span className="mm-practice-action-arrow">→</span></button></div>}</div>
    {section==="practice"&&<div className="mm-practice-dashboard">
     <div className="mm-practice-section-heading"><div><span>READY-MADE PRACTICE</span><h2>Previous Live Tests</h2><p>Completed live tests are available here to practise again.</p></div><span className="mm-practice-count">{completedTests.length} available</span></div>
     {error&&<div className="mm-workspace-error" role="alert">{error} <button type="button" onClick={()=>window.location.reload()}>Retry</button></div>}
@@ -104,7 +91,6 @@ export default function StudentSectionPage({section}:{section:Section}){
       {test.description&&<p className="mm-live-card-description">{test.description}</p>}
       <div className="mm-live-card-stats"><span><FileQuestion size={14}/>{test.question_count} Qs</span><span><Clock3 size={14}/>{Math.ceil(test.duration_seconds/60)} min</span></div>
       <button type="button" disabled={startingTest===test.id} onClick={async()=>{
-        beginExamLaunch();setError("");setStartingTest(test.id);
         const db=createSupabaseBrowserClient();
         const {data,error}=await db.rpc("student_start_completed_live_test",{p_source_live_test_id:test.id});
         setStartingTest("");
@@ -139,12 +125,10 @@ export default function StudentSectionPage({section}:{section:Section}){
           </div>}
           {kind==="upcoming"&&<div className="mm-live-action-placeholder">Scheduled test</div>}
           {kind==="active"&&<button type="button" disabled={startingTest===test.id} onClick={async()=>{
-            beginExamLaunch();
             setError("");setStartingTest(test.id);
             const db=createSupabaseBrowserClient();
             const {data,error}=await db.rpc("student_start_live_test",{p_test_id:test.id});
             setStartingTest("");
-            if(error){window.sessionStorage.removeItem("mm-exam-start-deadline");setLaunchSeconds(0);setError(error.message);return;}
             const result=data as {test_id:string;attempt_id:string;duration_seconds:number};
             router.push("/practice/session?"+new URLSearchParams({test:result.test_id,attempt:result.attempt_id,minutes:String(Math.ceil(result.duration_seconds/60))}).toString());
           }}><span>{startingTest===test.id?"Preparing…":"Start test"}</span></button>}
@@ -169,6 +153,5 @@ export default function StudentSectionPage({section}:{section:Section}){
    </div>}
    {section==="personal-notebook"&&<div className="mm-workspace-empty"><span>✎</span><h2>Your notebook is ready</h2><p>Saved notes and bookmarked questions will appear here.</p></div>}
   </section><footer className="mm-workspace-footer">© {new Date().getFullYear()} MockMaster <span>Practice. Improve. Achieve.</span></footer>
-  {launchSeconds>0&&<div className="mm-exam-launch-screen" role="status"><div className="mm-exam-launch-brand">M</div><div className="mm-exam-launch-count">{launchSeconds}</div><h1>Get ready for your test</h1><p>Preparing your questions and exam workspace…</p><div className="mm-exam-launch-dots"><i/><i/><i/></div></div>}
  </main>;
 }
