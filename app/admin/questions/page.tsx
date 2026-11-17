@@ -278,7 +278,9 @@ export default function AdminQuestionsPage() {
     try {
       const buffer = await file.arrayBuffer();
       const workbook = XLSX.read(buffer, { type: "array" });
-      const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+      const uploadSheetName = workbook.SheetNames.find((name) => name.trim().toLowerCase() === "final upload");
+      const selectedSheetName = uploadSheetName || workbook.SheetNames[0];
+      const firstSheet = workbook.Sheets[selectedSheetName];
       const rawRows = XLSX.utils.sheet_to_json<ImportRow>(firstSheet, { defval: "", raw: false });
       const rows = rawRows.map((row) => Object.fromEntries(Object.entries(row).map(([key, value]) => [key.trim().toLowerCase(), value])) as ImportRow);
       const required = ["question", "exam_id", "paper_id", "subject_id"];
