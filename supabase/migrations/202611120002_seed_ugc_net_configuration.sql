@@ -64,7 +64,8 @@ with unit_seed(subject_code,unit_number,name) as (
  ('00',7,'Data Interpretation'),
  ('00',8,'Information and Communication Technology (ICT)'),
  ('00',9,'People, Development and Environment'),
- ('00',10,'Higher Education System')
+ ('00',10,'Higher Education System'),
+ ('00',11,'Misc')
 )
 insert into public.units(subject_id,unit_number,code,name,description,is_active,display_order)
 select s.id,u.unit_number,'UNIT_'||lpad(u.unit_number::text,2,'0'),u.name,'UGC-NET Paper 1 syllabus unit.',true,u.unit_number
