@@ -46,7 +46,7 @@ export default function MockMasterLoading({variant="workspace",message,title="Ge
     <span className="mm-loading-orbit"><i/></span>
     <strong>{title}</strong>
     <p>{message||messages[messageIndex]}</p>
-    {takingLonger&&<div className="mm-loading-slow" role="status"><b>Taking longer than expected…</b><span>Please check your internet connection. We're still trying to load your content.</span><small>If this continues, try refreshing the page.</small></div>}
+    {takingLonger&&<div className="mm-loading-slow" role="status"><b>Taking longer than expected…</b><span>Please check your internet connection. Your data is safe. Please check your internet connection while we continue loading.</span><small>If this continues, refresh the page and try again.</small></div>}
    </div>
   </section>
  </main>;
