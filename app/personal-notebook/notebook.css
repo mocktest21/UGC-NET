@@ -43,3 +43,26 @@
 }
 .mn-explanation>b{font-size:12px;font-weight:800;color:var(--primary-hover)}
 .mn-explanation p{margin:6px 0 0;font-size:12px;line-height:1.7;white-space:pre-wrap}
+
+
+/* Smart Quiz launcher in Personal Notebook */
+.mn-smart-quiz{
+ display:flex;align-items:center;justify-content:space-between;gap:16px;
+ margin:18px 0 16px;padding:16px 18px;border:1px solid var(--primary-border);
+ border-radius:14px;background:var(--primary-tint)
+}
+.mn-smart-quiz>div{display:flex;min-width:0;flex-direction:column;gap:3px}
+.mn-smart-quiz>div>span{color:var(--primary);font-size:9px;font-weight:850;letter-spacing:1.1px}
+.mn-smart-quiz>div>strong{color:var(--ink);font-size:15px;font-weight:800}
+.mn-smart-quiz>div>small{color:var(--muted);font-size:11px}
+.mn-smart-quiz>button{
+ display:inline-flex;align-items:center;justify-content:center;gap:8px;flex:0 0 auto;
+ min-height:42px;padding:0 15px;border:0;border-radius:10px;
+ background:var(--primary);color:#fff;font-size:11px;font-weight:800;cursor:pointer
+}
+.mn-smart-quiz>button:hover:not(:disabled){background:var(--primary-hover)}
+.mn-smart-quiz>button:disabled{opacity:.5;cursor:not-allowed}
+@media(max-width:560px){
+ .mn-smart-quiz{align-items:stretch;flex-direction:column;gap:12px;padding:14px}
+ .mn-smart-quiz>button{width:100%;min-height:44px}
+}
