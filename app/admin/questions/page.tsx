@@ -7,7 +7,7 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import "./admin-questions.css";
 
 type Taxonomy = { id: string; code?: string | null; name: string; paper_id?: string; subject_id?: string; unit_id?: string; unit_number?: number | null };
-type QuestionRow = { id: string; status: string; question_type: string; difficulty: string | null; created_at: string };
+type QuestionRow = { id: string; status: string; question_type: string; difficulty: string | null; created_at: string; paper_id:string; unit_id:string|null; subject_id:string; question_text:string; paper_name:string; unit_name:string };
 type ImportRow = Record<string, unknown>;
 
 const QUESTION_TYPES = [
@@ -29,7 +29,7 @@ export default function AdminQuestionsPage() {
   const [subjects, setSubjects] = useState<Taxonomy[]>([]);
   const [units, setUnits] = useState<Taxonomy[]>([]);
   const [topics, setTopics] = useState<Taxonomy[]>([]);
-  const [questions, setQuestions] = useState<QuestionRow[]>([]);
+  const [questions, setQuestions] = useState<QuestionRow[]>([]);\n  const [bankPaperFilter,setBankPaperFilter]=useState("");\n  const [bankUnitFilter,setBankUnitFilter]=useState("");\n  const [bankUnits,setBankUnits]=useState<Taxonomy[]>([]);\n  const [deletingQuestion,setDeletingQuestion]=useState<string|null>(null);
   const [selectedForApproval, setSelectedForApproval] = useState<string[]>([]);
   const [selectedForReview, setSelectedForReview] = useState<string[]>([]);
   const [bulkSendingForReview, setBulkSendingForReview] = useState(false);
@@ -123,15 +123,33 @@ export default function AdminQuestionsPage() {
 
   async function loadQuestions() {
     setLoadingBank(true);
-    let query = supabase.from("questions").select("id,status,question_type,difficulty,created_at").order("created_at", { ascending: false }).limit(200);
+    let query = supabase.from("questions").select("id,status,question_type,difficulty,created_at,paper_id,unit_id,subject_id").order("created_at", { ascending: false }).limit(500);
     if (statusFilter !== "all") query = query.eq("status", statusFilter);
+    if (bankPaperFilter) query=query.eq("paper_id",bankPaperFilter);
+    if (bankUnitFilter) query=query.eq("unit_id",bankUnitFilter);
     const { data, error } = await query;
-    if (error) setMessage(error.message);
-    else setQuestions((data || []) as QuestionRow[]);
+    if (error) {setMessage(error.message);setLoadingBank(false);return;}
+    const rows=(data||[]) as any[];
+    const ids=rows.map(q=>q.id);
+    const [{data:versions,error:versionError},{data:paperRows},{data:subjectRows}]=await Promise.all([
+      ids.length?supabase.from("question_versions").select("question_id,version_number,prompt").in("question_id",ids).order("version_number",{ascending:false}):Promise.resolve({data:[],error:null}),
+      supabase.from("papers").select("id,name"),
+      supabase.from("subjects").select("id,name")
+    ]);
+    if(versionError){setMessage(versionError.message);setLoadingBank(false);return;}
+    const latest=new Map<string,any>();(versions||[]).forEach((v:any)=>{if(!latest.has(v.question_id))latest.set(v.question_id,v);});
+    const paperMap=new Map((paperRows||[]).map((x:any)=>[x.id,x.name]));
+    const subjectMap=new Map((subjectRows||[]).map((x:any)=>[x.id,x.name]));
+    const unitMap=new Map(bankUnits.map(x=>[x.id,x]));
+    setQuestions(rows.map(q=>({ ...q,
+      question_text:String(latest.get(q.id)?.prompt?.stem?.text||latest.get(q.id)?.prompt?.text||latest.get(q.id)?.prompt?.stem||"Question text unavailable"),
+      paper_name:String(paperMap.get(q.paper_id)||"Paper"),
+      unit_name:q.unit_id?String(unitMap.get(q.unit_id)?.name||"Unit"): "Unassigned"
+    })) as QuestionRow[]);
     setLoadingBank(false);
   }
 
-  useEffect(() => { if (admin) void loadQuestions(); }, [admin, statusFilter]);
+  useEffect(() => { if (admin) void loadQuestions(); }, [admin, statusFilter, bankPaperFilter, bankUnitFilter, bankUnits]);
 
   useEffect(() => {
     const reviewIds = new Set(questions.filter((q) => q.status === "in_review").map((q) => q.id));
@@ -190,6 +208,20 @@ export default function AdminQuestionsPage() {
     const failed = Array.isArray(data?.errors) ? data.errors : [];
     setSelectedForReview([]);
     setMessage(`Bulk send to review complete. Sent: ${sent}. Failed: ${failed.length}. ${failed.slice(0, 3).map((item: any) => `Question ${String(item.question_id).slice(0, 8)}: ${item.message}`).join(" | ")}`);
+    await loadQuestions();
+  }
+
+  async function deleteQuestion(questionId:string) {
+    const row=questions.find(q=>q.id===questionId);
+    if(!row||deletingQuestion)return;
+    if(!window.confirm("Permanently delete this uploaded question? This cannot be undone. Questions already attached to a test cannot be deleted."))return;
+    setDeletingQuestion(questionId);setMessage("");
+    const {data,error}=await supabase.rpc("admin_delete_question",{p_question_id:questionId});
+    setDeletingQuestion(null);
+    if(error){setMessage(error.message);return;}
+    setMessage("Question permanently deleted from the question bank.");
+    setSelectedForApproval(current=>current.filter(id=>id!==questionId));
+    setSelectedForReview(current=>current.filter(id=>id!==questionId));
     await loadQuestions();
   }
 
@@ -385,10 +417,10 @@ export default function AdminQuestionsPage() {
           </div>
 
           {tab === "bank" && <section className="aq-card">
-            <div className="aq-card-heading"><div><h2>Question repository</h2><p>Latest 200 records across your question bank.</p></div><button className="aq-secondary" onClick={() => void loadQuestions()}>↻ Refresh</button></div>
-            <div className="aq-toolbar"><input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search ID, type or status…" /><select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}><option value="all">All statuses</option><option value="draft">Draft</option><option value="in_review">In review</option><option value="approved">Approved</option><option value="archived">Archived</option></select></div>
+            <div className="aq-card-heading"><div><h2>Question repository</h2><p>Uploaded questions with paper-wise and unit-wise filtering. Showing up to 500 matching records.</p></div><button className="aq-secondary" onClick={() => void loadQuestions()}>↻ Refresh</button></div>
+            <div className="aq-toolbar aq-bank-filters"><input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search question text, ID, type or status…" /><select aria-label="Filter by paper" value={bankPaperFilter} onChange={e=>{setBankPaperFilter(e.target.value);setBankUnitFilter("");}}><option value="">All papers</option>{papers.map(x=><option key={x.id} value={x.id}>{x.name}</option>)}</select><select aria-label="Filter by unit" value={bankUnitFilter} onChange={e=>setBankUnitFilter(e.target.value)}><option value="">All units</option>{bankUnits.filter(x=>!bankPaperFilter||subjects.some(s=>s.id===x.subject_id)).map(x=><option key={x.id} value={x.id}>Unit {x.unit_number}: {x.name}</option>)}</select><select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}><option value="all">All statuses</option><option value="draft">Draft</option><option value="in_review">In review</option><option value="approved">Approved</option><option value="archived">Archived</option></select></div>
             {(selectedForApproval.length > 0 || selectedForReview.length > 0) && <div className="aq-form-footer"><p>{selectedForReview.length} draft(s) selected · {selectedForApproval.length} in-review question(s) selected.</p><div className="aq-row-actions">{selectedForReview.length > 0 && <button className="aq-primary" onClick={() => void bulkSendToReview()} disabled={bulkSendingForReview}>{bulkSendingForReview ? "Sending…" : `Send to review (${selectedForReview.length})`}</button>}{selectedForApproval.length > 0 && <button className="aq-primary" onClick={() => void bulkApproveSelected()} disabled={bulkApproving}>{bulkApproving ? "Approving…" : `Approve selected (${selectedForApproval.length})`}</button>}</div></div>}
-            {loadingBank ? <div className="aq-empty">Loading question bank…</div> : filteredQuestions.length ? <div className="aq-table-wrap"><table className="aq-table"><thead><tr><th><input aria-label="Select all draft and in-review questions" type="checkbox" checked={filteredQuestions.some((q) => q.status === "draft" || q.status === "in_review") && filteredQuestions.filter((q) => q.status === "draft" || q.status === "in_review").every((q) => q.status === "draft" ? selectedForReview.includes(q.id) : selectedForApproval.includes(q.id))} onChange={(e) => { const eligible = filteredQuestions.filter((q) => q.status === "draft" || q.status === "in_review"); setSelectedForReview(e.target.checked ? eligible.filter((q) => q.status === "draft").map((q) => q.id) : []); setSelectedForApproval(e.target.checked ? eligible.filter((q) => q.status === "in_review").map((q) => q.id) : []); }} /></th><th>Question ID</th><th>Question type</th><th>Difficulty</th><th>Status</th><th>Created</th><th>Review action</th></tr></thead><tbody>{filteredQuestions.map((q) => <tr key={q.id}><td>{q.status === "draft" ? <input aria-label={`Select draft question ${q.id}`} type="checkbox" checked={selectedForReview.includes(q.id)} onChange={(e) => setSelectedForReview((current) => e.target.checked ? [...current, q.id] : current.filter((id) => id !== q.id))} /> : q.status === "in_review" ? <input aria-label={`Select question for approval ${q.id}`} type="checkbox" checked={selectedForApproval.includes(q.id)} onChange={(e) => setSelectedForApproval((current) => e.target.checked ? [...current, q.id] : current.filter((id) => id !== q.id))} /> : null}</td><td><code>{q.id.slice(0, 8)}…</code></td><td>{q.question_type.replaceAll("_", " ")}</td><td>{q.difficulty || "—"}</td><td><span className={`aq-status aq-${q.status}`}>{q.status.replaceAll("_", " ")}</span></td><td>{new Date(q.created_at).toLocaleDateString()}</td><td><div className="aq-row-actions">{q.status === "draft" && <button onClick={() => void changeQuestionStatus(q.id, "in_review")}>Send to review</button>}{q.status === "in_review" && <><button onClick={() => void changeQuestionStatus(q.id, "approved")}>Approve</button><button onClick={() => void changeQuestionStatus(q.id, "draft")}>Return to draft</button></>}{q.status === "approved" && <button onClick={() => void changeQuestionStatus(q.id, "in_review")}>Reopen review</button>}{q.status !== "archived" && <button onClick={() => void changeQuestionStatus(q.id, "archived")}>Archive</button>}</div></td></tr>)}</tbody></table></div> : <div className="aq-empty"><span>▦</span><b>Your question bank is ready</b><p>No questions match this view. Add a question or import an Excel workbook to get started.</p><button className="aq-primary" onClick={() => setTab("create")}>Add your first question</button></div>}
+            {loadingBank ? <div className="aq-empty">Loading question bank…</div> : filteredQuestions.length ? <div className="aq-table-wrap"><table className="aq-table"><thead><tr><th><input aria-label="Select all draft and in-review questions" type="checkbox" checked={filteredQuestions.some((q) => q.status === "draft" || q.status === "in_review") && filteredQuestions.filter((q) => q.status === "draft" || q.status === "in_review").every((q) => q.status === "draft" ? selectedForReview.includes(q.id) : selectedForApproval.includes(q.id))} onChange={(e) => { const eligible = filteredQuestions.filter((q) => q.status === "draft" || q.status === "in_review"); setSelectedForReview(e.target.checked ? eligible.filter((q) => q.status === "draft").map((q) => q.id) : []); setSelectedForApproval(e.target.checked ? eligible.filter((q) => q.status === "in_review").map((q) => q.id) : []); }} /></th><th>Question</th><th>Paper</th><th>Unit</th><th>Type</th><th>Difficulty</th><th>Status</th><th>Created</th><th>Actions</th></tr></thead><tbody>{filteredQuestions.map((q) => <tr key={q.id}><td>{q.status === "draft" ? <input aria-label={`Select draft question ${q.id}`} type="checkbox" checked={selectedForReview.includes(q.id)} onChange={(e) => setSelectedForReview((current) => e.target.checked ? [...current, q.id] : current.filter((id) => id !== q.id))} /> : q.status === "in_review" ? <input aria-label={`Select question for approval ${q.id}`} type="checkbox" checked={selectedForApproval.includes(q.id)} onChange={(e) => setSelectedForApproval((current) => e.target.checked ? [...current, q.id] : current.filter((id) => id !== q.id))} /> : null}</td><td className="aq-question-cell"><div>{q.question_text}</div><small><code>{q.id.slice(0,8)}…</code></small></td><td>{q.paper_name}</td><td>{q.unit_name}</td><td>{q.question_type.replaceAll("_", " ")}</td><td>{q.difficulty || "—"}</td><td><span className={`aq-status aq-${q.status}`}>{q.status.replaceAll("_", " ")}</span></td><td>{new Date(q.created_at).toLocaleDateString()}</td><td><div className="aq-row-actions">{q.status === "draft" && <button onClick={() => void changeQuestionStatus(q.id, "in_review")}>Send to review</button>}{q.status === "in_review" && <><button onClick={() => void changeQuestionStatus(q.id, "approved")}>Approve</button><button onClick={() => void changeQuestionStatus(q.id, "draft")}>Return to draft</button></>}{q.status === "approved" && <button onClick={() => void changeQuestionStatus(q.id, "in_review")}>Reopen review</button>}{q.status !== "archived" && <button onClick={() => void changeQuestionStatus(q.id, "archived")}>Archive</button>}<button className="aq-delete-button" disabled={deletingQuestion===q.id} onClick={()=>void deleteQuestion(q.id)}>{deletingQuestion===q.id?"Deleting…":"Delete"}</button></div></td></tr>)}</tbody></table></div> : <div className="aq-empty"><span>▦</span><b>Your question bank is ready</b><p>No questions match this view. Add a question or import an Excel workbook to get started.</p><button className="aq-primary" onClick={() => setTab("create")}>Add your first question</button></div>}
           </section>}
 
           {tab === "create" && <form className="aq-card aq-form" onSubmit={createQuestion}>
