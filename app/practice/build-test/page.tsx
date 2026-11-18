@@ -34,22 +34,59 @@ export default function StudentBuildTestPage(){
  const [source,setSource]=useState("all");
  const [busy,setBusy]=useState(false);
 
- useEffect(()=>{if(!supabase)return;let live=true;(async()=>{
-  const {data,error}=await db.auth.getUser();if(error||!data.user){router.replace("/login");return;}
-  const {data:exam}=await db.from("exams").select("id").eq("code","UGC_NET").eq("is_active",true).maybeSingle();
-  if(!exam){if(live)setLoading(false);return;}setExamId(exam.id);
-  const {data:paperRows}=await db.from("papers").select("id,name,code").eq("exam_id",exam.id).eq("is_active",true).order("display_order");
-  const {data:preference}=await db.from("student_exam_preferences").select("selected_subject_id").eq("student_id",data.user.id).eq("exam_id",exam.id).maybeSingle();
-  const preferred=window.sessionStorage.getItem("mm-practice-subject")||preference?.selected_subject_id||"";
-  const preferredPaperId=window.sessionStorage.getItem("mm-practice-paper")||"";
-  let preferredSubject:any=null;
-  if(preferred){const {data:subject}=await db.from("subjects").select("id,paper_id").eq("id",preferred).maybeSingle();preferredSubject=subject;if(subject&&live){setPreferredSubjectId(subject.id);setPreferredSubjectPaperId(subject.paper_id);}}
-  const allowed=(paperRows||[]) as Row[];
-  if(live){setPapers(allowed as Row[]);if(preferredSubject&&(!preferredPaperId||preferredPaperId===preferredSubject.paper_id)){setPaperId(preferredSubject.paper_id);setSubjectId(preferredSubject.id);}else if(preferredPaperId&&allowed.some((p:any)=>p.id===preferredPaperId)){setPaperId(preferredPaperId);setSubjectId(preferredSubject?.paper_id===preferredPaperId?preferredSubject.id:"");}else if(allowed[0]){setPaperId(allowed[0].id);setSubjectId(preferredSubject?.paper_id===allowed[0].id?preferredSubject.id:"");}window.sessionStorage.removeItem("mm-practice-paper");}
-  if(live)setLoading(false);
- })();return()=>{live=false;};},[router,supabase]);
+ useEffect(()=>{
+  let live=true;
+  const loadBuilder=async()=>{
+   if(!supabase){
+    if(live){setError("The practice builder could not connect. Please refresh the page.");setLoading(false);}
+    return;
+   }
+   try{
+    const {data:authData,error:authError}=await db.auth.getUser();
+    if(authError)throw authError;
+    if(!authData.user){router.replace("/login");return;}
+    const {data:exam,error:examError}=await db.from("exams").select("id").eq("code","UGC_NET").eq("is_active",true).maybeSingle();
+    if(examError)throw examError;
+    if(!exam){if(live)setError("UGC NET is not available right now. Please try again later.");return;}
+    if(live)setExamId(exam.id);
+    const [{data:paperRows,error:paperError},{data:preference,error:preferenceError}]=await Promise.all([
+     db.from("papers").select("id,name,code").eq("exam_id",exam.id).eq("is_active",true).order("display_order"),
+     db.from("student_exam_preferences").select("selected_subject_id").eq("student_id",authData.user.id).eq("exam_id",exam.id).maybeSingle()
+    ]);
+    if(paperError)throw paperError;
+    if(preferenceError)throw preferenceError;
+    const preferred=window.sessionStorage.getItem("mm-practice-subject")||preference?.selected_subject_id||"";
+    const preferredPaperId=window.sessionStorage.getItem("mm-practice-paper")||"";
+    let preferredSubject: {id:string;paper_id:string}|null=null;
+    if(preferred){
+     const {data:subject,error:subjectError}=await db.from("subjects").select("id,paper_id").eq("id",preferred).maybeSingle();
+     if(subjectError)throw subjectError;
+     preferredSubject=subject;
+     if(subject&&live){setPreferredSubjectId(subject.id);setPreferredSubjectPaperId(subject.paper_id);}
+    }
+    const allowed=(paperRows||[]) as Row[];
+    if(live){
+     setPapers(allowed);
+     if(preferredSubject&&(!preferredPaperId||preferredPaperId===preferredSubject.paper_id)){
+      setPaperId(preferredSubject.paper_id);setSubjectId(preferredSubject.id);
+     }else if(preferredPaperId&&allowed.some(p=>p.id===preferredPaperId)){
+      setPaperId(preferredPaperId);setSubjectId(preferredSubject?.paper_id===preferredPaperId?preferredSubject.id:"");
+     }else if(allowed[0]){
+      setPaperId(allowed[0].id);setSubjectId(preferredSubject?.paper_id===allowed[0].id?preferredSubject.id:"");
+     }
+     window.sessionStorage.removeItem("mm-practice-paper");
+    }
+   }catch(loadError){
+    if(live)setError(loadError instanceof Error?loadError.message:"Unable to load the practice builder. Please try again.");
+   }finally{
+    if(live)setLoading(false);
+   }
+  };
+  void loadBuilder();
+  return()=>{live=false;};
+},[router,supabase]);
 
- useEffect(()=>{if(!supabase||!paperId){setSubjectId("");setUnits([]);setUnitIds([]);setSubjectReadyForPaper("");return;}let live=true;setSubjectReadyForPaper("");setSubjectId("");setUnits([]);setUnitIds([]);setUnitCounts({});setAvailable(0);void(async()=>{
+useEffect(()=>{if(!supabase||!paperId){setSubjectId("");setUnits([]);setUnitIds([]);setSubjectReadyForPaper("");return;}let live=true;setSubjectReadyForPaper("");setSubjectId("");setUnits([]);setUnitIds([]);setUnitCounts({});setAvailable(0);void(async()=>{
   const {data,error}=await db.from("subjects").select("id,paper_id,code,name").eq("paper_id",paperId).eq("is_active",true).order("display_order");
   if(!live)return;
   if(error){setError(error.message);setSubjectId("");setSubjectReadyForPaper(paperId);return;}
@@ -101,7 +138,7 @@ export default function StudentBuildTestPage(){
   const params=new URLSearchParams({test:result.test_id,attempt:result.attempt_id,minutes:String(minutes)});
   router.push("/practice/session?"+params.toString());
  }
- if(loading)return <MockMasterLoading variant="builder" title="Preparing your practice test builder"/>;
+ if(loading)return <MockMasterLoading variant="builder" title="Preparing your practice test builder" message="Sit back and relax — we’re loading your papers, subjects and available questions."/>
  return <main className="sb-page">
   <StudentWorkspaceHeader/>
   <div className="sb-layout"><section className="sb-main">
