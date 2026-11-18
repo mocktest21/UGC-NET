@@ -1,5 +1,6 @@
 "use client";
 import StudentWorkspaceHeader from "@/components/navigation/StudentWorkspaceHeader";
+import MockMasterLoading from "@/app/components/ui/MockMasterLoading";
 import {Check} from "lucide-react";
 
 import { useEffect, useMemo, useState } from "react";
@@ -100,7 +101,7 @@ export default function StudentBuildTestPage(){
   const params=new URLSearchParams({test:result.test_id,attempt:result.attempt_id,minutes:String(minutes)});
   router.push("/practice/session?"+params.toString());
  }
- if(loading)return <main className="sb-state">Loading your practice builder…</main>;
+ if(loading)return <MockMasterLoading variant="builder" title="Preparing your practice test builder"/>;
  return <main className="sb-page">
   <StudentWorkspaceHeader/>
   <div className="sb-layout"><section className="sb-main">
