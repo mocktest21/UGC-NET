@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import Image from "next/image";
 import { Target, GraduationCap, BookOpen, BriefcaseBusiness, Award, Laptop, ArrowRight } from "lucide-react";
 import "./about.css";
 
@@ -52,7 +51,7 @@ export default function About() {
         {founders.map((founder) => (
           <article className="founder-card" key={founder.name}>
             <div className="founder-photo">
-              <Image src={founder.image} alt={founder.imageAlt} fill sizes="(max-width: 760px) 80vw, 300px" priority />
+              <div className="founder-photo-fallback" role="img" aria-label={founder.imageAlt}>{founder.name.split(" ").map((part) => part[0]).join("")}</div>
             </div>
             <div className="founder-info">
               <h2>{founder.name}</h2>
