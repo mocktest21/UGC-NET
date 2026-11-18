@@ -5,6 +5,7 @@ import {useEffect,useState} from "react";
 import {useRouter} from "next/navigation";
 import {CalendarDays,Clock3,FileQuestion,Users,Trophy,Medal,Sparkles} from "lucide-react";
 import StudentWorkspaceHeader from "@/components/navigation/StudentWorkspaceHeader";
+import MockMasterLoading from "@/app/components/ui/MockMasterLoading";
 import {createSupabaseBrowserClient} from "@/lib/supabase/client";
 
 type Section="practice"|"live-test"|"personal-notebook";
@@ -77,7 +78,7 @@ export default function StudentSectionPage({section}:{section:Section}){
   if(active)setLoading(false);
  })().catch(e=>{if(active){setError(e instanceof Error?e.message:"Unable to load your workspace.");setLoading(false);}});
  return()=>{active=false;};},[router,section]);
- if(loading)return <main className="mm-loading"><span className="mm-loading-mark">M</span><p>Loading your MockMaster workspace...</p></main>;
+ if(loading)return <MockMasterLoading variant={section==="practice"?"builder":section==="personal-notebook"?"notebook":"workspace"} title={section==="practice"?"Preparing your practice centre":section==="live-test"?"Loading scheduled tests":"Opening your personal notebook"}/>;
  const page=content[section];
  return <main className="mm-workspace-page">
   <StudentWorkspaceHeader name={name}/>
