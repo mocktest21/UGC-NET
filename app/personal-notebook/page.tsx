@@ -24,9 +24,9 @@ export default function PersonalNotebookPage(){
   setStudentId(auth.user.id);
   const {data,error:rpcError}=await db.rpc("student_get_personal_notebook");
   if(rpcError){setError("Notebook data could not be loaded. Please retry. "+rpcError.message);setLoading(false);return;}
-  const payload=data as {bookmarks?:Q[];incorrect?:Q[]};
+  const payload=data as {bookmarks?:Q[];incorrect?:Q[];correct?:Q[]};
   setBookmarks(payload.bookmarks||[]);
-  setIncorrect(payload.incorrect||[]);
+  setIncorrect(payload.incorrect||[]);\n  setCorrect(payload.correct||[]);
   setLoading(false);
   }catch(loadError){setError(loadError instanceof Error?loadError.message:"Notebook could not be loaded. Please retry.");setLoading(false);}
  },[router]);
