@@ -2358,3 +2358,61 @@ button{font-family:var(--mm-font);font-weight:600}
 .mm-practice-quick-actions .mm-practice-action-copy{flex:1 1 auto;text-align:left;color:var(--ink);font-size:inherit}
 .mm-practice-quick-actions .mm-practice-action-arrow{flex:0 0 auto;text-align:center;font-size:17px;color:var(--primary)}
 @media(max-width:600px){.mm-practice-quick-actions .mm-practice-action-arrow{font-size:14px}}
+
+
+/* MockMaster shared skeleton loading system */
+.mm-loading-screen{min-height:100vh;background:var(--bg-page,#fff9ee);color:var(--ink,#172b3a);font-family:var(--font-poppins),Arial,sans-serif}
+.mm-loading-topbar{height:64px;padding:0 clamp(18px,5vw,64px);display:flex;align-items:center;gap:28px;background:#fff;border-bottom:1px solid var(--border,#eee5d8)}
+.mm-loading-brand{display:flex;align-items:center;gap:9px}
+.mm-loading-brand span{width:34px;height:34px;border-radius:10px;background:#0f766e;color:#fff;display:grid;place-items:center;font-weight:900}
+.mm-loading-brand i,.mm-loading-profile,.mm-loading-nav i,.mm-loading-toolbar i,.mm-loading-table-row i,.mm-loading-list-row i,.mm-loading-stats i,.mm-loading-stats b,.mm-loading-summary i,.mm-loading-summary b,.mm-loading-papers i,.mm-loading-units i,.mm-loading-controls i{display:block;background:#e8e4dc;border-radius:8px}
+.mm-loading-brand i{width:92px;height:13px}
+.mm-loading-nav{display:flex;align-items:center;gap:20px;margin:auto}
+.mm-loading-nav i{width:62px;height:9px}
+.mm-loading-profile{width:78px;height:32px}
+.mm-loading-content{width:min(1120px,calc(100% - 36px));margin:0 auto;padding:30px 0 48px}
+.mm-loading-heading{margin-bottom:24px}
+.mm-skeleton{position:relative;overflow:hidden;background:#ebe7df;border-radius:8px}
+.mm-skeleton:after,.mm-loading-brand i:after,.mm-loading-profile:after,.mm-loading-nav i:after,.mm-loading-table-row i:after,.mm-loading-table-row span:after,.mm-loading-list-row i:after,.mm-loading-list-row span:after,.mm-loading-list-row b:after,.mm-loading-stats i:after,.mm-loading-stats b:after,.mm-loading-toolbar i:after,.mm-loading-papers i:after,.mm-loading-units i:after,.mm-loading-controls i:after,.mm-loading-summary i:after,.mm-loading-summary b:after{content:"";display:block;height:100%;width:45%;background:linear-gradient(90deg,transparent,#ffffff9c,transparent);transform:translateX(-150%);animation:mm-skeleton-shimmer 1.55s ease-in-out infinite}
+.mm-sk-title{height:23px;width:min(270px,55%);margin-bottom:10px}
+.mm-sk-subtitle{height:10px;width:min(390px,78%)}
+.mm-loading-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:18px}
+.mm-loading-panel{background:#fff;border:1px solid var(--border,#eee5d8);border-radius:15px;padding:18px;box-shadow:0 3px 12px #31200a05}
+.mm-loading-stats .mm-loading-panel{height:104px;display:flex;flex-direction:column;justify-content:space-between}
+.mm-loading-stats i{height:11px;width:44%}
+.mm-loading-stats b{height:24px;width:35%}
+.mm-loading-wide{min-height:220px}
+.mm-sk-label{height:12px;width:125px;margin-bottom:20px}
+.mm-loading-list-row{display:flex;align-items:center;gap:14px;padding:13px 0;border-bottom:1px solid #f0ece5}
+.mm-loading-list-row i{width:32px;height:32px;flex:none}
+.mm-loading-list-row span{height:10px;width:48%;border-radius:6px;background:#ebe7df}
+.mm-loading-list-row b{height:10px;width:14%;margin-left:auto;border-radius:6px;background:#ebe7df}
+.mm-loading-builder{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:16px}
+.mm-loading-papers,.mm-loading-controls{display:flex;gap:9px;margin:12px 0 22px}
+.mm-loading-papers i{height:34px;width:90px}
+.mm-loading-units{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin:12px 0 22px}
+.mm-loading-units i{height:62px}
+.mm-loading-controls i{height:34px;width:62px}
+.mm-loading-summary{display:flex;flex-direction:column;gap:14px;min-height:210px}
+.mm-loading-summary i{height:10px;width:100%}
+.mm-loading-summary b{height:42px;width:100%;margin-top:auto}
+.mm-loading-toolbar{display:flex;gap:10px;margin-bottom:18px}
+.mm-loading-toolbar i{height:34px;width:100px}
+.mm-loading-table-row{display:grid;grid-template-columns:28px minmax(0,2fr) repeat(3,minmax(0,1fr)) 28px;gap:12px;align-items:center;padding:13px 0;border-top:1px solid #f0ece5}
+.mm-loading-table-row i{height:16px;width:16px}
+.mm-loading-table-row span{height:10px;border-radius:6px;background:#ebe7df}
+.mm-loading-session{background:#fff;border:1px solid var(--border,#eee5d8);border-radius:16px;padding:24px;max-width:760px}
+.mm-sk-question-meta{height:12px;width:45%;margin-bottom:22px}
+.mm-sk-question{height:54px;width:90%;margin-bottom:22px}
+.mm-sk-option{height:48px;width:100%;margin:10px 0}
+.mm-loading-message{display:flex;flex-direction:column;align-items:center;text-align:center;margin:32px auto 0;max-width:540px}
+.mm-loading-orbit{width:26px;height:26px;border:3px solid #99f6e4;border-top-color:#0f766e;border-radius:50%;animation:mm-loading-spin .9s linear infinite;margin-bottom:12px}
+.mm-loading-message strong{font-size:14px;font-weight:800}
+.mm-loading-message p{margin:5px 0 0;color:#64748b;font-size:12px}
+.mm-loading-slow{display:flex;flex-direction:column;gap:4px;margin-top:16px;padding:12px 16px;border:1px solid #f1d39b;background:#fff8e8;border-radius:11px;color:#7c4a12;font-size:11px}
+.mm-loading-slow b{font-size:12px}
+.mm-loading-slow small{color:#916b37}
+@keyframes mm-skeleton-shimmer{to{transform:translateX(320%)}}
+@keyframes mm-loading-spin{to{transform:rotate(360deg)}}
+@media(max-width:700px){.mm-loading-nav{display:none}.mm-loading-profile{margin-left:auto}.mm-loading-content{padding-top:22px}.mm-loading-stats{gap:8px}.mm-loading-stats .mm-loading-panel{height:86px;padding:12px}.mm-loading-builder{grid-template-columns:1fr}.mm-loading-summary{display:none}.mm-loading-units{grid-template-columns:repeat(2,minmax(0,1fr))}.mm-loading-table-row{grid-template-columns:20px minmax(0,2fr) repeat(2,minmax(0,1fr)) 20px}.mm-loading-table-row span:nth-of-type(3){display:none}.mm-loading-message{margin-top:24px}.mm-loading-session{padding:16px}}
+@media(prefers-reduced-motion:reduce){.mm-loading-screen *{animation-duration:.01ms!important;animation-iteration-count:1!important}}
