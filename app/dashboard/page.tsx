@@ -2,6 +2,7 @@
 import Link from "next/link";
 import {ClipboardList,Grid2X2,Target,Gauge,TrendingUp,Clock3,House,BookOpen,Radio,NotebookPen,Info,UserRound,LogOut,Menu,ChevronDown,Sparkles,X} from "lucide-react";
 import StudentWorkspaceHeader from "@/components/navigation/StudentWorkspaceHeader";
+import MockMasterLoading from "@/app/components/ui/MockMasterLoading";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -160,7 +161,7 @@ export default function DashboardPage() {
   const formatDuration=(seconds:number|null)=>seconds===null||seconds===undefined?"—":seconds<60?Math.round(seconds)+" sec":Math.floor(seconds/60)+"m "+Math.round(seconds%60)+"s";
 
   if (loading) {
-    return <main className="mm-loading"><span className="mm-loading-mark">M</span><p>Loading your MockMaster dashboard...</p></main>;
+    return <MockMasterLoading variant="workspace" title="Preparing your dashboard"/>;
   }
   if(!student){
     return <main className="mm-loading" role="alert"><p>{analyticsError||"Your dashboard could not be loaded."}</p><button type="button" onClick={()=>window.location.reload()}>Retry</button></main>;
