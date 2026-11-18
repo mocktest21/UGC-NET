@@ -228,33 +228,26 @@ export default function AdminQuestionsPage() {
     if (!ids.length || bulkDeleting) return;
     if (!window.confirm("Remove " + ids.length + " selected question(s) from the active question bank? Unused questions will be permanently deleted. Questions attached to tests will be archived and hidden from future student practice. Historical attempts will remain unchanged.")) return;
     setBulkDeleting(true);
-    setMessage("");
-    let deleted = 0;
-    let archived = 0;
-    const failures: string[] = [];
-    for (const id of ids) {
-      const { error } = await supabase.rpc("admin_delete_question", { p_question_id: id });
-      if (!error) {
-        deleted++;
-        continue;
+    setMessage("Removing " + ids.length + " selected questions…");
+    try {
+      const { data, error } = await supabase.rpc("admin_bulk_remove_questions", { p_question_ids: ids });
+      if (error) {
+        setMessage("Bulk removal failed: " + error.message + ". Check that the latest Supabase migration has been run.");
+        return;
       }
-      if (error.message.includes("already attached to a test")) {
-        const { error: archiveError } = await supabase.rpc("admin_set_question_status", {
-          p_question_id: id,
-          p_status: "archived",
-        });
-        if (archiveError) failures.push(id.slice(0, 8) + ": " + archiveError.message);
-        else archived++;
-      } else {
-        failures.push(id.slice(0, 8) + ": " + error.message);
-      }
+      const deleted = Number(data?.deleted || 0);
+      const archived = Number(data?.archived || 0);
+      const failures = Array.isArray(data?.errors) ? data.errors : [];
+      setSelectedForApproval([]);
+      setSelectedForReview([]);
+      setSelectedForDelete([]);
+      setMessage("Removal complete. Permanently deleted: " + deleted + ". Archived and hidden from future student pools: " + archived + ". Failed: " + failures.length + ". " + failures.slice(0, 4).map((item: any) => String(item.question_id).slice(0, 8) + ": " + item.message).join(" | "));
+      await loadQuestions();
+    } catch (error: any) {
+      setMessage("Bulk removal failed: " + (error?.message || "Unexpected error. Please refresh and retry."));
+    } finally {
+      setBulkDeleting(false);
     }
-    setBulkDeleting(false);
-    setSelectedForApproval([]);
-    setSelectedForReview([]);
-    setSelectedForDelete([]);
-    setMessage("Removal complete. Permanently deleted: " + deleted + ". Archived and hidden from future student pools: " + archived + ". Failed: " + failures.length + ". " + failures.slice(0, 4).join(" | "));
-    await loadQuestions();
   }
 
   async function deleteQuestion(questionId:string) {
