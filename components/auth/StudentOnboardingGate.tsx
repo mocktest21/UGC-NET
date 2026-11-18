@@ -8,7 +8,7 @@ export default function StudentOnboardingGate({ children }: { children: React.Re
   const pathname = usePathname();
   const router = useRouter();
   const checked = useRef(false);
-  const isPublic = pathname === "/" || pathname === "/login" || pathname === "/signup" ||
+  const isPublic = pathname === "/" || pathname === "/about" || pathname === "/contact" || pathname === "/terms" || pathname === "/privacy" || pathname === "/login" || pathname === "/signup" ||
     pathname.startsWith("/admin") || pathname.startsWith("/auth") ||
     pathname === "/forgot-password" || pathname === "/reset-password" || pathname === "/onboarding";
   const [checking, setChecking] = useState(!isPublic);
