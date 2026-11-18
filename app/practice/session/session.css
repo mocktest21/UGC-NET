@@ -548,3 +548,29 @@
     font:750 13px var(--font-poppins),Arial,sans-serif;white-space:nowrap;cursor:pointer
   }
 }
+
+
+/* Keep the countdown numeral above its progress ring and use an inner solid disc. */
+.ps-count-ring{
+ position:relative;isolation:isolate;
+ background:conic-gradient(#fff var(--count-progress,0%),#ffffff35 0)!important;
+ border:0!important;
+}
+.ps-count-ring:after{
+ content:"";position:absolute;inset:8px;border-radius:50%;
+ background:#0f766e;z-index:0
+}
+.ps-count-ring span{
+ position:relative;z-index:1;display:block;
+ color:#fff!important;font-size:clamp(76px,15vh,108px)!important;
+ line-height:1!important;font-weight:800!important;
+ font-variant-numeric:tabular-nums;font-family:var(--font-poppins),Arial,sans-serif
+}
+.ps-launch-start{
+ display:inline-flex;align-items:center;justify-content:center;gap:10px;
+ min-height:54px;min-width:210px;margin:8px auto 22px;padding:0 28px;
+ border:1px solid #99f6e4;border-radius:12px;background:#fff;color:#0f766e;
+ font:800 15px var(--font-poppins),Arial,sans-serif;cursor:pointer;
+ box-shadow:0 8px 24px #003b3540
+}
+.ps-launch-start:hover{background:#ccfbf1;transform:translateY(-1px)}
