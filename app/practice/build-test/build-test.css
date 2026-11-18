@@ -329,3 +329,17 @@
 }
 
 .mm-exam-launch-screen{position:fixed;inset:0;z-index:99999;background:#0f766e;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px}.mm-exam-launch-brand{width:48px;height:48px;border:1px solid #ffffff70;border-radius:15px;display:grid;place-items:center;font-size:25px;font-weight:900;margin-bottom:22px}.mm-exam-launch-count{font-size:clamp(76px,18vw,120px);line-height:1;font-weight:800;font-variant-numeric:tabular-nums}.mm-exam-launch-screen h1{font-size:clamp(21px,4vw,30px);margin:18px 0 8px}.mm-exam-launch-screen p{font-size:13px;color:#d1fae5;margin:0}.mm-exam-launch-dots{display:flex;gap:7px;margin-top:28px}.mm-exam-launch-dots i{width:7px;height:7px;border-radius:50%;background:#fff;opacity:.45;animation:mm-launch-pulse 1s infinite alternate}.mm-exam-launch-dots i:nth-child(2){animation-delay:.2s}.mm-exam-launch-dots i:nth-child(3){animation-delay:.4s}@keyframes mm-launch-pulse{to{opacity:1;transform:scale(1.35)}}
+
+
+/* Practice builder: stable unit placeholders while the selected paper loads its units. */
+.sb-unit-skeleton{
+ display:flex;align-items:center;gap:10px;min-width:0;min-height:78px;
+ padding:12px 10px;border:1px solid var(--border);border-radius:11px;background:var(--surface)
+}
+.sb-unit-skeleton>i{display:block;flex:0 0 22px;width:22px;height:22px;border-radius:7px;background:#e8e4dc}
+.sb-unit-skeleton>span{display:flex;min-width:0;flex:1;flex-direction:column;gap:9px}
+.sb-unit-skeleton b,.sb-unit-skeleton small{display:block;height:9px;border-radius:6px;background:#ebe7df;position:relative;overflow:hidden}
+.sb-unit-skeleton b{width:82%}.sb-unit-skeleton small{width:48%;height:7px}
+.sb-unit-skeleton b:after,.sb-unit-skeleton small:after{content:"";position:absolute;inset:0;width:45%;background:linear-gradient(90deg,transparent,#fff,transparent);animation:sb-unit-shimmer 1.5s ease-in-out infinite}
+@keyframes sb-unit-shimmer{to{transform:translateX(250%)}}
+@media(prefers-reduced-motion:reduce){.sb-unit-skeleton b:after,.sb-unit-skeleton small:after{animation:none}}
