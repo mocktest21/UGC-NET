@@ -226,21 +226,34 @@ export default function AdminQuestionsPage() {
   async function bulkDeleteSelected() {
     const ids = Array.from(new Set([...selectedForReview, ...selectedForApproval, ...selectedForDelete]));
     if (!ids.length || bulkDeleting) return;
-    if (!window.confirm("Permanently delete " + ids.length + " selected question(s)? Questions already attached to a test cannot be deleted. This action cannot be undone.")) return;
+    if (!window.confirm("Remove " + ids.length + " selected question(s) from the active question bank? Unused questions will be permanently deleted. Questions attached to tests will be archived and hidden from future student practice. Historical attempts will remain unchanged.")) return;
     setBulkDeleting(true);
     setMessage("");
     let deleted = 0;
+    let archived = 0;
     const failures: string[] = [];
     for (const id of ids) {
       const { error } = await supabase.rpc("admin_delete_question", { p_question_id: id });
-      if (error) failures.push(id.slice(0, 8) + ": " + error.message);
-      else deleted++;
+      if (!error) {
+        deleted++;
+        continue;
+      }
+      if (error.message.includes("already attached to a test")) {
+        const { error: archiveError } = await supabase.rpc("admin_set_question_status", {
+          p_question_id: id,
+          p_status: "archived",
+        });
+        if (archiveError) failures.push(id.slice(0, 8) + ": " + archiveError.message);
+        else archived++;
+      } else {
+        failures.push(id.slice(0, 8) + ": " + error.message);
+      }
     }
     setBulkDeleting(false);
     setSelectedForApproval([]);
     setSelectedForReview([]);
     setSelectedForDelete([]);
-    setMessage("Bulk delete complete. Deleted: " + deleted + ". Failed: " + failures.length + ". " + failures.slice(0, 4).join(" | "));
+    setMessage("Removal complete. Permanently deleted: " + deleted + ". Archived and hidden from future student pools: " + archived + ". Failed: " + failures.length + ". " + failures.slice(0, 4).join(" | "));
     await loadQuestions();
   }
 
