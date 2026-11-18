@@ -26,7 +26,8 @@ export default function PersonalNotebookPage(){
   if(rpcError){setError("Notebook data could not be loaded. Please retry. "+rpcError.message);setLoading(false);return;}
   const payload=data as {bookmarks?:Q[];incorrect?:Q[];correct?:Q[]};
   setBookmarks(payload.bookmarks||[]);
-  setIncorrect(payload.incorrect||[]);\n  setCorrect(payload.correct||[]);
+  setIncorrect(payload.incorrect||[]);
+  setCorrect(payload.correct||[]);
   setLoading(false);
   }catch(loadError){setError(loadError instanceof Error?loadError.message:"Notebook could not be loaded. Please retry.");setLoading(false);}
  },[router]);
