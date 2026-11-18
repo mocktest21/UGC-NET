@@ -76,7 +76,12 @@ export default function AdminQuestionsPage() {
         return;
       }
       setAdmin(true);
-      const { data: examData } = await supabase.from("exams").select("id,code,name").eq("is_active", true).order("display_order");
+      const [{data:allUnitRows},{data:allSubjectRows},{data:examData}] = await Promise.all([
+        supabase.from("units").select("id,unit_number,name,subject_id").eq("is_active",true).order("unit_number"),
+        supabase.from("subjects").select("id,name,paper_id").eq("is_active",true),
+        supabase.from("exams").select("id,code,name").eq("is_active", true).order("display_order")
+      ]);
+      if(alive){setBankUnits((allUnitRows||[]) as Taxonomy[]);setBankSubjects((allSubjectRows||[]) as Taxonomy[]);}
       if (alive) {
         const rows = (examData || []) as Taxonomy[];
         setExams(rows);
