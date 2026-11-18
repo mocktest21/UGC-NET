@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import MockMasterLoading from "@/app/components/ui/MockMasterLoading";
 import "./admin-workspace.css";
 
 type Counts = { questions:number; approved:number; drafts:number; imports:number; tests:number; students:number };
@@ -54,7 +55,7 @@ export default function AdminDashboardPage(){
 
   async function signOut(){await supabase.auth.signOut();router.replace("/login");}
 
-  if(loading)return <main className="aw-state">Loading administrator workspace…</main>;
+  if(loading)return <MockMasterLoading variant="admin" title="Preparing your admin workspace"/>;
   if(!isAdmin)return <main className="aw-state"><section style={{maxWidth:480,margin:"12vh auto",padding:32,background:"#fff",borderRadius:18,textAlign:"center"}}><h1>Administrator access required</h1><p>This workspace is restricted to authorised MockMaster administrators. Sign in with your administrator account to continue.</p><div style={{display:"flex",gap:10,justifyContent:"center",flexWrap:"wrap",marginTop:20}}><button onClick={async()=>{await supabase.auth.signOut();router.replace("/admin/login");}}>Go to admin login</button><button onClick={()=>router.replace("/dashboard")}>Return to student dashboard</button></div></section></main>;
   if(error && !counts.questions && !counts.students) { /* Show the workspace with a visible data warning. */ }
   return (
