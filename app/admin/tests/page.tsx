@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import MockMasterLoading from "@/app/components/ui/MockMasterLoading";
 import "./test-builder.css";
 
 type Taxonomy = { id: string; name: string; code?: string | null };
@@ -154,7 +155,7 @@ export default function AdminTestBuilderPage() {
     if(error)setError(error.message);else{setMessage("Test published successfully.");await loadTests();}
   }
 
-  if(checking)return <main className="tb-state">Checking administrator access…</main>;
+  if(checking)return <MockMasterLoading variant="admin" title="Verifying administrator access"/>;
   if(!admin)return <main className="tb-state"><div className="tb-denied"><h1>Administrator access required</h1><p>Sign in using the dedicated administrator login.</p><button onClick={()=>router.replace("/admin/login")}>Admin login</button></div></main>;
 
   return <main className="tb-shell">
