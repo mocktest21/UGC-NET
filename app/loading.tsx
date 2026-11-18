@@ -1,1 +1,5 @@
-export default function Loading(){return <main className="mm-loading" aria-live="polite"><span className="mm-loading-mark">M</span><p>Loading MockMaster…</p></main>;}
+import MockMasterLoading from "@/app/components/ui/MockMasterLoading";
+
+export default function Loading(){
+ return <MockMasterLoading variant="workspace" title="Loading your MockMaster page" />;
+}
