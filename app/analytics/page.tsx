@@ -33,7 +33,7 @@ const timeLabel=(s:number|null)=>s===null||s===undefined?"—":s<60?Math.round(s
 
 export default function AnalyticsPage(){
  const router=useRouter();
- const [db]=useState(()=>createSupabaseBrowserClient());
+
  const [data,setData]=useState<AnalyticsData|null>(null);
  const [tracker,setTracker]=useState<TrackerData|null>(null);
  const [syllabusTopics,setSyllabusTopics]=useState<SyllabusTopic[]>([]);
@@ -59,6 +59,7 @@ export default function AnalyticsPage(){
  },[range,from,to]);
 
  const load=useCallback(async(initial=false)=>{
+  const db=createSupabaseBrowserClient();
   if(initial)setLoading(true);else setRefreshing(true);
   setError("");
   const {data:auth,error:authError}=await db.auth.getUser();
@@ -75,7 +76,7 @@ export default function AnalyticsPage(){
   if(topicResult.error){setSyllabusTopics([]);}
   else setSyllabusTopics((topicResult.data||[]) as SyllabusTopic[]);
   setLoading(false);setRefreshing(false);
- },[db,router,bounds.from,bounds.to]);
+ },[router,bounds.from,bounds.to]);
 
  useEffect(()=>{void load(false);},[load]);
  const overall=data?.overall;
