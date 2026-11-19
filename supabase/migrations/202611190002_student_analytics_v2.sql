@@ -70,7 +70,10 @@ begin
       count(distinct question_id) as unique_questions_attempted,
       case when count(*) > 0 then round(100.0 * count(*) filter (where is_correct = true) / count(*),1) else null end as accuracy,
       case when count(*) filter (where time_spent_seconds is not null and time_spent_seconds > 0) > 0
-        then round(avg(time_spent_seconds) filter (where time_spent_seconds is not null and time_spent_seconds > 0),1) else null end as average_time_per_question
+        then round(avg(time_spent_seconds) filter (where time_spent_seconds is not null and time_spent_seconds > 0),1)
+        else (select round(sum(a.time_taken_seconds)::numeric / nullif(sum(a.questions_attempted),0),1)
+              from completed a where a.time_taken_seconds is not null and a.questions_attempted > 0)
+      end as average_time_per_question
     from answered
   ),
   paper_stats as (
@@ -146,6 +149,70 @@ begin
   return v_result;
 end;
 $$;
+
+
+create or replace function public.student_get_syllabus_topic_tracker()
+returns jsonb
+language plpgsql
+security invoker
+set search_path = ''
+as $
+declare
+  v_student uuid := auth.uid();
+  v_exam uuid;
+  v_subject uuid;
+  v_result jsonb;
+begin
+  if v_student is null then
+    raise exception 'Authentication required' using errcode = '28000';
+  end if;
+
+  select id into v_exam from public.exams where code = 'UGC_NET' and is_active = true limit 1;
+  select selected_subject_id into v_subject
+  from public.student_exam_preferences
+  where student_id = v_student and exam_id = v_exam;
+
+  with chosen_subjects as (
+    select s.id
+    from public.subjects s
+    join public.papers p on p.id=s.paper_id
+    where s.exam_id=v_exam and s.is_active and p.is_active
+      and (p.code='PAPER_1' or (p.code='PAPER_2' and s.id=v_subject))
+  ),
+  topic_rows as (
+    select tp.id,tp.unit_id,tp.name,tp.display_order,
+      count(distinct q.id) filter(where q.status='approved') as total_questions,
+      count(distinct q.id) filter(where q.status='approved' and exists(
+        select 1
+        from public.test_questions tq
+        join public.student_responses sr on sr.test_question_id=tq.id
+        join public.test_attempts a on a.id=sr.attempt_id
+        where tq.question_id=q.id and a.student_id=v_student
+          and sr.response is not null and sr.response<>'null'::jsonb
+          and sr.response<>'""'::jsonb and sr.response<>'{}'::jsonb and sr.response<>'[]'::jsonb
+      )) as attempted_questions
+    from public.topics tp
+    join public.units u on u.id=tp.unit_id and u.is_active
+    join chosen_subjects cs on cs.id=u.subject_id
+    left join public.questions q on q.topic_id=tp.id
+    where tp.is_active
+    group by tp.id,tp.unit_id,tp.name,tp.display_order
+  )
+  select coalesce(jsonb_agg(jsonb_build_object(
+    'id',id,'unit_id',unit_id,'name',name,
+    'total_questions',total_questions,
+    'attempted_questions',attempted_questions,
+    'remaining_questions',greatest(0,total_questions-attempted_questions),
+    'completion',case when total_questions>0 then round(100.0*attempted_questions/total_questions,1) else 0 end
+  ) order by unit_id,display_order,name),'[]'::jsonb)
+  into v_result from topic_rows;
+
+  return v_result;
+end;
+$;
+
+revoke all on function public.student_get_syllabus_topic_tracker() from public, anon;
+grant execute on function public.student_get_syllabus_topic_tracker() to authenticated;
 
 revoke all on function public.student_get_analytics_v2(timestamptz,timestamptz) from public, anon;
 grant execute on function public.student_get_analytics_v2(timestamptz,timestamptz) to authenticated;
