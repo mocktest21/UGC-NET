@@ -196,3 +196,36 @@
 .mn-tabs>button>span{display:inline !important;overflow:visible !important}
 .mn-tabs>button svg{display:block !important;width:14px;height:14px;flex:0 0 14px}
 .mn-tabs>button>b{flex:0 0 auto;margin:0 0 0 2px !important;padding:3px 7px !important;font-size:10px !important}
+
+
+/* Notebook filters: horizontally scrollable row with readable labels */
+.mn-tabs{
+  display:flex !important;
+  flex-wrap:nowrap !important;
+  justify-content:flex-start;
+  width:100%;
+  max-width:100%;
+  overflow-x:auto !important;
+  overflow-y:hidden;
+  gap:8px !important;
+  padding:6px;
+  box-sizing:border-box;
+  scrollbar-width:thin;
+  -webkit-overflow-scrolling:touch;
+  scroll-snap-type:x proximity;
+}
+.mn-tabs>button{
+  display:inline-flex !important;
+  flex:0 0 auto !important;
+  width:auto !important;
+  min-width:max-content !important;
+  max-width:none !important;
+  flex-wrap:nowrap !important;
+  gap:6px !important;
+  padding:10px 14px !important;
+  font-size:12px !important;
+  white-space:nowrap !important;
+  scroll-snap-align:start;
+}
+.mn-tabs>button svg{display:block !important;width:14px;height:14px;flex:0 0 14px}
+.mn-tabs>button>b{flex:0 0 auto;margin:0 !important;padding:2px 6px !important;font-size:10px !important}
