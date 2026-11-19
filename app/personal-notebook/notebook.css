@@ -66,3 +66,49 @@
  .mn-smart-quiz{align-items:stretch;flex-direction:column;gap:12px;padding:14px}
  .mn-smart-quiz>button{width:100%;min-height:44px}
 }
+
+
+/* Notebook answer state: green by default, red only for incorrect responses */
+.mn-wrong-meta.is-correct{
+  border:1px solid var(--ok-border);
+  background:var(--ok-bg);
+  color:var(--ok-text);
+}
+.mn-wrong-meta.is-correct b{color:var(--ok-text)}
+.mn-wrong-meta.is-incorrect{
+  border:1px solid #fda4af;
+  background:var(--error-bg);
+  color:var(--error-text);
+}
+.mn-wrong-meta.is-incorrect b{color:var(--error-text)}
+
+/* Keep all four notebook filters on one row, including narrow phones */
+.mn-tabs{
+  display:grid !important;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:6px;
+  padding:6px;
+}
+.mn-tabs button{
+  display:flex;
+  min-width:0;
+  align-items:center;
+  justify-content:center;
+  gap:5px;
+  padding:9px 5px;
+  white-space:nowrap;
+  font-size:clamp(9px,2.6vw,12px);
+}
+.mn-tabs button svg{width:14px;height:14px;flex:0 0 auto}
+.mn-tabs button b{margin:0;padding:2px 6px;font-size:9px}
+.mn-tabs button.active.all{background:var(--primary);border-color:var(--primary);color:#fff}
+.mn-tabs button.active.correct{background:var(--ok);border-color:var(--ok);color:#fff}
+.mn-tabs button.active.incorrect{background:var(--error-text);border-color:var(--error-text);color:#fff}
+.mn-tabs button.active.bookmarks{background:#b7791f;border-color:#b7791f;color:#fff}
+.mn-tabs button.active b{background:rgba(255,255,255,.2);color:#fff}
+@media(max-width:420px){
+  .mn-tabs{gap:4px;padding:5px}
+  .mn-tabs button{gap:3px;padding:8px 2px;font-size:9px}
+  .mn-tabs button svg{width:12px;height:12px}
+  .mn-tabs button b{padding:2px 4px;font-size:8px}
+}
