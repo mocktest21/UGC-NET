@@ -67,7 +67,7 @@ begin
       count(*) as answered_responses,
       count(*) filter (where is_correct = true) as correct_answers,
       count(*) filter (where is_correct = false) as incorrect_answers,
-      count(distinct question_id) as unique_questions_attempted,
+      (select count(distinct rr.question_id) from response_rows rr) as unique_questions_attempted,
       case when count(*) > 0 then round(100.0 * count(*) filter (where is_correct = true) / count(*),1) else null end as accuracy,
       case when count(*) filter (where time_spent_seconds is not null and time_spent_seconds > 0) > 0
         then round(avg(time_spent_seconds) filter (where time_spent_seconds is not null and time_spent_seconds > 0),1)
