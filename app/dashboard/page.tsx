@@ -8,13 +8,22 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
-type StudentProfile = { full_name?: string; exams?: string[]; phone_number?: string | null; };
-type Student = { name: string; email: string; exams: string[]; phone?: string | null; };
+type StudentProfile = {
+  full_name?: string;
+  exams?: string[];
+  phone_number?: string | null;
+};
+
+type Student = {
+  name: string;
+  email: string;
+  exams: string[];
+  phone?: string | null;
+};
 
 const desktopNavigation = [
   { label: "Dashboard", href: "/dashboard" },
   { label: "Tracker", href: "/tracker" },
-  { label: "Analytics", href: "/analytics" },
   { label: "Practice", href: "/practice" },
   { label: "Live Test", href: "/live-test" },
   { label: "Personal Notebook", href: "/personal-notebook" },
@@ -31,7 +40,13 @@ const summaryStats = [
 ];
 
 function EmptyAnalytics({ title, detail }: { title: string; detail: string }) {
-  return <div className="mm-analytics-empty"><span className="mm-empty-icon"><ClipboardList size={20}/></span><strong>{title}</strong><p>{detail}</p></div>;
+  return (
+    <div className="mm-analytics-empty">
+      <span className="mm-empty-icon"><ClipboardList size={20}/></span>
+      <strong>{title}</strong>
+      <p>{detail}</p>
+    </div>
+  );
 }
 
 export default function DashboardPage() {
@@ -54,19 +69,31 @@ export default function DashboardPage() {
 
   useEffect(() => {
     let active = true;
+
     async function loadStudent() {
       try {
         const supabase = createSupabaseBrowserClient();
         const { data, error } = await supabase.auth.getUser();
         if(error){setAnalyticsError("Could not verify your sign-in. Please retry.");setLoading(false);return;}
         if(!data.user){router.replace("/login");return;}
+
         if (!active) return;
         const profile = data.user.user_metadata as StudentProfile;
-        setStudent({name: profile.full_name || "Student",email: data.user.email || "",exams: Array.isArray(profile.exams) ? profile.exams : [],phone: profile.phone_number});
+        setStudent({
+          name: profile.full_name || "Student",
+          email: data.user.email || "",
+          exams: Array.isArray(profile.exams) ? profile.exams : [],
+          phone: profile.phone_number,
+        });
+
+
       } catch (loadError) {
         setAnalyticsError(loadError instanceof Error?loadError.message:"Unable to load dashboard data. Please retry.");
-      } finally { if (active) setLoading(false); }
+      } finally {
+        if (active) setLoading(false);
+      }
     }
+
     void loadStudent();
     return () => { active = false; };
   }, [router]);
@@ -111,13 +138,21 @@ export default function DashboardPage() {
   }
 
   async function handleReattempt(attemptId: string) {
-    setReattemptingId(attemptId);setActionError("");
+    setReattemptingId(attemptId);
+    setActionError("");
     const supabase = createSupabaseBrowserClient();
     const { data, error } = await supabase.rpc("student_reattempt_test", { p_attempt_id: attemptId });
     setReattemptingId("");
-    if (error) {setActionError(error.message || "Unable to prepare this reattempt.");return;}
+    if (error) {
+      setActionError(error.message || "Unable to prepare this reattempt.");
+      return;
+    }
     const next = data as { test_id: string; attempt_id: string; duration_seconds: number };
-    router.push("/practice/session?" + new URLSearchParams({test: next.test_id,attempt: next.attempt_id,minutes: String(Math.ceil(next.duration_seconds / 60))}).toString());
+    router.push("/practice/session?" + new URLSearchParams({
+      test: next.test_id,
+      attempt: next.attempt_id,
+      minutes: String(Math.ceil(next.duration_seconds / 60)),
+    }).toString());
   }
 
   const overall=dashboardData?.overall||{};
@@ -126,22 +161,31 @@ export default function DashboardPage() {
   const unitPerformance:any[]=dashboardData?.units||[];
   const formatDuration=(seconds:number|null)=>seconds===null||seconds===undefined?"—":seconds<60?Math.round(seconds)+" sec":Math.floor(seconds/60)+"m "+Math.round(seconds%60)+"s";
 
-  if (loading) return <MockMasterLoading variant="workspace" title="Preparing your dashboard"/>;
-  if(!student)return <main className="mm-loading" role="alert"><p>{analyticsError||"Your dashboard could not be loaded."}</p><button type="button" onClick={()=>window.location.reload()}>Retry</button></main>;
+  if (loading) {
+    return <MockMasterLoading variant="workspace" title="Preparing your dashboard"/>;
+  }
+  if(!student){
+    return <main className="mm-loading" role="alert"><p>{analyticsError||"Your dashboard could not be loaded."}</p><button type="button" onClick={()=>window.location.reload()}>Retry</button></main>;
+  }
 
   const initials = student.name.split(" ").filter(Boolean).slice(0, 2).map((part) => part[0]).join("").toUpperCase();
   const firstNameRaw = student.name.trim().split(/\s+/)[0] || "Student";
   const firstName = firstNameRaw.charAt(0).toUpperCase() + firstNameRaw.slice(1).toLowerCase();
+
   const profileMenu = (
-    <div className="mm-profile-menu-wrap" onBlur={(event) => {if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setProfileOpen(false);}}>
+    <div className="mm-profile-menu-wrap" onBlur={(event) => {
+      if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setProfileOpen(false);
+    }}>
       <button type="button" className="mm-profile-trigger" aria-haspopup="menu" aria-expanded={profileOpen} aria-label="Open account menu" onClick={() => setProfileOpen((open) => !open)}>
         <span className="mm-avatar">{initials || "S"}</span><span>{firstName}</span><span className="mm-profile-chevron" aria-hidden="true"><ChevronDown size={14}/></span>
       </button>
-      {profileOpen && <div className="mm-profile-dropdown" role="menu">
-        <div className="mm-profile-dropdown-heading"><strong>{student.name}</strong><span>{student.email}</span></div>
-        <button type="button" role="menuitem" onClick={() => { setProfileOpen(false); setProfileDialogOpen(true); }}><span aria-hidden="true"><UserRound size={15}/></span> View profile</button>
-        <button type="button" role="menuitem" className="mm-profile-logout" disabled={signingOut} onClick={() => void handleSignOut()}><span aria-hidden="true"><LogOut size={15}/></span> {signingOut ? "Logging out..." : "Log out"}</button>
-      </div>}
+      {profileOpen && (
+        <div className="mm-profile-dropdown" role="menu">
+          <div className="mm-profile-dropdown-heading"><strong>{student.name}</strong><span>{student.email}</span></div>
+          <button type="button" role="menuitem" onClick={() => { setProfileOpen(false); setProfileDialogOpen(true); }}><span aria-hidden="true"><UserRound size={15}/></span> View profile</button>
+          <button type="button" role="menuitem" className="mm-profile-logout" disabled={signingOut} onClick={() => void handleSignOut()}><span aria-hidden="true"><LogOut size={15}/></span> {signingOut ? "Logging out..." : "Log out"}</button>
+        </div>
+      )}
     </div>
   );
 
@@ -153,60 +197,186 @@ export default function DashboardPage() {
         <nav className="mm-mobile-main-nav" aria-label="Main navigation">
           {desktopNavigation.map((item, index) => (
             <Link key={item.label} className={index === 0 ? "mm-nav-link mm-nav-active" : "mm-nav-link"} href={item.href} onClick={() => setMenuOpen(false)}>
-              <span className="mm-nav-icon">{index===0?<House size={17}/>:index===1?<ChartNoAxesCombined size={17}/>:index===2?<Activity size={17}/>:index===3?<BookOpen size={17}/>:index===4?<Radio size={17}/>:index===5?<NotebookPen size={17}/>:<Info size={17}/>}</span>{item.label}
+              <span className="mm-nav-icon">{index===0?<House size={17}/>:index===1?<ChartNoAxesCombined size={17}/>:index===2?<BookOpen size={17}/>:index===3?<Radio size={17}/>:index===4?<NotebookPen size={17}/>:<Info size={17}/>}</span>{item.label}
             </Link>
           ))}
         </nav>
         <nav className="mm-desktop-nav" aria-label="Main navigation">
-          {desktopNavigation.map((item, index) => <Link key={item.label} className={index === 0 ? "mm-nav-link mm-nav-active" : "mm-nav-link"} href={item.href}>{item.label}</Link>)}
+          {desktopNavigation.map((item, index) => (
+            <Link key={item.label} className={index === 0 ? "mm-nav-link mm-nav-active" : "mm-nav-link"} href={item.href}>{item.label}</Link>
+          ))}
         </nav>
         <div className="mm-sidebar-profile">{profileMenu}</div>
         <div className="mm-sidebar-bottom">
           <div className="mm-mobile-account-menu">
-            <div className="mm-mobile-account-heading"><span className="mm-avatar">{initials || "S"}</span><span><strong>{student.name}</strong><small>{student.email}</small></span></div>
-            <button type="button" className="mm-mobile-account-action" onClick={() => { setMenuOpen(false); setProfileDialogOpen(true); }}><span aria-hidden="true"><UserRound size={15}/></span> View Profile</button>
-            <button type="button" className="mm-mobile-account-action mm-mobile-logout" disabled={signingOut} onClick={() => void handleSignOut()}><span aria-hidden="true"><LogOut size={15}/></span> {signingOut ? "Logging out..." : "Log Out"}</button>
+            <div className="mm-mobile-account-heading">
+              <span className="mm-avatar">{initials || "S"}</span>
+              <span><strong>{student.name}</strong><small>{student.email}</small></span>
+            </div>
+            <button type="button" className="mm-mobile-account-action" onClick={() => { setMenuOpen(false); setProfileDialogOpen(true); }}>
+              <span aria-hidden="true"><UserRound size={15}/></span> View Profile
+            </button>
+            <button type="button" className="mm-mobile-account-action mm-mobile-logout" disabled={signingOut} onClick={() => void handleSignOut()}>
+              <span aria-hidden="true"><LogOut size={15}/></span> {signingOut ? "Logging out..." : "Log Out"}
+            </button>
           </div>
-          <div className="mm-help-card"><span className="mm-help-icon"><Sparkles size={18}/></span><strong>Keep your momentum</strong><p>Consistent practice builds measurable progress.</p></div>
+          <div className="mm-help-card">
+            <span className="mm-help-icon"><Sparkles size={18}/></span>
+            <strong>Keep your momentum</strong>
+            <p>Consistent practice builds measurable progress.</p>
+          </div>
+
         </div>
       </aside>
+
       {menuOpen && <button className="mm-sidebar-scrim" aria-label="Close navigation" onClick={() => setMenuOpen(false)} />}
+
       <div className="mm-main">
         <StudentWorkspaceHeader showNav={false} leftSlot={<button className="mm-menu-toggle" aria-label={menuOpen ? "Close navigation" : "Open navigation"} aria-expanded={menuOpen} onClick={() => setMenuOpen((open) => !open)}><Menu size={20}/></button>} />
+
         <main className="mm-content mm-analytics-content" id="overview">
-          <section className="mm-analytics-heading"><div><h1>Hey, {firstName}!</h1><p>Let’s analyse your progress and see where you can improve.</p></div><Link className="mm-dashboard-analytics-link" href="/analytics"><Activity size={16}/> View Analytics</Link></section>
-          <section className="mm-analytics-summary mm-dashboard-overview" aria-label="Overall performance statistics">
-            <div className="mm-overview-card"><div className="mm-overview-main">
-              <div className="mm-overview-ring" role="img" aria-label={`Average score ${overall.average_score===null||overall.average_score===undefined?"not available":Number(overall.average_score).toFixed(1)+" percent"}`}>
-                <svg viewBox="0 0 100 100" aria-hidden="true"><circle className="mm-overview-ring-track" cx="50" cy="50" r="42"/><circle className="mm-overview-ring-value" cx="50" cy="50" r="42" style={{strokeDasharray:263.9,strokeDashoffset:263.9*(1-Math.max(0,Math.min(100,Number(overall.average_score)||0))/100)}}/></svg>
-                <strong>{overall.average_score===null||overall.average_score===undefined?"—":Math.round(Number(overall.average_score))+"%"}</strong><small>Avg score</small>
-              </div>
-              <div className="mm-overview-details"><div><span>Accuracy</span><strong>{overall.accuracy===null||overall.accuracy===undefined?"—":Number(overall.accuracy).toFixed(1)+"%"}</strong></div><div className="mm-overview-detail-line"><span style={{width:Math.max(0,Math.min(100,Number(overall.accuracy)||0))+"%"}}/></div><div><span>Time / question</span><strong>{formatDuration(overall.average_time===null?null:Number(overall.average_time))}</strong></div></div>
-            </div><div className="mm-overview-mini-stats"><div><strong>{Number(overall.attempts||0)}</strong><span>Tests taken</span></div><div><strong>{Number(overall.total_questions||0)}</strong><span>Questions</span></div><div><strong>{Number(overall.unique_questions||0)}</strong><span>Unique</span></div></div></div>
-          </section>
-          <section className="mm-analytics-panel mm-overall-panel" id="performance">
-            <div className="mm-analytics-panel-heading"><div><span className="mm-section-kicker">PROGRESS TRACKER</span><h2>Performance trends</h2><p>Completed tests for the selected period.</p></div>
-              <select className="mm-analytics-filter-select" value={dateFilter} onChange={(event) => setDateFilter(event.target.value)} aria-label="Filter tests by date"><option value="today">Today</option><option value="all">All time</option><option value="week">Last 7 days</option><option value="month">Last 30 days</option><option value="3months">Last 3 months</option><option value="custom">Custom range</option></select>
+          <section className="mm-analytics-heading">
+            <div>
+              <h1>Hey, {firstName}!</h1>
+              <p>Let’s analyse your progress and see where you can improve.</p>
             </div>
-            {dateFilter === "custom" && <div className="mm-custom-date-filter"><label>From <input type="date" value={customFrom} onChange={(event) => setCustomFrom(event.target.value)} /></label><label>To <input type="date" value={customTo} min={customFrom || undefined} onChange={(event) => setCustomTo(event.target.value)} /></label></div>}
+            <Link className="mm-dashboard-analytics-link" href="/analytics"><Activity size={16}/> View Analytics</Link>
+          </section>
+
+          <section className="mm-analytics-summary mm-dashboard-overview" aria-label="Overall performance statistics">
+            <div className="mm-overview-card">
+              <div className="mm-overview-main">
+                <div className="mm-overview-ring" role="img" aria-label={`Average score ${overall.average_score===null||overall.average_score===undefined?"not available":Number(overall.average_score).toFixed(1)+" percent"}`}>
+                  <svg viewBox="0 0 100 100" aria-hidden="true"><circle className="mm-overview-ring-track" cx="50" cy="50" r="42"/><circle className="mm-overview-ring-value" cx="50" cy="50" r="42" style={{strokeDasharray:263.9,strokeDashoffset:263.9*(1-Math.max(0,Math.min(100,Number(overall.average_score)||0))/100)}}/></svg>
+                  <strong>{overall.average_score===null||overall.average_score===undefined?"—":Math.round(Number(overall.average_score))+"%"}</strong>
+                  <small>Avg score</small>
+                </div>
+                <div className="mm-overview-details">
+                  <div><span>Accuracy</span><strong>{overall.accuracy===null||overall.accuracy===undefined?"—":Number(overall.accuracy).toFixed(1)+"%"}</strong></div>
+                  <div className="mm-overview-detail-line"><span style={{width:Math.max(0,Math.min(100,Number(overall.accuracy)||0))+"%"}}/></div>
+                  <div><span>Time / question</span><strong>{formatDuration(overall.average_time===null?null:Number(overall.average_time))}</strong></div>
+                </div>
+              </div>
+              <div className="mm-overview-mini-stats">
+                <div><strong>{Number(overall.attempts||0)}</strong><span>Tests taken</span></div>
+                <div><strong>{Number(overall.total_questions||0)}</strong><span>Questions</span></div>
+                <div><strong>{Number(overall.unique_questions||0)}</strong><span>Unique</span></div>
+              </div>
+            </div>
+          </section>
+
+          <section className="mm-analytics-panel mm-overall-panel" id="performance">
+            <div className="mm-analytics-panel-heading">
+              <div><span className="mm-section-kicker">PROGRESS TRACKER</span><h2>Performance trends</h2><p>Completed tests for the selected period.</p></div>
+              <select className="mm-analytics-filter-select" value={dateFilter} onChange={(event) => setDateFilter(event.target.value)} aria-label="Filter tests by date">
+                <option value="today">Today</option>
+                <option value="all">All time</option>
+                <option value="week">Last 7 days</option>
+                <option value="month">Last 30 days</option>
+                <option value="3months">Last 3 months</option>
+                <option value="custom">Custom range</option>
+              </select>
+            </div>
+            {dateFilter === "custom" && (
+              <div className="mm-custom-date-filter">
+                <label>From <input type="date" value={customFrom} onChange={(event) => setCustomFrom(event.target.value)} /></label>
+                <label>To <input type="date" value={customTo} min={customFrom || undefined} onChange={(event) => setCustomTo(event.target.value)} /></label>
+              </div>
+            )}
             {(actionError||analyticsError) && <p className="mm-dashboard-action-error" role="alert">{actionError||analyticsError} <button type="button" onClick={()=>setAnalyticsRefresh(x=>x+1)}>Retry</button></p>}
             {analyticsLoading&&<p className="mm-analytics-loading">Updating analytics…</p>}
-            {filteredAttempts.length ? <div className="mm-dashboard-recent-tests">{filteredAttempts.slice(0, 20).map((test: any) => {
-              const meta: any = {title:test.title};const pct = Number(test.max_score) > 0 && test.score !== null ? Math.max(0, Math.min(100, Number(test.score) / Number(test.max_score) * 100)) : null;
-              const attempted = Number(test.correct_count || 0) + Number(test.incorrect_count || 0);const right = Number(test.correct_count || 0);const incorrect = Number(test.incorrect_count || 0);const unattempted = Number(test.unanswered_count || 0);const total = attempted + unattempted;
-              return <article className="mm-unit-card mm-trend-card" key={test.id}><div className="mm-unit-card-heading mm-trend-card-heading"><h3>{meta?.title || "Mock test"}</h3><span>{new Date(test.submitted_at || test.started_at).toLocaleDateString("en-IN")}</span></div><div className="mm-unit-metrics"><div><strong>{pct === null ? "—" : pct.toFixed(1) + "%"}</strong><small>SCORE</small></div><div><strong>{right}</strong><small>RIGHT</small></div><div><strong>{attempted}/{total}</strong><small>ATTEMPTED</small></div></div><div className="mm-unit-coverage"><span style={{width: (pct ?? 0) + "%"}} /></div><div className="mm-trend-card-meta"><span>{test.score === null ? "Score pending" : Number(test.score).toFixed(2) + " / " + Number(test.max_score || 0).toFixed(2) + " marks"}</span><span>{incorrect} incorrect · {unattempted} unattempted</span></div><div className="mm-dashboard-test-actions"><button type="button" className="mm-dashboard-analysis-button" onClick={() => router.push("/practice/result?" + new URLSearchParams({attempt: test.id}).toString())}>View Analysis</button><button type="button" className="mm-dashboard-reattempt-button" disabled={reattemptingId === test.id} onClick={() => void handleReattempt(test.id)}>{reattemptingId === test.id ? "Preparing…" : "Reattempt"}</button></div></article>;
-            })}</div> : <EmptyAnalytics title="No tests in this period" detail="Complete a test or choose a wider date range to see your performance trends." />}
+            {filteredAttempts.length ? (
+              <div className="mm-dashboard-recent-tests">
+                {filteredAttempts.slice(0, 20).map((test: any) => {
+                  const meta: any = {title:test.title};
+                  const pct = Number(test.max_score) > 0 && test.score !== null ? Math.max(0, Math.min(100, Number(test.score) / Number(test.max_score) * 100)) : null;
+                  const attempted = Number(test.correct_count || 0) + Number(test.incorrect_count || 0);
+                  const right = Number(test.correct_count || 0);
+                  const incorrect = Number(test.incorrect_count || 0);
+                  const unattempted = Number(test.unanswered_count || 0);
+                  const total = attempted + unattempted;
+                  return (
+                    <article className="mm-unit-card mm-trend-card" key={test.id}>
+                      <div className="mm-unit-card-heading mm-trend-card-heading">
+                        <h3>{meta?.title || "Mock test"}</h3>
+                        <span>{new Date(test.submitted_at || test.started_at).toLocaleDateString("en-IN")}</span>
+                      </div>
+                      <div className="mm-unit-metrics">
+                        <div><strong>{pct === null ? "—" : pct.toFixed(1) + "%"}</strong><small>SCORE</small></div>
+                        <div><strong>{right}</strong><small>RIGHT</small></div>
+                        <div><strong>{attempted}/{total}</strong><small>ATTEMPTED</small></div>
+                      </div>
+                      <div className="mm-unit-coverage"><span style={{width: (pct ?? 0) + "%"}} /></div>
+                      <div className="mm-trend-card-meta">
+                        <span>{test.score === null ? "Score pending" : Number(test.score).toFixed(2) + " / " + Number(test.max_score || 0).toFixed(2) + " marks"}</span>
+                        <span>{incorrect} incorrect · {unattempted} unattempted</span>
+                      </div>
+                      <div className="mm-dashboard-test-actions">
+                        <button type="button" className="mm-dashboard-analysis-button" onClick={() => router.push("/practice/result?" + new URLSearchParams({attempt: test.id}).toString())}>View Analysis</button>
+                        <button type="button" className="mm-dashboard-reattempt-button" disabled={reattemptingId === test.id} onClick={() => void handleReattempt(test.id)}>{reattemptingId === test.id ? "Preparing…" : "Reattempt"}</button>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            ) : (
+              <EmptyAnalytics title="No tests in this period" detail="Complete a test or choose a wider date range to see your performance trends." />
+            )}
           </section>
-          <section className="mm-analytics-panel" id="paper-analysis"><div className="mm-analytics-panel-heading"><div><span className="mm-section-kicker">PAPER-WISE ANALYSIS</span><h2>Performance by paper</h2><p>Compare scores and accuracy across papers.</p></div></div>
-            {paperPerformance.length ? <div className="mm-unit-cards mm-paper-cards">{paperPerformance.map((item: any) => <article className="mm-unit-card mm-paper-card mm-analysis-reference-card" key={item.id}><div className="mm-unit-card-heading"><h3>{item.name}</h3><span>{item.tests} completed {item.tests === 1 ? "test" : "tests"}</span></div><div className="mm-unit-metrics"><div><strong>{item.accuracy === null ? "—" : item.accuracy.toFixed(1) + "%"}</strong><small>ACCURACY</small></div><div><strong>{item.average === null ? "—" : item.average.toFixed(1) + "%"}</strong><small>AVG. SCORE</small></div><div><strong>{item.correct}</strong><small>RIGHT</small></div></div><div className="mm-unit-coverage mm-paper-accuracy-bar"><span style={{width:"100%",background:`linear-gradient(to right,var(--ok) 0%,var(--ok) ${item.correct+item.incorrect>0?item.correct/(item.correct+item.incorrect)*100:0}%,var(--error) ${item.correct+item.incorrect>0?item.correct/(item.correct+item.incorrect)*100:0}%,var(--error) 100%)`}} /></div><div className="mm-paper-card-meta"><span><i className="mm-paper-dot is-correct"/> {item.correct} correct</span><span><i className="mm-paper-dot is-incorrect"/> {item.incorrect} incorrect</span></div></article>)}</div> : <EmptyAnalytics title="Paper-wise statistics are not available yet" detail="Complete a test with Paper 1 or Paper 2 questions to see your performance here." />}
+
+          <section className="mm-analytics-panel" id="paper-analysis">
+            <div className="mm-analytics-panel-heading">
+              <div><span className="mm-section-kicker">PAPER-WISE ANALYSIS</span><h2>Performance by paper</h2><p>Compare scores and accuracy across papers.</p></div>
+            </div>
+            {paperPerformance.length ? <div className="mm-unit-cards mm-paper-cards">{paperPerformance.map((item: any) => <article className="mm-unit-card mm-paper-card mm-analysis-reference-card" key={item.id}>
+              <div className="mm-unit-card-heading"><h3>{item.name}</h3><span>{item.tests} completed {item.tests === 1 ? "test" : "tests"}</span></div>
+              <div className="mm-unit-metrics">
+                <div><strong>{item.accuracy === null ? "—" : item.accuracy.toFixed(1) + "%"}</strong><small>ACCURACY</small></div>
+                <div><strong>{item.average === null ? "—" : item.average.toFixed(1) + "%"}</strong><small>AVG. SCORE</small></div>
+                <div><strong>{item.correct}</strong><small>RIGHT</small></div>
+              </div>
+              <div className="mm-unit-coverage mm-paper-accuracy-bar"><span style={{width:"100%",background:`linear-gradient(to right,var(--ok) 0%,var(--ok) ${item.correct+item.incorrect>0?item.correct/(item.correct+item.incorrect)*100:0}%,var(--error) ${item.correct+item.incorrect>0?item.correct/(item.correct+item.incorrect)*100:0}%,var(--error) 100%)`}} /></div>
+              <div className="mm-paper-card-meta"><span><i className="mm-paper-dot is-correct"/> {item.correct} correct</span><span><i className="mm-paper-dot is-incorrect"/> {item.incorrect} incorrect</span></div>
+            </article>)}</div> : <EmptyAnalytics title="Paper-wise statistics are not available yet" detail="Complete a test with Paper 1 or Paper 2 questions to see your performance here." />}
           </section>
-          <section className="mm-analytics-panel mm-unit-panel" id="unit-analysis"><div className="mm-analytics-panel-heading"><div><span className="mm-section-kicker">DETAILED SYLLABUS ANALYSIS</span><h2>Unit-wise performance</h2></div></div>
-            {unitPerformance.length ? <div className="mm-unit-cards">{unitPerformance.map((item: any) => <article className="mm-unit-card mm-analysis-reference-card mm-unit-reference-card" key={item.id}><div className="mm-unit-card-heading"><h3>{item.name}</h3><span>{item.paperName}</span></div><div className="mm-unit-metrics"><div><strong>{item.accuracy.toFixed(0)}%</strong><small>ACCURACY</small></div><div><strong>{item.correct}</strong><small>RIGHT</small></div><div><strong>{item.attempted}/{item.total}</strong><small>ATTEMPTED</small></div></div><div className="mm-unit-coverage"><span style={{width: item.coverage + "%"}} /></div><p>Coverage {item.coverage.toFixed(0)}%</p></article>)}</div> : <EmptyAnalytics title="Your unit-wise report will build here" detail="Complete tests with unit-tagged questions to see accuracy, attempted questions and syllabus coverage." />}
+
+          <section className="mm-analytics-panel mm-unit-panel" id="unit-analysis">
+            <div className="mm-analytics-panel-heading">
+              <div><span className="mm-section-kicker">DETAILED SYLLABUS ANALYSIS</span><h2>Unit-wise performance</h2></div>
+            </div>
+            {unitPerformance.length ? <div className="mm-unit-cards">{unitPerformance.map((item: any) => <article className="mm-unit-card mm-analysis-reference-card mm-unit-reference-card" key={item.id}>
+              <div className="mm-unit-card-heading"><h3>{item.name}</h3><span>{item.paperName}</span></div>
+              <div className="mm-unit-metrics">
+                <div><strong>{item.accuracy.toFixed(0)}%</strong><small>ACCURACY</small></div>
+                <div><strong>{item.correct}</strong><small>RIGHT</small></div>
+                <div><strong>{item.attempted}/{item.total}</strong><small>ATTEMPTED</small></div>
+              </div>
+              <div className="mm-unit-coverage"><span style={{width: item.coverage + "%"}} /></div>
+              <p>Coverage {item.coverage.toFixed(0)}%</p>
+            </article>)}</div> : <EmptyAnalytics title="Your unit-wise report will build here" detail="Complete tests with unit-tagged questions to see accuracy, attempted questions and syllabus coverage." />}
           </section>
+
+
           <footer className="mm-footer"><span>© {new Date().getFullYear()} MockMaster</span><span>Practice. Improve. Achieve.</span></footer>
         </main>
       </div>
-      {profileDialogOpen && <div className="mm-profile-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setProfileDialogOpen(false); }}><section className="mm-profile-modal" role="dialog" aria-modal="true" aria-labelledby="mm-profile-title"><div className="mm-profile-modal-heading"><div><span className="mm-section-kicker">ACCOUNT DETAILS</span><h2 id="mm-profile-title">My profile</h2></div><button type="button" aria-label="Close profile" onClick={() => setProfileDialogOpen(false)}><X size={17}/></button></div><div className="mm-profile-identity"><span className="mm-avatar">{initials || "S"}</span><div><strong>{student.name}</strong><span>{student.email}</span></div></div><dl className="mm-profile-details"><div><dt>Full name</dt><dd>{student.name}</dd></div><div><dt>Email address</dt><dd>{student.email}</dd></div><div><dt>Mobile number</dt><dd>{student.phone || "Not provided"}</dd></div><div><dt>Selected examinations</dt><dd>{student.exams.length ? student.exams.join(", ") : "None selected"}</dd></div></dl><button type="button" className="mm-profile-close" onClick={() => setProfileDialogOpen(false)}>Close</button></section></div>}
+
+      {profileDialogOpen && (
+        <div className="mm-profile-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setProfileDialogOpen(false); }}>
+          <section className="mm-profile-modal" role="dialog" aria-modal="true" aria-labelledby="mm-profile-title">
+            <div className="mm-profile-modal-heading"><div><span className="mm-section-kicker">ACCOUNT DETAILS</span><h2 id="mm-profile-title">My profile</h2></div><button type="button" aria-label="Close profile" onClick={() => setProfileDialogOpen(false)}><X size={17}/></button></div>
+            <div className="mm-profile-identity"><span className="mm-avatar">{initials || "S"}</span><div><strong>{student.name}</strong><span>{student.email}</span></div></div>
+            <dl className="mm-profile-details">
+              <div><dt>Full name</dt><dd>{student.name}</dd></div>
+              <div><dt>Email address</dt><dd>{student.email}</dd></div>
+              <div><dt>Mobile number</dt><dd>{student.phone || "Not provided"}</dd></div>
+              <div><dt>Selected examinations</dt><dd>{student.exams.length ? student.exams.join(", ") : "None selected"}</dd></div>
+            </dl>
+            <button type="button" className="mm-profile-close" onClick={() => setProfileDialogOpen(false)}>Close</button>
+          </section>
+        </div>
+      )}
+
     </div>
   );
 }
