@@ -14,7 +14,7 @@ type AnalyticsData={
  papers:Array<{paper_code:string;paper_name:string;subject_name:string;attempted:number;correct:number;incorrect:number;accuracy:number|null}>;
  units:Array<{id:string;name:string;unit_number:number;paper_name:string;attempted:number;correct:number;incorrect:number;accuracy:number|null}>;
  topics:Array<{id:string;name:string;unit_id:string;unit_name:string;attempted:number;correct:number;incorrect:number;accuracy:number|null}>;
- difficulty:Array<{difficulty:string;attempted:number;correct:number;incorrect:number}>;
+ difficulty:Array<{paper_code:string;difficulty:string;attempted:number;correct:number;incorrect:number}>;
  consistency:DailyRow[];
 };
 type TrackerUnit={id:string;name:string;unit_number:number|null;total_questions:number;attempted_questions:number;remaining_questions:number;completion:number};
@@ -62,7 +62,7 @@ export default function AnalyticsPage(){
  const analysisUnits=units.filter(u=>u.paper_name===analysisPaper?.paper_name);
  const analysisUnitIds=new Set(analysisUnits.map(u=>u.id));
  const analysisTopics=topics.filter(t=>analysisUnitIds.has(t.unit_id));
- const analysisDifficulty=difficulty;
+ const analysisDifficulty=difficulty.filter(d=>d.paper_code===analysisPaperTab);
 
  const bounds=useMemo(()=>{
   const now=new Date();let start:Date|null=null,end:Date|null=null;
