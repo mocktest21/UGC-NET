@@ -29,6 +29,8 @@ export default function StudentOnboardingGate({ children }: { children: React.Re
     return () => { active = false; };
   }, [isPublic, pathname, router]);
 
-  if (checking) return <main className="mm-onboarding-page"><div className="mm-onboarding-card">Loading…</div></main>;
+  // Keep the requested page and shared navigation visible while the auth/onboarding
+  // check runs in the background. Redirect unauthenticated or incomplete users
+  // without replacing the whole viewport with a generic Loading screen.
   return <>{children}</>;
 }
