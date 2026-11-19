@@ -162,3 +162,37 @@
 }
 .mn-options li.mn-option-correct b{color:var(--primary) !important}
 .mn-correct-tag{display:none !important}
+
+
+/* Notebook category filters: readable labels with horizontal scrolling */
+.mn-tabs{
+  display:flex !important;
+  flex-wrap:nowrap !important;
+  justify-content:flex-start;
+  gap:8px !important;
+  width:100%;
+  max-width:100%;
+  overflow-x:auto !important;
+  overflow-y:hidden;
+  box-sizing:border-box;
+  padding:6px;
+  -webkit-overflow-scrolling:touch;
+  overscroll-behavior-x:contain;
+  scrollbar-width:thin;
+}
+.mn-tabs>button{
+  display:inline-flex !important;
+  flex:0 0 auto !important;
+  width:auto !important;
+  min-width:max-content !important;
+  max-width:none !important;
+  flex-wrap:nowrap !important;
+  justify-content:center;
+  gap:6px !important;
+  padding:10px 14px !important;
+  font-size:12px !important;
+  white-space:nowrap !important;
+}
+.mn-tabs>button>span{display:inline !important;overflow:visible !important}
+.mn-tabs>button svg{display:block !important;width:14px;height:14px;flex:0 0 14px}
+.mn-tabs>button>b{flex:0 0 auto;margin:0 0 0 2px !important;padding:3px 7px !important;font-size:10px !important}
