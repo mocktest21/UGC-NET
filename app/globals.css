@@ -2094,7 +2094,7 @@ button{font-family:var(--mm-font);font-weight:600}
 /* MockMaster student workspace visual system — aligned with the teal dashboard */
 .mm-workspace-page,.mn-shell,.mr-shell,.sb-page,.ps-shell{background:var(--bg-page);color:var(--ink)}
 .mm-workspace-header{min-height:66px;height:auto;display:flex;align-items:center;gap:18px;padding:10px clamp(14px,4vw,38px);border-bottom:1px solid var(--border);background:rgba(255,255,255,.94);backdrop-filter:blur(12px)}
-.mm-workspace-header .mm-brand{display:flex;align-items:center;gap:9px;color:var(--ink);font:800 17px var(--font-poppins),Arial,sans-serif;white-space:nowrap}
+.mm-workspace-header .mm-brand{display:flex;align-items:center;gap:9px;color:var(--ink);font:800 15px var(--font-poppins),Arial,sans-serif;white-space:nowrap}
 .mm-workspace-header .mm-brand-mark{display:grid;width:36px;height:36px;place-items:center;border-radius:11px;background:var(--primary);color:#fff;font:800 17px var(--font-poppins),Arial,sans-serif}
 .mm-workspace-nav{display:flex;flex:1;align-items:center;justify-content:center;gap:clamp(8px,1.8vw,22px);min-width:0}
 .mm-workspace-nav a{display:inline-flex;align-items:center;gap:6px;padding:8px 10px;border-radius:9px;color:var(--muted);font-size:11px;font-weight:650;white-space:nowrap}
@@ -2109,7 +2109,7 @@ button{font-family:var(--mm-font);font-weight:600}
 .mm-workspace-footer{color:var(--muted)}
 @media(max-width:760px){
  .mm-workspace-header{min-height:58px;height:58px;flex-wrap:nowrap;gap:9px;padding:8px 14px}
- .mm-workspace-header .mm-brand{font-size:15px;gap:7px}
+ .mm-workspace-header .mm-brand{font-size:14px;gap:7px}
  .mm-workspace-header .mm-brand-mark{width:32px;height:32px;flex:0 0 32px;border-radius:10px;font-size:15px}
  .mm-workspace-nav{display:none}
  .mm-workspace-user{margin-left:auto;padding:6px 10px;font-size:10px}
