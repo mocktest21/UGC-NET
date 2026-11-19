@@ -300,13 +300,7 @@ button, input { font: inherit; }
 .auth-notice { padding:11px 12px; border:1px solid var(--ok-border); border-radius:9px; background:var(--ok-bg); color:var(--ok-text); font-size:11px; line-height:1.6; }
 .auth-mobile-brand { display:none; }
 .auth-form-side-full { grid-column:1/-1; min-height:540px; }
-@media(prefers-color-scheme:dark) {
-  .auth-shell { background:#131e31; border-color:#2a3850; }
-  .auth-field input, .phone-input, .password-input { background:#111a2a; border-color:#34445f; }
-  .exam-choice { border-color:#34445f; }
-  .exam-choice.selected { background:#1c3154; border-color:var(--primary); color:var(--primary-border); }
-  .auth-notice { background:var(--ok-bg); border-color:var(--ok-border); color:var(--ok-text); }
-}
+
 @media(max-width:760px) {
   .auth-page { display:block; padding:0; }
   .auth-shell { display:block; min-height:100svh; border:0; border-radius:0; box-shadow:none; }
