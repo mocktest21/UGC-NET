@@ -91,3 +91,28 @@
     padding:14px;
   }
 }
+
+
+/* Mobile question review: enforce consistent inner spacing */
+.mr-question-list{display:grid;gap:14px}
+.mr-question{
+  box-sizing:border-box;
+  width:100%;
+  min-width:0;
+  padding:20px 18px !important;
+  overflow:hidden;
+}
+.mr-question-top{min-width:0;flex-wrap:wrap;row-gap:9px}
+.mr-question h3{padding:0;margin:16px 0 18px;overflow-wrap:anywhere}
+.mr-options{width:100%;box-sizing:border-box;gap:9px}
+.mr-options>div{box-sizing:border-box;width:100%;min-width:0;padding:12px 14px;overflow-wrap:anywhere}
+.mr-options>div span{min-width:0;overflow-wrap:anywhere}
+.mr-explanation{box-sizing:border-box;width:100%;padding:15px 16px;margin-top:12px;overflow-wrap:anywhere}
+@media(max-width:760px){
+  .mr-question{padding:18px 15px !important}
+  .mr-question-top{column-gap:9px}
+  .mr-question h3{margin:16px 0 18px;line-height:1.65}
+  .mr-options{gap:9px;margin:14px 0}
+  .mr-options>div{padding:13px 12px}
+  .mr-explanation{padding:14px 15px}
+}
