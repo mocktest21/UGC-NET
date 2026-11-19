@@ -57,3 +57,37 @@
  .mr-analysis-filters{gap:6px;padding:8px}
  .mr-analysis-filters button{flex:1 1 calc(50% - 6px);min-height:38px;padding:7px 8px}
 }
+
+
+/* Keep question-review content comfortably inset from its card border */
+.mr-question{
+  padding:18px 16px;
+}
+@media(max-width:760px){
+  .mr-question{
+    padding:16px 12px;
+  }
+  .mr-question-top{
+    gap:8px;
+    flex-wrap:wrap;
+  }
+  .mr-question-top small{
+    margin-left:0;
+  }
+  .mr-bookmark-button{
+    margin-left:auto;
+  }
+  .mr-question h3{
+    margin:16px 0;
+  }
+  .mr-options{
+    margin:14px 0;
+  }
+  .mr-options>div{
+    padding:12px;
+    line-height:1.5;
+  }
+  .mr-explanation{
+    padding:14px;
+  }
+}
