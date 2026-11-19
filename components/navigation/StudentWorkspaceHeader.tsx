@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import {usePathname} from "next/navigation";
-import {BookOpen,BookMarked,House,Info,Radio} from "lucide-react";
+import {BookOpen,BookMarked,House,Info,Radio,ChartNoAxesCombined} from "lucide-react";
 
 const items=[
  {href:"/dashboard",label:"Dashboard",Icon:House},
+ {href:"/tracker",label:"Tracker",Icon:ChartNoAxesCombined},
  {href:"/practice",label:"Practice",Icon:BookOpen},
  {href:"/live-test",label:"Live Test",Icon:Radio},
  {href:"/personal-notebook",label:"Personal Notebook",Icon:BookMarked},
