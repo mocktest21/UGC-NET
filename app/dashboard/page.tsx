@@ -231,7 +231,7 @@ export default function DashboardPage() {
       {menuOpen && <button className="mm-sidebar-scrim" aria-label="Close navigation" onClick={() => setMenuOpen(false)} />}
 
       <div className="mm-main">
-        <StudentWorkspaceHeader showNav={false} leftSlot={<button className="mm-menu-toggle" aria-label={menuOpen ? "Close navigation" : "Open navigation"} aria-expanded={menuOpen} onClick={() => setMenuOpen((open) => !open)}><Menu size={20}/></button>} rightSlot={profileMenu}/>
+        <StudentWorkspaceHeader showNav={false} leftSlot={<button className="mm-menu-toggle" aria-label={menuOpen ? "Close navigation" : "Open navigation"} aria-expanded={menuOpen} onClick={() => setMenuOpen((open) => !open)}><Menu size={20}/></button>} />
 
         <main className="mm-content mm-analytics-content" id="overview">
           <section className="mm-analytics-heading">
