@@ -156,7 +156,7 @@ returns jsonb
 language plpgsql
 security invoker
 set search_path = ''
-as $
+as $$
 declare
   v_student uuid := auth.uid();
   v_exam uuid;
@@ -209,7 +209,7 @@ begin
 
   return v_result;
 end;
-$;
+$$;
 
 revoke all on function public.student_get_syllabus_topic_tracker() from public, anon;
 grant execute on function public.student_get_syllabus_topic_tracker() to authenticated;
