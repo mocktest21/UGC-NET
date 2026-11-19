@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import {ClipboardList,Grid2X2,Target,Gauge,TrendingUp,Clock3,House,BookOpen,Radio,NotebookPen,Info,UserRound,LogOut,Menu,ChevronDown,Sparkles,X,ChartNoAxesCombined,Activity} from "lucide-react";
+import {ClipboardList,Grid2X2,Target,Gauge,TrendingUp,Clock3,House,BookOpen,Radio,NotebookPen,UserRound,LogOut,Menu,ChevronDown,Sparkles,X,Activity} from "lucide-react";
 import StudentWorkspaceHeader from "@/components/navigation/StudentWorkspaceHeader";
 import MockMasterLoading from "@/app/components/ui/MockMasterLoading";
 
@@ -23,11 +23,9 @@ type Student = {
 
 const desktopNavigation = [
   { label: "Dashboard", href: "/dashboard" },
-  { label: "Tracker", href: "/tracker" },
   { label: "Practice", href: "/practice" },
   { label: "Live Test", href: "/live-test" },
   { label: "Personal Notebook", href: "/personal-notebook" },
-  { label: "About Us", href: "/about" },
 ];
 
 const summaryStats = [
@@ -197,7 +195,7 @@ export default function DashboardPage() {
         <nav className="mm-mobile-main-nav" aria-label="Main navigation">
           {desktopNavigation.map((item, index) => (
             <Link key={item.label} className={index === 0 ? "mm-nav-link mm-nav-active" : "mm-nav-link"} href={item.href} onClick={() => setMenuOpen(false)}>
-              <span className="mm-nav-icon">{index===0?<House size={17}/>:index===1?<ChartNoAxesCombined size={17}/>:index===2?<BookOpen size={17}/>:index===3?<Radio size={17}/>:index===4?<NotebookPen size={17}/>:<Info size={17}/>}</span>{item.label}
+              <span className="mm-nav-icon">{index===0?<House size={17}/>:index===1?<Activity size={17}/>:index===2?<BookOpen size={17}/>:index===3?<Radio size={17}/>:<NotebookPen size={17}/>}</span>{item.label}
             </Link>
           ))}
         </nav>
