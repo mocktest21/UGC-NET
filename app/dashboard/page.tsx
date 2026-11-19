@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import {ClipboardList,Grid2X2,Target,Gauge,TrendingUp,Clock3,House,BookOpen,Radio,NotebookPen,Info,UserRound,LogOut,Menu,ChevronDown,Sparkles,X,ChartNoAxesCombined} from "lucide-react";
+import {ClipboardList,Grid2X2,Target,Gauge,TrendingUp,Clock3,House,BookOpen,Radio,NotebookPen,Info,UserRound,LogOut,Menu,ChevronDown,Sparkles,X,ChartNoAxesCombined,Activity} from "lucide-react";
 import StudentWorkspaceHeader from "@/components/navigation/StudentWorkspaceHeader";
 import MockMasterLoading from "@/app/components/ui/MockMasterLoading";
 
@@ -240,6 +240,7 @@ export default function DashboardPage() {
               <h1>Hey, {firstName}!</h1>
               <p>Let’s analyse your progress and see where you can improve.</p>
             </div>
+            <Link className="mm-dashboard-analytics-link" href="/analytics"><Activity size={16}/> View Analytics</Link>
           </section>
 
           <section className="mm-analytics-summary mm-dashboard-overview" aria-label="Overall performance statistics">

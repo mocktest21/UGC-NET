@@ -17,13 +17,14 @@ const number=(v:number)=>Number(v||0).toLocaleString("en-IN");
 
 export default function SyllabusTrackerPage(){
  const router=useRouter();
- const [db]=useState(()=>createSupabaseBrowserClient());
+
  const [data,setData]=useState<TrackerData|null>(null);
  const [loading,setLoading]=useState(true);
  const [refreshing,setRefreshing]=useState(false);
  const [error,setError]=useState("");
  const [activePaper,setActivePaper]=useState("PAPER_1");
  const load=useCallback(async(initial=false)=>{
+  const db=createSupabaseBrowserClient();
   if(initial)setLoading(true);else setRefreshing(true);
   setError("");
   const {data:auth,error:authError}=await db.auth.getUser();
@@ -32,7 +33,7 @@ export default function SyllabusTrackerPage(){
   if(rpcError){setError(rpcError.message||"Unable to load your syllabus tracker.");setData(null);}
   else setData(result as TrackerData);
   setLoading(false);setRefreshing(false);
- },[db,router]);
+ },[router]);
  useEffect(()=>{void load(true);},[load]);
  const papers=data?.papers||[];
  const current=papers.find(p=>p.paper_code===activePaper)||papers[0];

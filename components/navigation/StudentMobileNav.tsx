@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import {House,ChartNoAxesCombined,BookOpen,Radio,NotebookPen} from "lucide-react";
+import {House,ChartNoAxesCombined,Activity,BookOpen,Radio,NotebookPen} from "lucide-react";
 import { usePathname } from "next/navigation";
 
 const items = [
   { label: "Dashboard", href: "/dashboard", Icon: House },
   { label: "Tracker", href: "/tracker", Icon: ChartNoAxesCombined },
+  { label: "Analytics", href: "/analytics", Icon: Activity },
   { label: "Practice", href: "/practice", Icon: BookOpen },
   { label: "Live Test", href: "/live-test", Icon: Radio },
   { label: "Personal Notebook", href: "/personal-notebook", Icon: NotebookPen },
