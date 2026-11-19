@@ -666,3 +666,57 @@
  .ps-grid{grid-auto-rows:44px;gap:6px}
  .ps-palette-footer{padding-top:7px;padding-bottom:7px}
 }
+
+
+/* Final mobile header correction: compact Exit + timer row, no duplicate in-card Save & Next. */
+@media(max-width:760px){
+  .ps-shell{width:100%;max-width:100%;overflow:hidden}
+  .ps-header{
+    position:relative!important;inset:auto!important;
+    display:flex!important;flex-direction:row!important;
+    align-items:center!important;justify-content:space-between!important;
+    box-sizing:border-box;width:100%;height:64px!important;
+    min-height:64px!important;flex:0 0 64px!important;
+    gap:12px!important;padding:0 clamp(12px,4vw,22px)!important;
+    overflow:visible!important;transform:none!important;
+    background:var(--bg-page)!important;border:0!important
+  }
+  .ps-header-brand{
+    display:flex!important;align-items:center!important;
+    flex:0 1 auto!important;min-width:0!important;gap:0!important;
+    margin:0!important;padding:0!important
+  }
+  .ps-header .ps-brand{display:none!important}
+  .ps-header .ps-desktop-exit{display:none!important}
+  .ps-header .ps-mobile-exit{
+    position:static!important;display:inline-flex!important;
+    align-items:center!important;justify-content:center!important;
+    flex:0 0 auto!important;width:auto!important;min-width:0!important;
+    height:44px!important;min-height:44px!important;margin:0!important;
+    padding:0 14px!important;transform:none!important;
+    border:1px solid var(--border)!important;border-radius:13px!important;
+    background:var(--surface)!important;color:var(--primary-hover)!important;
+    font-size:14px!important;line-height:1!important;white-space:nowrap!important
+  }
+  .ps-header .ps-timer{
+    position:static!important;inset:auto!important;transform:none!important;
+    display:flex!important;flex:0 0 auto!important;
+    align-items:center!important;justify-content:center!important;
+    gap:8px!important;width:auto!important;min-width:118px!important;
+    height:44px!important;min-height:44px!important;margin:0!important;
+    padding:0 12px!important;box-sizing:border-box!important;
+    border:1px solid var(--primary-border)!important;border-radius:13px!important;
+    background:var(--primary-tint)!important;color:var(--primary-hover)!important;
+    text-align:center!important;z-index:1!important
+  }
+  .ps-header .ps-timer b{
+    display:block!important;margin:0!important;padding:0!important;
+    font-size:clamp(14px,4vw,17px)!important;line-height:1!important;
+    font-weight:800!important;white-space:nowrap!important;
+    font-variant-numeric:tabular-nums!important
+  }
+  .ps-header .ps-mobile-clock{display:inline!important;flex:0 0 auto!important}
+  .ps-progress{position:relative!important;inset:auto!important;z-index:0!important;flex:0 0 4px!important;width:100%!important;height:4px!important;margin:0!important}
+  .ps-meta{position:static!important;transform:none!important;margin-top:0!important}
+  .ps-actions .ps-next{display:none!important}
+}
