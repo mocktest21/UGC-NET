@@ -56,7 +56,7 @@ export default function PracticeSessionPage(){
   const answerState:Record<string,any>={},reviewState:string[]=[];
   (responses||[]).forEach((r:any)=>{if(r.response!==null)answerState[r.test_question_id]=r.response;if(r.is_marked_for_review)reviewState.push(r.test_question_id);});
   const expiry=attempt.expires_at?Math.max(0,Math.floor((new Date(attempt.expires_at).getTime()-Date.now())/1000)):Math.max(1,Number(params.get("minutes")||50)*60);
-  if(live){setQuestions(built);setAnswers(answerState);setReview(reviewState);setBookmarked((bookmarkRows||[]).map((b:any)=>b.question_id));setExpiresAt(attempt.expires_at||null);setSeconds(expiry);setLoading(false);if(!built.length)setError("No questions were found in this practice attempt.");}
+  if(live){setQuestions(built);setAnswers(answerState);setReview(reviewState);setVisited([0,...built.map((item:any,index:number)=>({item,index})).filter(({item,index}:any)=>answerState[item.id]!==undefined&&answerState[item.id]!==null&&answerState[item.id]!==""||reviewState.includes(item.id)).map(({index}:any)=>index)]);setBookmarked((bookmarkRows||[]).map((b:any)=>b.question_id));setExpiresAt(attempt.expires_at||null);setSeconds(expiry);setLoading(false);if(!built.length)setError("No questions were found in this practice attempt.");}
  })();return()=>{live=false;};},[db,router,params,testId,attemptId]);
 
  const persist=useCallback((id:string,value:any,flag:boolean)=>{
