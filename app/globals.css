@@ -2416,3 +2416,23 @@ button{font-family:var(--mm-font);font-weight:600}
 @keyframes mm-loading-spin{to{transform:rotate(360deg)}}
 @media(max-width:700px){.mm-loading-nav{display:none}.mm-loading-profile{margin-left:auto}.mm-loading-content{padding-top:22px}.mm-loading-stats{gap:8px}.mm-loading-stats .mm-loading-panel{height:86px;padding:12px}.mm-loading-builder{grid-template-columns:1fr}.mm-loading-summary{display:none}.mm-loading-units{grid-template-columns:repeat(2,minmax(0,1fr))}.mm-loading-table-row{grid-template-columns:20px minmax(0,2fr) repeat(2,minmax(0,1fr)) 20px}.mm-loading-table-row span:nth-of-type(3){display:none}.mm-loading-message{margin-top:24px}.mm-loading-session{padding:16px}}
 @media(prefers-reduced-motion:reduce){.mm-loading-screen *{animation-duration:.01ms!important;animation-iteration-count:1!important}}
+
+
+/* Loading states follow the current MockMaster design; never show the legacy workspace chrome on test loading. */
+.mm-loading-screen{box-sizing:border-box;min-height:100svh;background:var(--bg-page,#fff9ee)!important;color:var(--ink,#172b3a)}
+.mm-loading-screen *{box-sizing:border-box}
+.mm-loading-screen .mm-loading-topbar{background:var(--bg-page,#fff9ee);border-bottom-color:var(--border,#eee5d8)}
+.mm-loading-screen .mm-loading-brand span{background:var(--primary,#0f766e)}
+.mm-loading-session .mm-loading-content{width:min(760px,calc(100% - 32px));padding:clamp(18px,4vw,30px) 0 40px}
+.mm-loading-session .mm-loading-session{background:transparent;border:0;border-radius:0;padding:0;max-width:none}
+.mm-loading-session-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 16px;color:var(--primary-hover,#115e59);font-size:13px;font-weight:750}
+.mm-loading-session-heading i{display:block;width:92px;height:25px;border-radius:99px;background:var(--primary-tint,#f0fdfa)}
+.mm-loading-session .mm-sk-question-meta{height:13px;width:48%;margin-bottom:18px}
+.mm-loading-session .mm-sk-question{height:clamp(48px,8vw,70px);width:92%;margin-bottom:20px}
+.mm-loading-session .mm-sk-option{height:clamp(54px,9vw,68px);margin:10px 0;border:1px solid var(--border,#eee5d8);border-radius:15px;background:var(--surface,#fff)}
+.mm-loading-session .mm-loading-message{margin-top:24px}
+@media(max-width:760px){
+ .mm-loading-session .mm-loading-content{width:100%;padding:18px 16px 28px}
+ .mm-loading-session .mm-loading-session{padding:0}
+ .mm-loading-session .mm-loading-message{margin-top:18px}
+}
