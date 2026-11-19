@@ -47,6 +47,22 @@ export default function AnalyticsPage(){
  const [consistency,setConsistency]=useState<ConsistencyKey>("daily");
  const [expandedUnits,setExpandedUnits]=useState<string[]>([]);
  const [paperTab,setPaperTab]=useState("PAPER_1");
+ const [analysisPaperTab,setAnalysisPaperTab]=useState("PAPER_1");
+ const startPractice=(paperCode:string,unitId?:string,difficultyValue?:string)=>{
+  const paper=papers.find(p=>p.paper_code===paperCode);
+  if(!paper)return;
+  try{
+   sessionStorage.setItem("mm-practice-paper-code",paperCode);
+   if(unitId)sessionStorage.setItem("mm-practice-unit-id",unitId);else sessionStorage.removeItem("mm-practice-unit-id");
+   if(difficultyValue)sessionStorage.setItem("mm-practice-difficulty",difficultyValue);else sessionStorage.removeItem("mm-practice-difficulty");
+   router.push("/practice");
+  }catch{router.push("/practice");}
+ };
+ const analysisPaper= papers.find(p=>p.paper_code===analysisPaperTab);
+ const analysisUnits=units.filter(u=>u.paper_name===analysisPaper?.paper_name);
+ const analysisUnitIds=new Set(analysisUnits.map(u=>u.id));
+ const analysisTopics=topics.filter(t=>analysisUnitIds.has(t.unit_id));
+ const analysisDifficulty=difficulty;
 
  const bounds=useMemo(()=>{
   const now=new Date();let start:Date|null=null,end:Date|null=null;
@@ -160,19 +176,22 @@ export default function AnalyticsPage(){
 
     <section className="an-panel">
      <div className="an-panel-title"><div><span className="an-kicker">DETAILED SYLLABUS ANALYSIS</span><h2>Unit-wise Performance</h2><p>Accuracy, correct and incorrect answers.</p></div></div>
-     <div className="an-unit-list">{units.map(u=><article className="an-unit" key={u.id}><div className="an-unit-head"><div><strong>{u.name}</strong><small>{u.paper_name}</small></div><b>{u.accuracy===null?"—":Number(u.accuracy).toFixed(1)+"%"}</b></div><div className="an-progress"><span style={{width:pct(u.accuracy)+"%"}}/></div><div className="an-unit-stats"><span>{fmt(u.correct)} correct</span><span>{fmt(u.incorrect)} incorrect</span></div></article>)}</div>
-     {!units.length&&<div className="an-empty">Unit performance will appear after you attempt unit-tagged questions.</div>}
+     <div className="an-analysis-paper-tabs" role="group" aria-label="Filter unit analysis by paper">{papers.map(p=><button type="button" key={p.paper_code} className={analysisPaperTab===p.paper_code?"active":""} onClick={()=>setAnalysisPaperTab(p.paper_code)}>{p.paper_code==="PAPER_2"?"Paper 2":"Paper 1"}</button>)}</div>
+     <div className="an-unit-list">{analysisUnits.map(u=><article className="an-unit" key={u.id}><div className="an-unit-head"><div><strong>{u.name}</strong><small>{u.paper_name}</small></div><b>{u.accuracy===null?"—":Number(u.accuracy).toFixed(1)+"%"}</b></div><div className="an-progress"><span style={{width:pct(u.accuracy)+"%"}}/></div><div className="an-unit-stats"><span>{fmt(u.correct)} correct</span><span>{fmt(u.incorrect)} incorrect</span><button type="button" className="an-practice-button" onClick={()=>startPractice(analysisPaperTab,u.id)}>Practice <BookOpenCheck size={13}/></button></div></article>)}</div>
+     {!analysisUnits.length&&<div className="an-empty">Unit performance will appear after you attempt unit-tagged questions.</div>}
     </section>
 
     <section className="an-panel">
      <div className="an-panel-title"><div><span className="an-kicker">TOPIC-WISE PERFORMANCE</span><h2>Topic analysis</h2></div></div>
-     {topics.length?<div className="an-topic-list">{topics.map(t=><div className="an-topic" key={t.id}><div><strong>{t.name}</strong><small>{t.unit_name}</small></div><b>{t.accuracy===null?"—":Number(t.accuracy).toFixed(1)+"%"}</b></div>)}</div>:<div className="an-empty">Topic-wise analysis is not available yet because questions in the current question bank are not mapped to topics. Once topic mapping is added, this section will populate automatically.</div>}
+     <div className="an-analysis-paper-tabs" role="group" aria-label="Filter topic analysis by paper">{papers.map(p=><button type="button" key={p.paper_code} className={analysisPaperTab===p.paper_code?"active":""} onClick={()=>setAnalysisPaperTab(p.paper_code)}>{p.paper_code==="PAPER_2"?"Paper 2":"Paper 1"}</button>)}</div>
+     {analysisTopics.length?<div className="an-topic-list">{analysisTopics.map(t=><div className="an-topic" key={t.id}><div><strong>{t.name}</strong><small>{t.unit_name}</small></div><b>{t.accuracy===null?"—":Number(t.accuracy).toFixed(1)+"%"}</b></div>)}</div>:<div className="an-empty">Topic-wise analysis is not available yet because questions in this paper are not mapped to topics. Once topic mapping is added, this section will populate automatically.</div>}
     </section>
 
     <section className="an-panel">
      <div className="an-panel-title"><div><span className="an-kicker">QUESTION DIFFICULTY</span><h2>Difficulty Analysis</h2><p>Correct and incorrect answers by difficulty.</p></div></div>
-     <div className="an-difficulty">{difficulty.map(d=><div className="an-difficulty-row" key={d.difficulty}><div className="an-difficulty-name">{d.difficulty.charAt(0).toUpperCase()+d.difficulty.slice(1)}<small>{fmt(d.attempted)} attempted</small></div><div className="an-difficulty-bars"><div><span style={{width:(d.attempted?d.correct/d.attempted*100:0)+"%"}}/></div><div><span style={{width:(d.attempted?d.incorrect/d.attempted*100:0)+"%"}}/></div></div><div className="an-difficulty-values"><span>{fmt(d.correct)} correct</span><span>{fmt(d.incorrect)} incorrect</span></div></div>)}</div>
-     {!difficulty.length&&<div className="an-empty">Difficulty analysis will appear after completed attempts.</div>}
+     <div className="an-analysis-paper-tabs" role="group" aria-label="Filter difficulty analysis by paper">{papers.map(p=><button type="button" key={p.paper_code} className={analysisPaperTab===p.paper_code?"active":""} onClick={()=>setAnalysisPaperTab(p.paper_code)}>{p.paper_code==="PAPER_2"?"Paper 2":"Paper 1"}</button>)}</div>
+     <div className="an-difficulty">{analysisDifficulty.map(d=><div className="an-difficulty-row" key={d.difficulty}><div className="an-difficulty-name">{d.difficulty.charAt(0).toUpperCase()+d.difficulty.slice(1)}<small>{fmt(d.attempted)} attempted</small></div><div className="an-difficulty-bars"><div><span style={{width:(d.attempted?d.correct/d.attempted*100:0)+"%"}}/></div><div><span style={{width:(d.attempted?d.incorrect/d.attempted*100:0)+"%"}}/></div></div><div className="an-difficulty-values"><span>{fmt(d.correct)} correct</span><span>{fmt(d.incorrect)} incorrect</span><button type="button" className="an-practice-button" onClick={()=>startPractice(analysisPaperTab,undefined,d.difficulty)}>Practice <BookOpenCheck size={13}/></button></div></div>)}</div>
+     {!analysisDifficulty.length&&<div className="an-empty">Difficulty analysis will appear after completed attempts.</div>}
     </section>
    </>}
 
