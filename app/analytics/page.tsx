@@ -20,6 +20,7 @@ type AnalyticsData={
 type TrackerUnit={id:string;name:string;unit_number:number|null;total_questions:number;attempted_questions:number;remaining_questions:number;completion:number};
 type TrackerPaper={paper_code:string;paper_name:string;subject_name:string;total_questions:number;attempted_questions:number;remaining_questions:number;completion:number;units:TrackerUnit[]};
 type TrackerData={papers:TrackerPaper[]};
+type SyllabusTopic={id:string;unit_id:string;name:string;total_questions:number;attempted_questions:number;remaining_questions:number;completion:number};
 type RangeKey="today"|"week"|"month"|"3months"|"all"|"custom";
 type ConsistencyKey="daily"|"weekly"|"monthly";
 
@@ -35,6 +36,7 @@ export default function AnalyticsPage(){
  const [db]=useState(()=>createSupabaseBrowserClient());
  const [data,setData]=useState<AnalyticsData|null>(null);
  const [tracker,setTracker]=useState<TrackerData|null>(null);
+ const [syllabusTopics,setSyllabusTopics]=useState<SyllabusTopic[]>([]);
  const [loading,setLoading]=useState(true);
  const [refreshing,setRefreshing]=useState(false);
  const [error,setError]=useState("");
@@ -61,14 +63,17 @@ export default function AnalyticsPage(){
   setError("");
   const {data:auth,error:authError}=await db.auth.getUser();
   if(authError||!auth.user){router.replace("/login");return;}
-  const [analyticsResult,trackerResult]=await Promise.all([
+  const [analyticsResult,trackerResult,topicResult]=await Promise.all([
    db.rpc("student_get_analytics_v2",{p_from:bounds.from,p_to:bounds.to}),
-   db.rpc("student_get_syllabus_tracker")
+   db.rpc("student_get_syllabus_tracker"),
+   db.rpc("student_get_syllabus_topic_tracker")
   ]);
   if(analyticsResult.error){setError(analyticsResult.error.message||"Analytics could not be loaded.");setData(null);}
   else setData(analyticsResult.data as AnalyticsData);
   if(trackerResult.error){setError(current=>current||trackerResult.error.message||"Syllabus progress could not be loaded.");setTracker(null);}
   else setTracker(trackerResult.data as TrackerData);
+  if(topicResult.error){setSyllabusTopics([]);}
+  else setSyllabusTopics((topicResult.data||[]) as SyllabusTopic[]);
   setLoading(false);setRefreshing(false);
  },[db,router,bounds.from,bounds.to]);
 
@@ -173,7 +178,7 @@ export default function AnalyticsPage(){
    {tab==="syllabus"&&<section className="an-syllabus">
     <section className="an-panel an-syllabus-overview"><div className="an-panel-title"><div><span className="an-kicker">QUESTION COVERAGE</span><h2>Overall Syllabus Progress</h2><p>Correct and incorrect attempts both count towards completion.</p></div><BookOpenCheck size={19}/></div><div className="an-syllabus-total"><strong>{syllabusPct.toFixed(1)}%</strong><span>{fmt(attemptedSyllabus)} of {fmt(totalSyllabus)} unique approved questions attempted</span></div><div className="an-progress an-progress-large"><span style={{width:syllabusPct+"%"}}/></div><div className="an-remaining">{fmt(Math.max(0,totalSyllabus-attemptedSyllabus))} questions remaining</div></section>
     <div className="an-syllabus-paper-tabs">{(tracker?.papers||[]).map(p=><button type="button" key={p.paper_code} className={selectedPaper?.paper_code===p.paper_code?"active":""} onClick={()=>setPaperTab(p.paper_code)}><span>{p.paper_name}</span>{p.paper_code==="PAPER_2"&&<small>{p.subject_name}</small>}</button>)}</div>
-    {selectedPaper&&<section className="an-panel"><div className="an-panel-title"><div><span className="an-kicker">{selectedPaper.paper_name.toUpperCase()}</span><h2>{selectedPaper.subject_name}</h2><p>{fmt(selectedPaper.total_questions)} approved questions in this paper.</p></div><strong className="an-paper-completion">{pct(selectedPaper.completion).toFixed(1)}%</strong></div><div className="an-progress an-progress-large"><span style={{width:pct(selectedPaper.completion)+"%"}}/></div><div className="an-unit-list an-syllabus-units">{selectedPaper.units.map((u,index)=>{const status=u.completion>=100?"Completed":u.completion>0?"In Progress":"Not Started";const open=expandedUnits.includes(u.id);return <article className="an-syllabus-unit" key={u.id}><button type="button" className="an-syllabus-unit-toggle" aria-expanded={open} onClick={()=>toggleUnit(u.id)}><span className="an-syllabus-unit-number">{u.unit_number??index+1}</span><span className="an-syllabus-unit-main"><strong>{u.name}</strong><small>{fmt(u.attempted_questions)} / {fmt(u.total_questions)} questions attempted · {fmt(u.remaining_questions)} remaining</small></span><span className={"an-status "+(status==="Completed"?"done":status==="In Progress"?"progress":"idle")}>{status}</span><b>{pct(u.completion).toFixed(1)}%</b><ChevronDown size={16} className={open?"turned":""}/></button><div className="an-progress"><span style={{width:pct(u.completion)+"%"}}/></div>{open&&<div className="an-topic-expand"><strong>Topic-wise question coverage</strong><p>Topic mapping is not available for this unit yet. Once questions are assigned to topics, topic completion will appear here.</p></div>}</article>})}</div></section>}
+    {selectedPaper&&<section className="an-panel"><div className="an-panel-title"><div><span className="an-kicker">{selectedPaper.paper_name.toUpperCase()}</span><h2>{selectedPaper.subject_name}</h2><p>{fmt(selectedPaper.total_questions)} approved questions in this paper.</p></div><strong className="an-paper-completion">{pct(selectedPaper.completion).toFixed(1)}%</strong></div><div className="an-progress an-progress-large"><span style={{width:pct(selectedPaper.completion)+"%"}}/></div><div className="an-unit-list an-syllabus-units">{selectedPaper.units.map((u,index)=>{const status=u.completion>=100?"Completed":u.completion>0?"In Progress":"Not Started";const open=expandedUnits.includes(u.id);return <article className="an-syllabus-unit" key={u.id}><button type="button" className="an-syllabus-unit-toggle" aria-expanded={open} onClick={()=>toggleUnit(u.id)}><span className="an-syllabus-unit-number">{u.unit_number??index+1}</span><span className="an-syllabus-unit-main"><strong>{u.name}</strong><small>{fmt(u.attempted_questions)} / {fmt(u.total_questions)} questions attempted · {fmt(u.remaining_questions)} remaining</small></span><span className={"an-status "+(status==="Completed"?"done":status==="In Progress"?"progress":"idle")}>{status}</span><b>{pct(u.completion).toFixed(1)}%</b><ChevronDown size={16} className={open?"turned":""}/></button><div className="an-progress"><span style={{width:pct(u.completion)+"%"}}/></div>{open&&<div className="an-topic-expand"><strong>Topic-wise question coverage</strong>{syllabusTopics.some(t=>t.unit_id===u.id)?<div className="an-topic-coverage-list">{syllabusTopics.filter(t=>t.unit_id===u.id).map(t=><div className="an-topic-coverage" key={t.id}><div><span>{t.name}</span><small>{fmt(t.attempted_questions)} / {fmt(t.total_questions)} attempted · {fmt(t.remaining_questions)} remaining</small></div><b>{pct(t.completion).toFixed(1)}%</b><div className="an-progress"><span style={{width:pct(t.completion)+"%"}}/></div></div>)}</div>:<p>Topic mapping is not available for this unit yet. Once questions are assigned to topics, topic completion will appear here.</p>}</div>}</article>})}</div></section>}
     <p className="an-footnote">Each approved question is counted once, even if you attempt it multiple times. Completion is based on unique question IDs, not accuracy.</p>
    </section>}
    <footer className="an-footer"><span>© {new Date().getFullYear()} MockMaster</span><span>Practice. Improve. Achieve.</span></footer>
