@@ -112,3 +112,53 @@
   .mn-tabs button svg{width:12px;height:12px}
   .mn-tabs button b{padding:2px 4px;font-size:8px}
 }
+
+
+/* Final mobile filter layout: four compact buttons, always on one line */
+.mn-tabs{
+  display:grid !important;
+  grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+  grid-template-rows:minmax(42px,auto) !important;
+  grid-auto-flow:column !important;
+  flex-wrap:nowrap !important;
+  width:100%;
+  box-sizing:border-box;
+  overflow:hidden;
+  gap:5px !important;
+}
+.mn-tabs>button{
+  display:flex !important;
+  flex:initial !important;
+  width:100%;
+  min-width:0 !important;
+  max-width:100%;
+  align-items:center;
+  justify-content:center;
+  flex-wrap:nowrap;
+  gap:3px !important;
+  padding:8px 2px !important;
+  border-radius:9px !important;
+  white-space:nowrap;
+  font-size:clamp(8px,2.35vw,11px) !important;
+  line-height:1.15;
+}
+.mn-tabs>button>span{min-width:0;overflow:hidden;text-overflow:clip}
+.mn-tabs>button svg{width:12px;height:12px;flex:0 0 12px}
+.mn-tabs>button>b{flex:0 0 auto;margin:0 !important;padding:2px 4px !important;font-size:8px !important}
+@media(max-width:380px){
+ .mn-tabs{gap:3px !important;padding:4px}
+ .mn-tabs>button{gap:2px !important;font-size:8px !important}
+ .mn-tabs>button svg{display:none}
+ .mn-tabs>button>b{font-size:7px !important;padding:2px 3px !important}
+}
+
+/* Option list stays neutral; only the answer summaries below it are highlighted */
+.mn-options li.mn-option-correct{
+  border:0 !important;
+  border-radius:0 !important;
+  background:transparent !important;
+  color:#475569 !important;
+  padding:0 0 0 3px !important;
+}
+.mn-options li.mn-option-correct b{color:var(--primary) !important}
+.mn-correct-tag{display:none !important}
