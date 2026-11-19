@@ -77,7 +77,7 @@ export default function AnalyticsPage(){
   setLoading(false);setRefreshing(false);
  },[db,router,bounds.from,bounds.to]);
 
- useEffect(()=>{void load(true);},[load]);
+ useEffect(()=>{void load(false);},[load]);
  const overall=data?.overall;
  const papers=data?.papers||[];
  const units=data?.units||[];
