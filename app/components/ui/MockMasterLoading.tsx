@@ -21,11 +21,6 @@ export default function MockMasterLoading({variant="workspace",message,title="Ge
   return()=>{window.clearInterval(rotate);window.clearTimeout(slow);};
  },[]);
  return <main className={"mm-loading-screen mm-loading-"+variant} aria-busy="true" aria-live="polite">
-  {variant!=="session"&&<header className="mm-loading-topbar">
-   <div className="mm-loading-brand"><span>M</span><i/></div>
-   <div className="mm-loading-nav"><i/><i/><i/><i/></div>
-   <div className="mm-loading-profile"/>
-  </header>}
   <section className="mm-loading-content">
    {variant!=="session"&&<div className="mm-loading-heading">
     <div className="mm-skeleton mm-sk-title"/>
