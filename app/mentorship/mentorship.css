@@ -1,0 +1,12 @@
+.mm-mentorship-page{min-height:100vh;background:var(--bg-page);color:var(--ink);font-family:var(--font-poppins),Arial,sans-serif;padding-bottom:48px}
+.mm-mentorship-wrap{width:min(920px,calc(100% - 32px));margin:0 auto;padding:28px 0}
+.mm-mentorship-back{display:inline-flex;align-items:center;gap:7px;color:var(--muted);font-size:12px;font-weight:650;text-decoration:none;margin-bottom:18px}
+.mm-mentorship-card{max-width:720px;margin:32px auto;padding:clamp(24px,5vw,48px);border:1px solid var(--border);border-radius:20px;background:var(--surface);box-shadow:0 8px 30px #1720330a}
+.mm-mentorship-icon{display:grid;place-items:center;width:58px;height:58px;border-radius:16px;background:var(--primary-tint);color:var(--primary);margin-bottom:22px}
+.mm-mentorship-kicker{font-size:10px;font-weight:850;letter-spacing:1.4px;color:var(--primary)}
+.mm-mentorship-card h1{margin:9px 0 10px;font-size:clamp(25px,4vw,36px);line-height:1.2;letter-spacing:-.7px}
+.mm-mentorship-card>p{max-width:570px;margin:0;color:var(--muted);font-size:13px;line-height:1.8}
+.mm-mentorship-status{display:inline-flex;margin-top:22px;padding:7px 11px;border:1px solid var(--primary-border);border-radius:99px;background:var(--primary-tint);color:var(--primary-hover);font-size:10px;font-weight:800}
+.mm-mentorship-placeholder{margin-top:28px;padding:17px;border:1px dashed var(--border-strong);border-radius:13px}
+.mm-mentorship-placeholder strong{font-size:12px}
+.mm-mentorship-placeholder p{margin:6px 0 0;color:var(--muted);font-size:11px;line-height:1.7}
