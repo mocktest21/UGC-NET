@@ -100,8 +100,8 @@ export default function AnalyticsPage(){
  const analysisPaper= papers.find(p=>p.paper_code===analysisPaperTab);
  const analysisUnits=units.filter(u=>u.paper_name===analysisPaper?.paper_name);
  const analysisUnitIds=new Set(analysisUnits.map(u=>u.id));
- const analysisTopics=topics;
- const analysisDifficulty=difficulty;
+ const analysisTopics=topics.filter(t=>analysisUnitIds.has(t.unit_id));
+ const analysisDifficulty=difficulty.filter(d=>d.paper_code===analysisPaperTab);
  const selectedPaper=tracker?.papers.find(p=>p.paper_code===paperTab)||tracker?.papers[0];
  const totalSyllabus=tracker?.papers.reduce((n,p)=>n+p.total_questions,0)||0;
  const attemptedSyllabus=tracker?.papers.reduce((n,p)=>n+p.attempted_questions,0)||0;
@@ -176,8 +176,8 @@ export default function AnalyticsPage(){
     </section>
 
     <section className="an-panel">
-     <div className="an-panel-title"><div><span className="an-kicker">DETAILED SYLLABUS ANALYSIS</span><h2>Unit-wise Performance</h2><p>Accuracy, correct and incorrect answers.</p></div></div>
      <div className="an-analysis-paper-tabs" role="group" aria-label="Filter unit analysis by paper">{papers.map(p=><button type="button" key={p.paper_code} className={analysisPaperTab===p.paper_code?"active":""} onClick={()=>setAnalysisPaperTab(p.paper_code)}>{p.paper_code==="PAPER_2"?"Paper 2":"Paper 1"}</button>)}</div>
+     <div className="an-panel-title"><div><span className="an-kicker">DETAILED SYLLABUS ANALYSIS</span><h2>Unit-wise Performance</h2><p>Accuracy, correct and incorrect answers.</p></div></div>
      <div className="an-unit-list">{analysisUnits.map(u=><article className="an-unit" key={u.id}><div className="an-unit-head"><div><strong>{u.name}</strong><small>{u.paper_name}</small></div><b>{u.accuracy===null?"—":Number(u.accuracy).toFixed(1)+"%"}</b></div><div className="an-progress"><span style={{width:pct(u.accuracy)+"%"}}/></div><div className="an-unit-stats"><span>{fmt(u.correct)} correct</span><span>{fmt(u.incorrect)} incorrect</span><button type="button" className="an-practice-button" onClick={()=>startPractice(analysisPaperTab,u.id)}>Practice <BookOpenCheck size={13}/></button></div></article>)}</div>
      {!analysisUnits.length&&<div className="an-empty">Unit performance will appear after you attempt unit-tagged questions.</div>}
     </section>
