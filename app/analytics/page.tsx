@@ -48,21 +48,7 @@ export default function AnalyticsPage(){
  const [expandedUnits,setExpandedUnits]=useState<string[]>([]);
  const [paperTab,setPaperTab]=useState("PAPER_1");
  const [analysisPaperTab,setAnalysisPaperTab]=useState("PAPER_1");
- const startPractice=(paperCode:string,unitId?:string,difficultyValue?:string)=>{
-  const paper=papers.find(p=>p.paper_code===paperCode);
-  if(!paper)return;
-  try{
-   sessionStorage.setItem("mm-practice-paper-code",paperCode);
-   if(unitId)sessionStorage.setItem("mm-practice-unit-id",unitId);else sessionStorage.removeItem("mm-practice-unit-id");
-   if(difficultyValue)sessionStorage.setItem("mm-practice-difficulty",difficultyValue);else sessionStorage.removeItem("mm-practice-difficulty");
-   router.push("/practice");
-  }catch{router.push("/practice");}
- };
- const analysisPaper= papers.find(p=>p.paper_code===analysisPaperTab);
- const analysisUnits=units.filter(u=>u.paper_name===analysisPaper?.paper_name);
- const analysisUnitIds=new Set(analysisUnits.map(u=>u.id));
- const analysisTopics=topics.filter(t=>analysisUnitIds.has(t.unit_id));
- const analysisDifficulty=difficulty.filter(d=>d.paper_code===analysisPaperTab);
+
 
  const bounds=useMemo(()=>{
   const now=new Date();let start:Date|null=null,end:Date|null=null;
@@ -101,6 +87,21 @@ export default function AnalyticsPage(){
  const topics=data?.topics||[];
  const difficulty=data?.difficulty||[];
  const daily=data?.consistency||[];
+ const startPractice=(paperCode:string,unitId?:string,difficultyValue?:string)=>{
+  const paper=papers.find(p=>p.paper_code===paperCode);
+  if(!paper)return;
+  try{
+   sessionStorage.setItem("mm-practice-paper-code",paperCode);
+   if(unitId)sessionStorage.setItem("mm-practice-unit-id",unitId);else sessionStorage.removeItem("mm-practice-unit-id");
+   if(difficultyValue)sessionStorage.setItem("mm-practice-difficulty",difficultyValue);else sessionStorage.removeItem("mm-practice-difficulty");
+   router.push("/practice");
+  }catch{router.push("/practice");}
+ };
+ const analysisPaper= papers.find(p=>p.paper_code===analysisPaperTab);
+ const analysisUnits=units.filter(u=>u.paper_name===analysisPaper?.paper_name);
+ const analysisUnitIds=new Set(analysisUnits.map(u=>u.id));
+ const analysisTopics=topics.filter(t=>analysisUnitIds.has(t.unit_id));
+ const analysisDifficulty=difficulty.filter(d=>d.paper_code===analysisPaperTab);
  const selectedPaper=tracker?.papers.find(p=>p.paper_code===paperTab)||tracker?.papers[0];
  const totalSyllabus=tracker?.papers.reduce((n,p)=>n+p.total_questions,0)||0;
  const attemptedSyllabus=tracker?.papers.reduce((n,p)=>n+p.attempted_questions,0)||0;
