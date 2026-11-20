@@ -198,3 +198,11 @@
  .an-difficulty-name>b{font-size:14px}
  .an-difficulty-values{width:100%}
 }
+
+
+/* Shared Paper 1 / Paper 2 selector for all detailed analysis */
+.an-analysis-selector{margin:0 0 12px;padding:3px;border:1px solid #e7e2d7;border-radius:13px;background:#fff}
+.an-analysis-selector .an-analysis-paper-tabs{margin:0;border:0;background:transparent;padding:0}
+.an-analysis-selector .an-analysis-paper-tabs button{flex:1;min-width:0;border:0;border-radius:9px;background:transparent;color:#66736f;padding:10px 12px;font-size:12px;font-weight:750}
+.an-analysis-selector .an-analysis-paper-tabs button.active{background:#0f766e;color:#fff}
+@media(max-width:700px){.an-analysis-selector{margin-bottom:12px}.an-analysis-selector .an-analysis-paper-tabs button{padding:10px 8px;font-size:11px}}
