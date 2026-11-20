@@ -206,3 +206,12 @@
 .an-analysis-selector .an-analysis-paper-tabs button{flex:1;min-width:0;border:0;border-radius:9px;background:transparent;color:#66736f;padding:10px 12px;font-size:12px;font-weight:750}
 .an-analysis-selector .an-analysis-paper-tabs button.active{background:#0f766e;color:#fff}
 @media(max-width:700px){.an-analysis-selector{margin-bottom:12px}.an-analysis-selector .an-analysis-paper-tabs button{padding:10px 8px;font-size:11px}}
+
+
+/* Separate Focus Next from the detailed syllabus selector */
+.an-focus-next{margin-top:18px;margin-bottom:8px}
+.an-analysis-selector{margin-top:20px;margin-bottom:16px}
+@media(max-width:700px){
+ .an-focus-next{margin-top:20px;margin-bottom:8px}
+ .an-analysis-selector{margin-top:22px;margin-bottom:16px}
+}
