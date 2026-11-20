@@ -215,3 +215,16 @@
  .an-focus-next{margin-top:20px;margin-bottom:8px}
  .an-analysis-selector{margin-top:22px;margin-bottom:16px}
 }
+
+
+/* Compact header controls: date range beside icon-only refresh */
+.an-heading-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex:0 0 auto}
+.an-heading-actions .an-filter-row{margin:0;gap:0}
+.an-heading-actions .an-filter-row label{display:none}
+.an-heading-actions .an-filter-row select{min-width:118px;padding:9px 28px 9px 10px;border-radius:10px;background:#fff;font-size:11px}
+.an-heading-actions .an-refresh{width:38px;height:38px;justify-content:center;padding:0;border-radius:10px}
+@media(max-width:700px){
+ .an-heading-actions{gap:6px}
+ .an-heading-actions .an-filter-row select{min-width:106px;max-width:116px;padding:9px 22px 9px 8px;font-size:10px}
+ .an-heading-actions .an-refresh{width:36px;height:36px;padding:0}
+}
