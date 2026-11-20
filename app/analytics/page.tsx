@@ -175,8 +175,9 @@ export default function AnalyticsPage(){
      <div className="an-panel-title"><div><span className="an-kicker">PAPER-WISE PERFORMANCE</span><h2>Accuracy by paper</h2><p>Paper 2 shows your selected subject.</p></div><BarChart3 size={19}/></div>
      <div className="an-paper-list">{papers.map(p=><div className="an-paper-row" key={p.paper_code}><div className="an-paper-label"><strong>{p.paper_code==="PAPER_2"?p.subject_name:p.paper_name}</strong><b>{p.accuracy===null?"—":Number(p.accuracy).toFixed(1)+"%"}</b></div><div className="an-progress"><span style={{width:pct(p.accuracy)+"%"}}/></div></div>)}</div>
      {!papers.length&&<div className="an-empty">Paper-wise data will appear after you complete a test.</div>}
-     <div className="an-focus-next"><span>FOCUS NEXT</span><p>{focusMessage}</p></div>
     </section>
+
+    <div className="an-focus-next"><span>FOCUS NEXT</span><p>{focusMessage}</p></div>
 
     <div className="an-analysis-selector" role="group" aria-label="Select paper for detailed analysis"><div className="an-analysis-paper-tabs">{papers.map(p=><button type="button" key={p.paper_code} aria-pressed={analysisPaperTab===p.paper_code} className={analysisPaperTab===p.paper_code?"active":""} onClick={()=>setAnalysisPaperTab(p.paper_code)}>{p.paper_code==="PAPER_2"?"Paper 2":"Paper 1"}</button>)}</div></div>
     <section className="an-panel">
