@@ -102,6 +102,8 @@ export default function AnalyticsPage(){
  const analysisUnitIds=new Set(analysisUnits.map(u=>u.id));
  const analysisTopics=topics.filter(t=>analysisUnitIds.has(t.unit_id));
  const analysisDifficulty=difficulty.filter(d=>d.paper_code===analysisPaperTab);
+ const focusUnit=analysisUnits.find(u=>u.attempted===0)||[...analysisUnits].filter(u=>u.accuracy!==null).sort((a,b)=>Number(a.accuracy)-Number(b.accuracy))[0];
+ const focusMessage=focusUnit?(focusUnit.attempted===0?focusUnit.name+" has not been started yet. Begin with a short practice set.":focusUnit.name+" has the most room to grow. Focus on accuracy and review incorrect answers."):"Complete a few practice questions to unlock your next focus area.";
  const selectedPaper=tracker?.papers.find(p=>p.paper_code===paperTab)||tracker?.papers[0];
  const totalSyllabus=tracker?.papers.reduce((n,p)=>n+p.total_questions,0)||0;
  const attemptedSyllabus=tracker?.papers.reduce((n,p)=>n+p.attempted_questions,0)||0;
@@ -173,12 +175,13 @@ export default function AnalyticsPage(){
      <div className="an-panel-title"><div><span className="an-kicker">PAPER-WISE PERFORMANCE</span><h2>Accuracy by paper</h2><p>Paper 2 shows your selected subject.</p></div><BarChart3 size={19}/></div>
      <div className="an-paper-list">{papers.map(p=><div className="an-paper-row" key={p.paper_code}><div className="an-paper-label"><strong>{p.paper_code==="PAPER_2"?p.subject_name:p.paper_name}</strong><b>{p.accuracy===null?"—":Number(p.accuracy).toFixed(1)+"%"}</b></div><div className="an-progress"><span style={{width:pct(p.accuracy)+"%"}}/></div></div>)}</div>
      {!papers.length&&<div className="an-empty">Paper-wise data will appear after you complete a test.</div>}
+     <div className="an-focus-next"><span>FOCUS NEXT</span><p>{focusMessage}</p></div>
     </section>
 
     <section className="an-panel">
      <div className="an-analysis-paper-tabs" role="group" aria-label="Filter unit analysis by paper">{papers.map(p=><button type="button" key={p.paper_code} className={analysisPaperTab===p.paper_code?"active":""} onClick={()=>setAnalysisPaperTab(p.paper_code)}>{p.paper_code==="PAPER_2"?"Paper 2":"Paper 1"}</button>)}</div>
      <div className="an-panel-title"><div><span className="an-kicker">DETAILED SYLLABUS ANALYSIS</span><h2>Unit-wise Performance</h2><p>Accuracy, correct and incorrect answers.</p></div></div>
-     <div className="an-unit-list">{analysisUnits.map(u=><article className="an-unit" key={u.id}><div className="an-unit-head"><div><strong>{u.name}</strong><small>{u.paper_name}</small></div><b>{u.accuracy===null?"—":Number(u.accuracy).toFixed(1)+"%"}</b></div><div className="an-progress"><span style={{width:pct(u.accuracy)+"%"}}/></div><div className="an-unit-stats"><span>{fmt(u.correct)} correct</span><span>{fmt(u.incorrect)} incorrect</span><button type="button" className="an-practice-button" onClick={()=>startPractice(analysisPaperTab,u.id)}>Practice <BookOpenCheck size={13}/></button></div></article>)}</div>
+     <div className="an-unit-list">{analysisUnits.map(u=><article className="an-unit" key={u.id}><div className="an-unit-head"><div><strong>{u.name}</strong><small>{u.paper_name}</small></div><b>{u.accuracy===null?"—":Number(u.accuracy).toFixed(1)+"%"}</b></div><div className="an-split-progress"><span className="correct" style={{width:(u.attempted?u.correct/u.attempted*100:0)+"%"}}/><span className="incorrect" style={{width:(u.attempted?u.incorrect/u.attempted*100:0)+"%"}}/></div><div className="an-unit-stats"><span>{fmt(u.correct)} correct</span><span>{fmt(u.incorrect)} incorrect</span><button type="button" className="an-practice-button" onClick={()=>startPractice(analysisPaperTab,u.id)}>Practice <BookOpenCheck size={13}/></button></div></article>)}</div>
      {!analysisUnits.length&&<div className="an-empty">Unit performance will appear after you attempt unit-tagged questions.</div>}
     </section>
 
