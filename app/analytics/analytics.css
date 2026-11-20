@@ -183,3 +183,18 @@
  .an-difficulty-row{padding:12px 0}
  .an-difficulty-values{gap:9px}
 }
+
+/* Reference-style performance badges and compact analysis cards */
+.an-unit-status{display:inline-flex;width:max-content;margin:-3px 0 8px;padding:3px 7px;border-radius:99px;font-size:8px;font-weight:800}
+.an-unit-status.strong{background:#e6f5f1;color:#0f766e}
+.an-unit-status.needs{background:#fff1d8;color:#a16207}
+.an-unit-status.idle{background:#f0eee7;color:#68736e}
+.an-difficulty-name{display:flex;align-items:baseline;gap:8px}
+.an-difficulty-name>b{margin-left:auto;color:#0f766e;font-size:15px;font-weight:850}
+.an-difficulty-values .an-practice-button{margin-left:auto}
+.an-topic .an-empty{margin-top:8px}
+@media(max-width:700px){
+ .an-unit-status{margin-bottom:7px}
+ .an-difficulty-name>b{font-size:14px}
+ .an-difficulty-values{width:100%}
+}
