@@ -23,7 +23,6 @@ type Student = {
 
 const desktopNavigation = [
   { label: "Dashboard", href: "/dashboard" },
-  { label: "Tracker", href: "/tracker" },
   { label: "Practice", href: "/practice" },
   { label: "Live Test", href: "/live-test" },
   { label: "Personal Notebook", href: "/personal-notebook" },
@@ -198,7 +197,7 @@ export default function DashboardPage() {
         <nav className="mm-mobile-main-nav" aria-label="Main navigation">
           {desktopNavigation.map((item, index) => (
             <Link key={item.label} className={index === 0 ? "mm-nav-link mm-nav-active" : "mm-nav-link"} href={item.href} onClick={() => setMenuOpen(false)}>
-              <span className="mm-nav-icon">{index===0?<House size={17}/>:index===1?<ChartNoAxesCombined size={17}/>:index===2?<BookOpen size={17}/>:index===3?<Radio size={17}/>:index===4?<NotebookPen size={17}/>:index===5?<Info size={17}/>:<GraduationCap size={17}/>}</span>{item.label}
+              <span className="mm-nav-icon">{index===0?<House size={17}/>:index===1?<BookOpen size={17}/>:index===2?<Radio size={17}/>:index===3?<NotebookPen size={17}/>:index===4?<Info size={17}/>:<GraduationCap size={17}/>}</span>{item.label}
             </Link>
           ))}
         </nav>
