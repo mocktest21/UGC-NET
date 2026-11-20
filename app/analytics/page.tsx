@@ -139,7 +139,7 @@ export default function AnalyticsPage(){
   <div className="an-wrap">
    <header className="an-heading">
     <div><span className="an-kicker">YOUR LEARNING INSIGHTS</span><h1>Analytics</h1><p>Understand your performance and track syllabus completion.</p></div>
-    <div className="an-heading-actions">{filter}<button className="an-refresh" type="button" aria-label="Refresh analytics" title="Refresh analytics" disabled={refreshing} onClick={()=>void load(false)}><RefreshCw size={17} className={refreshing?"an-spin":""}/></button></div>
+    <div className="an-heading-actions">{tab==="performance"&&(<div className="an-filter-row"><label htmlFor="an-range">Date range</label><select id="an-range" value={range} onChange={e=>setRange(e.target.value as RangeKey)}><option value="today">Today</option><option value="week">Last 7 days</option><option value="month">Last 30 days</option><option value="3months">Last 3 months</option><option value="all">All time</option><option value="custom">Custom range</option></select></div>)}<button className="an-refresh" type="button" aria-label="Refresh analytics" title="Refresh analytics" disabled={refreshing} onClick={()=>void load(false)}><RefreshCw size={17} className={refreshing?"an-spin":""}/></button></div>
    </header>
    <div className="an-tabs" role="tablist" aria-label="Analytics sections">
     <button type="button" role="tab" aria-selected={tab==="performance"} className={tab==="performance"?"active":""} onClick={()=>setTab("performance")}><Activity size={16}/> Performance</button>
