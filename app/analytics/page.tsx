@@ -100,8 +100,8 @@ export default function AnalyticsPage(){
  const analysisPaper= papers.find(p=>p.paper_code===analysisPaperTab);
  const analysisUnits=units.filter(u=>u.paper_name===analysisPaper?.paper_name);
  const analysisUnitIds=new Set(analysisUnits.map(u=>u.id));
- const analysisTopics=topics.filter(t=>analysisUnitIds.has(t.unit_id));
- const analysisDifficulty=difficulty.filter(d=>d.paper_code===analysisPaperTab);
+ const analysisTopics=topics;
+ const analysisDifficulty=difficulty;
  const selectedPaper=tracker?.papers.find(p=>p.paper_code===paperTab)||tracker?.papers[0];
  const totalSyllabus=tracker?.papers.reduce((n,p)=>n+p.total_questions,0)||0;
  const attemptedSyllabus=tracker?.papers.reduce((n,p)=>n+p.attempted_questions,0)||0;
@@ -184,14 +184,12 @@ export default function AnalyticsPage(){
 
     <section className="an-panel">
      <div className="an-panel-title"><div><span className="an-kicker">TOPIC-WISE PERFORMANCE</span><h2>Topic analysis</h2></div></div>
-     <div className="an-analysis-paper-tabs" role="group" aria-label="Filter topic analysis by paper">{papers.map(p=><button type="button" key={p.paper_code} className={analysisPaperTab===p.paper_code?"active":""} onClick={()=>setAnalysisPaperTab(p.paper_code)}>{p.paper_code==="PAPER_2"?"Paper 2":"Paper 1"}</button>)}</div>
      {analysisTopics.length?<div className="an-topic-list">{analysisTopics.map(t=><div className="an-topic" key={t.id}><div><strong>{t.name}</strong><small>{t.unit_name}</small></div><b>{t.accuracy===null?"—":Number(t.accuracy).toFixed(1)+"%"}</b></div>)}</div>:<div className="an-empty">Topic-wise analysis is not available yet because questions in this paper are not mapped to topics. Once topic mapping is added, this section will populate automatically.</div>}
     </section>
 
     <section className="an-panel">
      <div className="an-panel-title"><div><span className="an-kicker">QUESTION DIFFICULTY</span><h2>Difficulty Analysis</h2><p>Correct and incorrect answers by difficulty.</p></div></div>
-     <div className="an-analysis-paper-tabs" role="group" aria-label="Filter difficulty analysis by paper">{papers.map(p=><button type="button" key={p.paper_code} className={analysisPaperTab===p.paper_code?"active":""} onClick={()=>setAnalysisPaperTab(p.paper_code)}>{p.paper_code==="PAPER_2"?"Paper 2":"Paper 1"}</button>)}</div>
-     <div className="an-difficulty">{analysisDifficulty.map(d=><div className="an-difficulty-row" key={d.difficulty}><div className="an-difficulty-name">{d.difficulty.charAt(0).toUpperCase()+d.difficulty.slice(1)}<small>{fmt(d.attempted)} attempted</small></div><div className="an-difficulty-bars"><div><span style={{width:(d.attempted?d.correct/d.attempted*100:0)+"%"}}/></div><div><span style={{width:(d.attempted?d.incorrect/d.attempted*100:0)+"%"}}/></div></div><div className="an-difficulty-values"><span>{fmt(d.correct)} correct</span><span>{fmt(d.incorrect)} incorrect</span><button type="button" className="an-practice-button" onClick={()=>startPractice(analysisPaperTab,undefined,d.difficulty)}>Practice <BookOpenCheck size={13}/></button></div></div>)}</div>
+     <div className="an-difficulty">{analysisDifficulty.map(d=><div className="an-difficulty-row" key={d.difficulty}><div className="an-difficulty-name">{d.difficulty.charAt(0).toUpperCase()+d.difficulty.slice(1)}<small>{fmt(d.attempted)} attempted</small></div><div className="an-difficulty-bars"><div><span style={{width:(d.attempted?d.correct/d.attempted*100:0)+"%"}}/></div><div><span style={{width:(d.attempted?d.incorrect/d.attempted*100:0)+"%"}}/></div></div><div className="an-difficulty-values"><span>{fmt(d.correct)} correct</span><span>{fmt(d.incorrect)} incorrect</span><button type="button" className="an-practice-button" onClick={()=>startPractice(d.paper_code,undefined,d.difficulty)}>Practice <BookOpenCheck size={13}/></button></div></div>)}</div>
      {!analysisDifficulty.length&&<div className="an-empty">Difficulty analysis will appear after completed attempts.</div>}
     </section>
    </>}
