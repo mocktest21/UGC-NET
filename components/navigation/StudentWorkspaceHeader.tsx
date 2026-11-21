@@ -5,7 +5,7 @@ import {usePathname} from "next/navigation";
 import {BookOpen,BookMarked,House,Info,Radio,Activity} from "lucide-react";
 
 const items=[
- {href:"/dashboard",label:"Dashboard",Icon:House},
+ {href:"/dashboard",label:"Home",Icon:House},
  {href:"/analytics",label:"Analytics",Icon:Activity},
  {href:"/practice",label:"Practice",Icon:BookOpen},
  {href:"/live-test",label:"Live Test",Icon:Radio},
