@@ -177,3 +177,37 @@
 .mm-home-profile-menu{background:#fff!important;border-color:#99f6e4!important}
 .mm-home-profile-menu button{color:#134e4a!important}
 .mm-home-profile-menu button:hover{background:#f0fdfa!important;color:#0f766e!important}
+
+
+/* Official NTA notices: compact category-led cards with an explicit view action. */
+.mm-home-notice-list{display:grid;grid-template-columns:1fr;gap:10px;margin-top:16px}
+.mm-home-notice-item{
+ position:relative;display:grid;grid-template-columns:minmax(0,1fr) 42px;grid-template-rows:auto 1fr;
+ align-items:center;column-gap:12px;row-gap:8px;min-width:0;padding:15px 14px;
+ border:1px solid #e9e4d8;border-radius:16px;background:#fff;color:#1b2b28;
+ text-decoration:none;box-shadow:0 1px 2px rgba(25,45,38,.025)
+}
+.mm-home-notice-meta{grid-column:1;grid-row:1;display:flex;align-items:center;gap:8px;min-width:0}
+.mm-home-notice-type{display:inline-flex;align-items:center;width:max-content;padding:5px 9px;border-radius:99px;background:#e7f0ff;color:#244d7c;font-size:10px;font-weight:800;line-height:1;letter-spacing:.01em}
+.mm-home-notice-type-correction{background:#ffeadb;color:#8b3c0b}
+.mm-home-notice-type-extension{background:#fff0c2;color:#765000}
+.mm-home-notice-type-notice{background:#e8f3ee;color:#176b55}
+.mm-home-notice-title{grid-column:1;grid-row:2;min-width:0;color:#1d2b29;font-size:13px;font-weight:650;line-height:1.45}
+.mm-home-notice-view{grid-column:2;grid-row:1/3;display:grid;place-items:center;width:42px;height:42px;border-radius:50%;background:#e7f3ee;color:#087d68;text-decoration:none;transition:background .15s ease,transform .15s ease}
+.mm-home-notice-view:hover{background:#d6eee5;transform:translateY(-1px)}
+.mm-home-notice-view svg{display:block}
+.mm-home-new-badge{padding:4px 7px;border-radius:99px;background:transparent;color:#b54708;font-size:9px;font-weight:850;letter-spacing:.04em}
+.mm-home-notice-source{display:inline-flex;align-items:center;gap:6px}
+@media(max-width:760px){
+ .mm-home-updates{padding:16px!important;border-radius:18px!important}
+ .mm-home-notice-heading{align-items:center;margin-top:14px}
+ .mm-home-notice-heading h2{font-size:22px!important;line-height:1.2}
+ .mm-home-notice-heading p{font-size:12px!important;line-height:1.45}
+ .mm-home-verified{padding:7px 10px;font-size:9px}
+ .mm-home-notice-list{gap:10px;margin-top:16px}
+ .mm-home-notice-item{padding:14px 13px;border-radius:16px;min-height:104px}
+ .mm-home-notice-title{font-size:13px;line-height:1.45}
+ .mm-home-notice-view{width:42px;height:42px}
+ /* No category filter chips are rendered above the notices on mobile. */
+ .mm-home-notice-filters,.mm-home-notice-filter-row{display:none!important}
+}
