@@ -156,3 +156,24 @@
 .mm-home-profile-menu{z-index:160;padding:7px;border:1px solid var(--border);border-radius:14px;background:var(--surface);box-shadow:0 16px 38px rgba(15,35,45,.16)}
 .mm-home-profile-menu button{display:flex;align-items:center;gap:9px;width:100%;min-height:38px;padding:9px 10px;border:0;border-radius:9px;background:transparent;color:var(--ink);font-size:12px;text-align:left;cursor:pointer}
 .mm-home-profile-menu button:hover{background:var(--primary-tint);color:var(--primary)}
+
+
+/* Consistent, high-contrast account control with a real profile icon. */
+.mm-home-name-trigger{
+ display:inline-flex!important;align-items:center!important;gap:9px!important;
+ min-height:42px!important;padding:5px 12px 5px 6px!important;
+ border:1px solid #99f6e4!important;border-radius:13px!important;
+ background:#f0fdfa!important;color:#134e4a!important;
+ font-size:12px!important;font-weight:750!important;
+ box-shadow:0 3px 12px rgba(15,118,110,.09)!important
+}
+.mm-home-name-trigger:before{display:none!important;content:none!important}
+.mm-home-name-trigger .mm-home-trigger-avatar{
+ width:30px;height:30px;flex:0 0 30px;display:grid;place-items:center;
+ border-radius:10px;background:#0f766e;color:#fff!important
+}
+.mm-home-name-trigger .mm-home-trigger-name{color:#134e4a!important;font-size:12px!important}
+.mm-home-name-trigger .mm-home-trigger-chevron{color:#0f766e!important;font-size:16px!important}
+.mm-home-profile-menu{background:#fff!important;border-color:#99f6e4!important}
+.mm-home-profile-menu button{color:#134e4a!important}
+.mm-home-profile-menu button:hover{background:#f0fdfa!important;color:#0f766e!important}
