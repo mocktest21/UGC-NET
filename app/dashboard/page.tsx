@@ -187,6 +187,8 @@ export default function HomePage() {
           <Link href="/live-test" onClick={() => setMenuOpen(false)}><Radio size={17}/>Live Test</Link>
           <Link href="/personal-notebook" onClick={() => setMenuOpen(false)}><NotebookPen size={17}/>Personal Notebook</Link>
           <Link href="/analytics" onClick={() => setMenuOpen(false)}><Activity size={17}/>Analytics</Link>
+          <Link href="/mentorship" onClick={() => setMenuOpen(false)}><GraduationCap size={17}/>Mentorship</Link>
+          <Link href="/about" onClick={() => setMenuOpen(false)}><CircleHelp size={17}/>About Us</Link>
         </nav>
         <div className="mm-home-sidebar-bottom">
           <div className="mm-home-profile-wrap">
