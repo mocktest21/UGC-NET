@@ -9,7 +9,8 @@ const items=[
  {href:"/analytics",label:"Analytics",Icon:Activity},
  {href:"/practice",label:"Practice",Icon:BookOpen},
  {href:"/live-test",label:"Live Test",Icon:Radio},
- {href:"/personal-notebook",label:"Personal Notebook",Icon:BookMarked},\n {href:"/mentorship",label:"Mentorship",Icon:GraduationCap},
+ {href:"/personal-notebook",label:"Personal Notebook",Icon:BookMarked},
+ {href:"/mentorship",label:"Mentorship",Icon:GraduationCap},
  {href:"/about",label:"About Us",Icon:Info},
 ];
 export default function StudentWorkspaceHeader({name,rightSlot,leftSlot,showNav=true}:{name?:string;rightSlot?:React.ReactNode;leftSlot?:React.ReactNode;showNav?:boolean}){
