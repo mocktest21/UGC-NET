@@ -210,7 +210,7 @@ export default function HomePage() {
             <article className="mm-home-card mm-home-pace">
               <div className="mm-home-card-title"><span className="mm-home-icon"><TrendingUp size={18}/></span><span>REQUIRED PACE</span></div>
               <h2>{recentTrend === null ? "Baseline building" : recentTrend > 0.5 ? "Positive score movement" : recentTrend < -0.5 ? "Review your recent trend" : "Score trend is steady"}</h2>
-              <p>{latestFive.length < 5 ? "Complete five comparable full-length mocks first. Then we can calculate a realistic weekly improvement target against the correct subject, category and qualification benchmark." : "Your recent mock trend is available. A precise required pace will be shown after the relevant official cutoff benchmark and exam date are verified."}</p>
+              <p>{latestFive.length < 5 ? "Complete five scored, submitted mock tests first. Then we can calculate a realistic weekly improvement target against the correct subject, category and qualification benchmark." : "Your recent mock trend is available. A precise required pace will be shown after the relevant official cutoff benchmark and exam date are verified."}</p>
               {recentTrend !== null && <div className="mm-home-trend-chip">{recentTrend > 0 ? "+" : ""}{recentTrend.toFixed(1)} percentage points across recent mocks</div>}
               <Link href="/practice">Go to Practice <ArrowRight size={15}/></Link>
             </article>
