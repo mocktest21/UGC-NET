@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Activity, ArrowRight, Bell, BookOpen, CalendarDays, CheckCircle2,
-  CircleHelp, Clock3, GraduationCap, House, LogOut, Menu, NotebookPen,
+  CircleHelp, Clock3, Eye, GraduationCap, House, LogOut, Menu, NotebookPen,
   Radio, ShieldCheck, Sparkles, Target, TrendingUp, UserRound, X
 } from "lucide-react";
 import StudentWorkspaceHeader from "@/components/navigation/StudentWorkspaceHeader";
@@ -262,11 +262,13 @@ export default function HomePage() {
               {notices.length ? <div className="mm-home-notice-list">
                 {notices.map(notice => {
                   const isNew = Boolean(notice.new_until && Date.now() < new Date(notice.new_until).getTime());
-                  return <a className="mm-home-notice-item" href={notice.source_url} target="_blank" rel="noopener noreferrer" key={notice.id}>
+                  const title = notice.title.toLowerCase();
+                  const noticeType = /extension|extend/.test(title) ? "Extension" : /correction|edit window|particulars/.test(title) ? "Correction" : /schedule|date|examination/.test(title) ? "Schedule" : "Notice";
+                  return <article className="mm-home-notice-item" key={notice.id}>
+                    <div className="mm-home-notice-meta"><span className={`mm-home-notice-type mm-home-notice-type-${noticeType.toLowerCase()}`}>{noticeType}</span>{isNew && <span className="mm-home-new-badge">LATEST</span>}</div>
                     <span className="mm-home-notice-title">{notice.title}</span>
-                    {isNew && <span className="mm-home-new-badge">NEW</span>}
-                    <ArrowRight size={14} className="mm-home-notice-arrow"/>
-                  </a>;
+                    <a className="mm-home-notice-view" href={notice.source_url} target="_blank" rel="noopener noreferrer" aria-label={`View notice: ${notice.title}`} title="View official notice"><Eye size={17}/></a>
+                  </article>;
                 })}
               </div> : <div className="mm-home-empty-update"><ShieldCheck size={22}/><strong>No notices loaded yet</strong><p>Notices will appear here after the first successful NTA check.</p></div>}
               <a className="mm-home-notice-source" href="https://ugcnet.nta.nic.in/" target="_blank" rel="noreferrer">Visit official UGC-NET website <ArrowRight size={14}/></a>
