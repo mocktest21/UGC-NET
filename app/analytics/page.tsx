@@ -140,7 +140,7 @@ export default function AnalyticsPage(){
    key,
    label:consistency==="daily"?labelDate(key):consistency==="weekly"?"Week of "+labelDate(key):new Date(key+"-01T00:00:00").toLocaleDateString("en-IN",{month:"short",year:"2-digit"}),
    count:buckets.get(key)?.size||0
-  })).slice(consistency==="daily"?-14:consistency==="weekly"?-8:-6);
+  }));
  },[daily,consistency,range,from,to]);
 
  const consistencyTotals=useMemo(()=>{
