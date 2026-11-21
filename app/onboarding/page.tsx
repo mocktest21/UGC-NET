@@ -7,6 +7,8 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 type Subject = { id: string; name: string; code: string | null };
 const targetAttempts = ["December 2026", "June 2027", "December 2027", "June 2028"];
+const categories = ["General", "EWS", "OBC-NCL", "SC", "ST", "PwD"];
+const qualificationGoals = ["Assistant Professor", "JRF", "Both"];
 
 export default function OnboardingPage() {
   const router = useRouter();
@@ -14,6 +16,8 @@ export default function OnboardingPage() {
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [subjectId, setSubjectId] = useState("");
   const [targetAttempt, setTargetAttempt] = useState("June 2027");
+  const [category, setCategory] = useState("");
+  const [qualificationGoal, setQualificationGoal] = useState("Both");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -41,6 +45,8 @@ export default function OnboardingPage() {
         setSubjects(list);
         const savedSubject = user.user_metadata?.paper2_subject_id;
         setSubjectId(list.some(s => s.id === savedSubject) ? savedSubject : list[0]?.id || "");
+        setCategory(typeof user.user_metadata?.category === "string" ? user.user_metadata.category : "");
+        setQualificationGoal(typeof user.user_metadata?.qualification_goal === "string" ? user.user_metadata.qualification_goal : "Both");
         setLoading(false);
       } catch (e) {
         if (active) { setError(e instanceof Error ? e.message : "Unable to initialise your profile."); setLoading(false); }
@@ -54,13 +60,20 @@ export default function OnboardingPage() {
     setError("");
     if (!supabase) { setError("Supabase is not available. Please refresh and try again."); return; }
     if (!subjectId) { setError("Please select your Paper 2 subject."); return; }
+    if (!category) { setError("Please select your category."); return; }
+    if (!qualificationGoal) { setError("Please select your qualification target."); return; }
     setSaving(true);
     const { data: { user }, error: userError } = await supabase.auth.getUser();
     if (userError || !user) { setError(userError?.message || "Please log in again."); setSaving(false); return; }
     const { data: exam, error: examError } = await supabase.from("exams").select("id").eq("code", "UGC_NET").maybeSingle();
     if (examError || !exam) { setError(examError?.message || "UGC NET exam setup was not found."); setSaving(false); return; }
     const { error: preferenceError } = await supabase.from("student_exam_preferences").upsert({
-      student_id: user.id, exam_id: exam.id, selected_subject_id: subjectId,
+      student_id: user.id,
+      exam_id: exam.id,
+      selected_subject_id: subjectId,
+      category,
+      qualification_goal: qualificationGoal,
+      target_exam_cycle: targetAttempt,
     }, { onConflict: "student_id,exam_id" });
     if (preferenceError) { setError(preferenceError.message); setSaving(false); return; }
     const { error: metadataError } = await supabase.auth.updateUser({ data: {
@@ -68,6 +81,8 @@ export default function OnboardingPage() {
       exam_preference: "UGC NET",
       paper2_subject_id: subjectId,
       target_attempt: targetAttempt,
+      category,
+      qualification_goal: qualificationGoal,
     }});
     if (metadataError) { setError(metadataError.message); setSaving(false); return; }
     router.replace("/dashboard");
@@ -82,23 +97,37 @@ export default function OnboardingPage() {
         <div className="mm-onboarding-mark">M</div>
         <span className="mm-onboarding-kicker">ONE-TIME PROFILE SETUP</span>
         <h1 id="onboarding-title">Let’s personalise your preparation</h1>
-        <p className="mm-onboarding-intro">Tell us a little about your UGC NET goal. You’ll need to complete this step before entering MockMaster.</p>
+        <p className="mm-onboarding-intro">Share a few details to personalise your UGC NET preparation and estimate readiness against the right qualification benchmark.</p>
         <form onSubmit={handleSubmit}>
           <label className="mm-onboarding-label">Which exam are you preparing for?</label>
           <div className="mm-onboarding-fixed-choice"><span>✓</span> UGC NET</div>
+
           <label className="mm-onboarding-label" htmlFor="onboarding-subject">Your Paper 2 subject</label>
           <select id="onboarding-subject" value={subjectId} onChange={e => setSubjectId(e.target.value)} required>
             <option value="">Select your subject</option>
             {subjects.map(subject => <option key={subject.id} value={subject.id}>{subject.name}{subject.code ? ` (Code ${subject.code})` : ""}</option>)}
           </select>
+
+          <label className="mm-onboarding-label" htmlFor="onboarding-category">Your category</label>
+          <select id="onboarding-category" value={category} onChange={e => setCategory(e.target.value)} required>
+            <option value="">Select your category</option>
+            {categories.map(value => <option key={value} value={value}>{value}</option>)}
+          </select>
+
+          <label className="mm-onboarding-label" htmlFor="onboarding-goal">Your qualification target</label>
+          <select id="onboarding-goal" value={qualificationGoal} onChange={e => setQualificationGoal(e.target.value)} required>
+            {qualificationGoals.map(value => <option key={value} value={value}>{value}</option>)}
+          </select>
+
           <label className="mm-onboarding-label" htmlFor="onboarding-attempt">Your target attempt</label>
           <select id="onboarding-attempt" value={targetAttempt} onChange={e => setTargetAttempt(e.target.value)} required>
             {targetAttempts.map(attempt => <option key={attempt} value={attempt}>{attempt}</option>)}
           </select>
+
           {error && <p className="mm-onboarding-error" role="alert">{error}</p>}
           <button className="mm-onboarding-submit" type="submit" disabled={saving || !subjects.length || !supabase}>{saving ? "Saving your details…" : "Save and continue →"}</button>
         </form>
-        <small className="mm-onboarding-foot">You can update these details later from your profile.</small>
+        <small className="mm-onboarding-foot">These details help us choose relevant historical cutoffs. You can update them later from your profile.</small>
       </section>
     </main>
   );
