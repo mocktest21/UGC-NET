@@ -130,3 +130,21 @@
  .mm-home-header-actions .mm-home-profile-name{display:none}
  .mm-home-content{width:calc(100% - 28px)}
 }
+
+
+/* Dashboard account controls: name only on desktop; account actions live inside mobile menu. */
+.mm-home-header-actions{margin-left:auto;display:flex;align-items:center}
+.mm-home-header-actions .mm-home-profile-wrap{width:auto;max-width:none}
+.mm-home-name-trigger{display:inline-flex;align-items:center;gap:8px;padding:8px 4px;border:0;background:transparent;color:#26364c;font-size:12px;font-weight:700;cursor:pointer}
+.mm-home-name-trigger span{color:var(--muted);font-size:14px}
+.mm-home-header-actions .mm-home-profile-menu{min-width:150px}
+.mm-home-mobile-account{display:grid;gap:5px;margin-top:8px;padding:12px 4px 2px;border-top:1px solid var(--border)}
+.mm-home-mobile-account>strong{padding:2px 10px 7px;color:#172033;font-size:13px}
+.mm-home-mobile-account button{display:flex;align-items:center;gap:10px;min-height:40px;padding:9px 12px;border:0;border-radius:8px;background:transparent;color:var(--muted);font-size:13px;font-weight:650;text-align:left;cursor:pointer}
+.mm-home-mobile-account button:hover{background:var(--primary-tint);color:var(--primary)}
+@media(max-width:760px){
+ .mm-home-header-actions{display:none}
+ .mm-home-main>.mm-workspace-header{display:flex;flex-wrap:nowrap}
+ .mm-home-main>.mm-workspace-header .mm-brand{margin-right:auto}
+ .mm-home-main>.mm-workspace-header .mm-mobile-menu-toggle{order:5;margin-left:auto}
+}
