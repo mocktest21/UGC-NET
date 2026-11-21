@@ -7,7 +7,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 type Subject = { id: string; name: string; code: string | null };
 const targetAttempts = ["December 2026", "June 2027", "December 2027", "June 2028"];
-const categories = ["General", "EWS", "OBC-NCL", "SC", "ST", "PwD"];
+const categories = ["General", "EWS", "OBC-NCL", "SC", "ST"];
 const qualificationGoals = ["Assistant Professor", "JRF", "Both"];
 
 export default function OnboardingPage() {
@@ -17,6 +17,7 @@ export default function OnboardingPage() {
   const [subjectId, setSubjectId] = useState("");
   const [targetAttempt, setTargetAttempt] = useState("June 2027");
   const [category, setCategory] = useState("");
+  const [isPwd, setIsPwd] = useState(false);
   const [qualificationGoal, setQualificationGoal] = useState("Both");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -46,6 +47,7 @@ export default function OnboardingPage() {
         const savedSubject = user.user_metadata?.paper2_subject_id;
         setSubjectId(list.some(s => s.id === savedSubject) ? savedSubject : list[0]?.id || "");
         setCategory(typeof user.user_metadata?.category === "string" ? user.user_metadata.category : "");
+        setIsPwd(user.user_metadata?.is_pwd === true);
         setQualificationGoal(typeof user.user_metadata?.qualification_goal === "string" ? user.user_metadata.qualification_goal : "Both");
         setLoading(false);
       } catch (e) {
@@ -72,6 +74,7 @@ export default function OnboardingPage() {
       exam_id: exam.id,
       selected_subject_id: subjectId,
       category,
+      is_pwd: isPwd,
       qualification_goal: qualificationGoal,
       target_exam_cycle: targetAttempt,
     }, { onConflict: "student_id,exam_id" });
@@ -82,6 +85,7 @@ export default function OnboardingPage() {
       paper2_subject_id: subjectId,
       target_attempt: targetAttempt,
       category,
+      is_pwd: isPwd,
       qualification_goal: qualificationGoal,
     }});
     if (metadataError) { setError(metadataError.message); setSaving(false); return; }
@@ -112,6 +116,12 @@ export default function OnboardingPage() {
           <select id="onboarding-category" value={category} onChange={e => setCategory(e.target.value)} required>
             <option value="">Select your category</option>
             {categories.map(value => <option key={value} value={value}>{value}</option>)}
+          </select>
+
+          <label className="mm-onboarding-label" htmlFor="onboarding-pwd">Do you belong to the PwBD category?</label>
+          <select id="onboarding-pwd" value={isPwd ? "yes" : "no"} onChange={e => setIsPwd(e.target.value === "yes")} required>
+            <option value="no">No</option>
+            <option value="yes">Yes</option>
           </select>
 
           <label className="mm-onboarding-label" htmlFor="onboarding-goal">Your qualification target</label>
