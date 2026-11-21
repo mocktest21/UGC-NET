@@ -56,7 +56,7 @@ export default function HomePage() {
   const [preferences, setPreferences] = useState<Preferences | null>(null);
   const [data, setData] = useState<HomeData | null>(null);
   const [readiness, setReadiness] = useState<ReadinessData | null>(null);
-  const [notices, setNotices] = useState<{id:number;title:string;source_url:string;first_seen_at:string}[]>([]);
+  const [notices, setNotices] = useState<{id:number;title:string;source_url:string;first_seen_at:string;new_until:string|null}[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
@@ -113,7 +113,7 @@ export default function HomePage() {
       setData((analyticsResult.data || {}) as HomeData);
       setReadiness((readinessResult.data || {}) as ReadinessData);
       const { data: noticeRows } = await db.from("nta_ugcnet_notices")
-        .select("id,title,source_url,first_seen_at")
+        .select("id,title,source_url,first_seen_at,new_until")
         .eq("is_active", true)
         .order("source_order", { ascending: true })
         .limit(6);
@@ -270,7 +270,7 @@ export default function HomePage() {
               <div className="mm-home-notice-heading"><div><h2>Latest notices</h2><p>Latest 6 notices from the official NTA website</p></div><span className="mm-home-verified"><ShieldCheck size={13}/> Verified</span></div>
               {notices.length ? <div className="mm-home-notice-list">
                 {notices.map(notice => {
-                  const isNew = Date.now() - new Date(notice.first_seen_at).getTime() < 7 * 24 * 60 * 60 * 1000;
+                  const isNew = Boolean(notice.new_until && Date.now() < new Date(notice.new_until).getTime());
                   return <a className="mm-home-notice-item" href={notice.source_url} target="_blank" rel="noopener noreferrer" key={notice.id}>
                     <span className="mm-home-notice-title">{notice.title}</span>
                     {isNew && <span className="mm-home-new-badge">NEW</span>}
