@@ -46,6 +46,7 @@ export default function AnalyticsPage(){
  const [from,setFrom]=useState("");
  const [to,setTo]=useState("");
  const [consistency,setConsistency]=useState<ConsistencyKey>("daily");
+ const chartRef=useRef<HTMLDivElement|null>(null);
  const [expandedUnits,setExpandedUnits]=useState<string[]>([]);
  const [paperTab,setPaperTab]=useState("PAPER_1");
  const [analysisPaperTab,setAnalysisPaperTab]=useState("PAPER_1");
@@ -121,8 +122,8 @@ export default function AnalyticsPage(){
 
   const today=dateKey(new Date());
   const dates=daily.map(r=>r.activity_date).sort();
-  const start=range==="today"?today:range==="week"?dateKey(new Date(Date.now()-6*86400000)):range==="month"?dateKey(new Date(Date.now()-29*86400000)):range==="3months"?dateKey(new Date(Date.now()-89*86400000)):range==="custom"?(from||dates[0]||today):(dates[0]||today);
-  const end=range==="custom"?(to||today):today;
+  const start=consistency==="daily"?dateKey(new Date(Date.now()-9*86400000)):range==="today"?today:range==="week"?dateKey(new Date(Date.now()-6*86400000)):range==="month"?dateKey(new Date(Date.now()-29*86400000)):range==="3months"?dateKey(new Date(Date.now()-89*86400000)):range==="custom"?(from||dates[0]||today):(dates[0]||today);
+  const end=consistency==="daily"?today:range==="custom"?(to||today):today;
   const startDate=new Date(start+"T00:00:00");
   const endDate=new Date(end+"T00:00:00");
   const keys:string[]=[];
@@ -142,6 +143,12 @@ export default function AnalyticsPage(){
    count:buckets.get(key)?.size||0
   }));
  },[daily,consistency,range,from,to]);
+
+ useEffect(()=>{
+  if(consistency==="daily"&&chartRef.current){
+   chartRef.current.scrollLeft=chartRef.current.scrollWidth;
+  }
+ },[chartRows,consistency]);
 
  const consistencyTotals=useMemo(()=>{
   let eventCount=0;
@@ -186,7 +193,7 @@ export default function AnalyticsPage(){
      <div className="an-panel-title"><div><span className="an-kicker">STUDY ROUTINE</span><h2>Consistency Tracker</h2><p>Unique questions attempted in each time bucket.</p></div><CalendarDays size={19}/></div>
      <div className="an-consistency-controls"><div className="an-segments">{(["daily","weekly","monthly"] as ConsistencyKey[]).map(v=><button type="button" key={v} className={consistency===v?"active":""} onClick={()=>setConsistency(v)}>{v[0].toUpperCase()+v.slice(1)}</button>)}</div></div>
      <div className="an-consistency-summary"><div><strong>{consistencyTotals.average.toFixed(1)}</strong><span>Average questions per calendar day</span></div></div>
-     <div className="an-chart" role="img" aria-label={"Questions attempted "+consistency+" chart"}>
+     <div ref={chartRef} className="an-chart" role="img" aria-label={"Questions attempted "+consistency+" chart"}>
       {chartRows.length?chartRows.map(row=><div className="an-chart-col" key={row.key}><strong>{row.count}</strong><div className="an-chart-track"><span style={{height:(Math.max(...chartRows.map(x=>x.count),1)?Math.max(5,row.count/Math.max(...chartRows.map(x=>x.count),1)*100):5)+"%"}}/></div><small>{row.label}</small></div>):<div className="an-empty">No completed question activity in this date range.</div>}
      </div>
     </section>
