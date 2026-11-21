@@ -27,7 +27,9 @@ type Attempt = {
   max_score: number | null;
   submitted_at?: string | null;
   status?: string | null;
+  percentage?: number | null;
 };
+type ReadinessData = { full_length_mock_count?: number; attempts?: Attempt[] };
 type HomeData = {
   overall?: {
     attempts?: number;
@@ -53,6 +55,7 @@ export default function HomePage() {
   const [student, setStudent] = useState({ name: "Student", email: "", phone: "" });
   const [preferences, setPreferences] = useState<Preferences | null>(null);
   const [data, setData] = useState<HomeData | null>(null);
+  const [readiness, setReadiness] = useState<ReadinessData | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
@@ -75,16 +78,18 @@ export default function HomePage() {
         phone: meta.phone_number || ""
       });
 
-      const [prefResult, analyticsResult] = await Promise.all([
+      const [prefResult, analyticsResult, readinessResult] = await Promise.all([
         db.from("student_exam_preferences")
           .select("category,is_pwd,qualification_goal,target_exam_cycle,subjects(name)")
           .eq("student_id", auth.user.id)
           .limit(1)
           .maybeSingle(),
-        db.rpc("student_get_dashboard_analytics", { p_from: null, p_to: null })
+        db.rpc("student_get_dashboard_analytics", { p_from: null, p_to: null }),
+        db.rpc("student_get_readiness_metrics")
       ]);
       if (prefResult.error) throw prefResult.error;
       if (analyticsResult.error) throw analyticsResult.error;
+      if (readinessResult.error) throw readinessResult.error;
       const pref = prefResult.data as any;
       setPreferences(pref ? {
         category: pref.category,
@@ -94,6 +99,7 @@ export default function HomePage() {
         subject_name: Array.isArray(pref.subjects) ? pref.subjects[0]?.name : pref.subjects?.name
       } : null);
       setData((analyticsResult.data || {}) as HomeData);
+      setReadiness((readinessResult.data || {}) as ReadinessData);
     } catch (e: any) {
       setError(e?.message || "Home could not be loaded. Please retry.");
     } finally {
@@ -107,14 +113,15 @@ export default function HomePage() {
   const initials = student.name.split(/\s+/).filter(Boolean).slice(0, 2).map(x => x[0]).join("").toUpperCase();
   const firstName = student.name.trim().split(/\s+/)[0] || "Student";
   const overall = data?.overall || {};
-  const attempts = (data?.attempts || []).filter(a => a.status === "submitted" || Boolean(a.submitted_at));
-  const scoredAttempts = attempts.filter(a => a.score !== null && Number(a.max_score) > 0);
+  const fullLengthAttempts = readiness?.attempts || [];
+  const scoredAttempts = fullLengthAttempts.filter(a => a.score !== null && Number(a.max_score) > 0);
   const latestFive = scoredAttempts.slice(0, 5);
+  const fullLengthCount = Number(readiness?.full_length_mock_count || 0);
   const averageRecent = latestFive.length
     ? latestFive.reduce((sum, a) => sum + (Number(a.score) / Number(a.max_score) * 100), 0) / latestFive.length
     : null;
   const profileComplete = Boolean(preferences?.category && preferences?.qualification_goal && preferences?.target_exam_cycle && preferences?.subject_name);
-  const readinessStatus = !profileComplete || scoredAttempts.length < 5
+  const readinessStatus = !profileComplete || fullLengthCount < 5
     ? "Insufficient Data"
     : "Benchmark Pending";
   const recentTrend = useMemo(() => {
@@ -189,8 +196,8 @@ export default function HomePage() {
             <article className="mm-home-card mm-home-readiness">
               <div className="mm-home-card-title"><span className="mm-home-icon"><Target size={18}/></span><span>EXAM READINESS</span></div>
               <div className="mm-home-readiness-status"><span className="mm-home-status-dot"/>{readinessStatus}</div>
-              <p>{!profileComplete ? "Complete your exam profile to identify the relevant qualification benchmark." : scoredAttempts.length < 5 ? "Complete at least five scored, submitted mock attempts to establish a more reliable baseline." : "Your mock-test baseline is available. An official, matching cutoff benchmark is still required before readiness can be classified."}</p>
-              <div className="mm-home-readiness-foot"><span>{scoredAttempts.length} scored submitted tests</span><span>{profileComplete ? "Profile complete" : "Profile incomplete"}</span></div>
+              <p>{!profileComplete ? "Complete your exam profile to identify the relevant qualification benchmark." : scoredAttempts.length < 5 ? "Complete at least five eligible full-length UGC-NET mocks to establish a more reliable baseline." : "Your mock-test baseline is available. An official, matching cutoff benchmark is still required before readiness can be classified."}</p>
+              <div className="mm-home-readiness-foot"><span>{fullLengthCount} eligible full-length mocks</span><span>{profileComplete ? "Profile complete" : "Profile incomplete"}</span></div>
             </article>
           </section>
 
@@ -199,7 +206,7 @@ export default function HomePage() {
             <div className="mm-home-stats">
               <article><span className="mm-home-stat-icon"><ClipboardIcon/></span><div><strong>{fmt(overall.attempts ?? overall.completed_tests)}</strong><small>Completed tests</small></div></article>
               <article><span className="mm-home-stat-icon"><Target size={18}/></span><div><strong>{fmt(overall.unique_questions)}</strong><small>Unique questions attempted</small></div></article>
-              <article><span className="mm-home-stat-icon"><TrendingUp size={18}/></span><div><strong>{averageRecent === null ? "—" : averageRecent.toFixed(1) + "%"}</strong><small>Average score · latest {latestFive.length || 0}</small></div></article>
+              <article><span className="mm-home-stat-icon"><TrendingUp size={18}/></span><div><strong>{averageRecent === null ? "—" : averageRecent.toFixed(1) + "%"}</strong><small>Full-mock average · latest {latestFive.length || 0}</small></div></article>
               <article><span className="mm-home-stat-icon"><Activity size={18}/></span><div><strong>{fmt(overall.accuracy)}{overall.accuracy == null ? "" : "%"}</strong><small>Overall accuracy</small></div></article>
               <article><span className="mm-home-stat-icon"><CircleHelp size={18}/></span><div><strong>{fmt(overall.total_questions)}</strong><small>Questions attempted</small></div></article>
               <article><span className="mm-home-stat-icon"><Clock3 size={18}/></span><div><strong>{duration(overall.average_time)}</strong><small>Average time / question</small></div></article>
@@ -210,7 +217,7 @@ export default function HomePage() {
             <article className="mm-home-card mm-home-pace">
               <div className="mm-home-card-title"><span className="mm-home-icon"><TrendingUp size={18}/></span><span>REQUIRED PACE</span></div>
               <h2>{recentTrend === null ? "Baseline building" : recentTrend > 0.5 ? "Positive score movement" : recentTrend < -0.5 ? "Review your recent trend" : "Score trend is steady"}</h2>
-              <p>{latestFive.length < 5 ? "Complete five scored, submitted mock tests first. Then we can calculate a realistic weekly improvement target against the correct subject, category and qualification benchmark." : "Your recent mock trend is available. A precise required pace will be shown after the relevant official cutoff benchmark and exam date are verified."}</p>
+              <p>{latestFive.length < 5 ? "Complete five eligible full-length UGC-NET mocks first. Then we can calculate a realistic weekly improvement target against the correct subject, category and qualification benchmark." : "Your recent mock trend is available. A precise required pace will be shown after the relevant official cutoff benchmark and exam date are verified."}</p>
               {recentTrend !== null && <div className="mm-home-trend-chip">{recentTrend > 0 ? "+" : ""}{recentTrend.toFixed(1)} percentage points across recent mocks</div>}
               <Link href="/practice">Go to Practice <ArrowRight size={15}/></Link>
             </article>
