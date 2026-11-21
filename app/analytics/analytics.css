@@ -30,8 +30,8 @@
 .an-segments button.active{background:var(--surface);color:var(--primary);box-shadow:0 1px 4px #17203312}
 .an-consistency-summary{display:flex;gap:25px;margin:13px 0}
 .an-consistency-summary>div{display:grid;gap:2px}.an-consistency-summary strong{font-size:19px;font-weight:850}.an-consistency-summary span{font-size:10px;color:var(--muted)}
-.an-chart{display:flex;align-items:stretch;gap:8px;min-height:150px;padding:10px 2px 0;border-bottom:1px solid var(--border);overflow-x:auto}
-.an-chart-col{display:flex;flex:1 0 45px;min-width:45px;flex-direction:column;align-items:center;justify-content:flex-end;gap:6px}
+.an-chart{display:flex;align-items:stretch;gap:8px;min-height:150px;padding:10px 2px 0;border-bottom:1px solid var(--border);overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-color:var(--primary-border) transparent;scroll-snap-type:x proximity}
+.an-chart-col{display:flex;flex:0 0 45px;min-width:45px;flex-direction:column;align-items:center;justify-content:flex-end;gap:6px;scroll-snap-align:end}
 .an-chart-col>strong{font-size:10px;color:var(--ink)}
 .an-chart-track{display:flex;align-items:flex-end;justify-content:center;width:100%;height:92px;background:transparent}
 .an-chart-track span{display:block;width:min(28px,70%);min-height:4px;border-radius:6px 6px 2px 2px;background:var(--primary)}
@@ -269,3 +269,5 @@
  .an-syllabus-unit{padding:12px 0}
  .an-syllabus-unit-main strong{font-size:11px}
 }
+
+.an-chart::-webkit-scrollbar{height:5px}.an-chart::-webkit-scrollbar-thumb{border-radius:99px;background:var(--primary-border)}.an-chart::-webkit-scrollbar-track{background:transparent}
