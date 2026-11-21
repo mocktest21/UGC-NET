@@ -62,6 +62,12 @@ export default function HomePage() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [profileDialogOpen, setProfileDialogOpen] = useState(false);
+  const [editingProfile, setEditingProfile] = useState(false);
+  const [savingProfile, setSavingProfile] = useState(false);
+  const [profileError, setProfileError] = useState("");
+  const [profileSuccess, setProfileSuccess] = useState("");
+  const [subjectOptions, setSubjectOptions] = useState<{id:string;name:string}[]>([]);
+  const [editProfile, setEditProfile] = useState({name:"",phone:"",subjectId:"",category:"",isPwd:false,goal:"Both",cycle:"June 2027"});
   const [signingOut, setSigningOut] = useState(false);
 
   async function loadHome(initial = false) {
@@ -80,7 +86,7 @@ export default function HomePage() {
 
       const [prefResult, analyticsResult, readinessResult] = await Promise.all([
         db.from("student_exam_preferences")
-          .select("category,is_pwd,qualification_goal,target_exam_cycle,subjects(name)")
+          .select("selected_subject_id,category,is_pwd,qualification_goal,target_exam_cycle,subjects(name)")
           .eq("student_id", auth.user.id)
           .limit(1)
           .maybeSingle(),
@@ -132,7 +138,7 @@ export default function HomePage() {
     return last - first;
   }, [data]);
 
-  async function signOut() {
+  function beginEditProfile() {\n    setEditProfile(v => ({...v, name: student.name, phone: student.phone}));\n    setProfileError(""); setProfileSuccess(""); setEditingProfile(true);\n  }\n\n  async function saveProfile() {\n    setSavingProfile(true); setProfileError(""); setProfileSuccess("");\n    try {\n      const db = createSupabaseBrowserClient();\n      const { data: { user }, error: authError } = await db.auth.getUser();\n      if (authError || !user) throw authError || new Error("Please log in again.");\n      const { data: exam, error: examError } = await db.from("exams").select("id").eq("code", "UGC_NET").maybeSingle();\n      if (examError || !exam) throw examError || new Error("UGC NET setup not found.");\n      const { error: prefError } = await db.from("student_exam_preferences").upsert({ student_id:user.id, exam_id:exam.id, selected_subject_id:editProfile.subjectId || null, category:editProfile.category || null, is_pwd:editProfile.isPwd, qualification_goal:editProfile.goal || null, target_exam_cycle:editProfile.cycle || null }, { onConflict:"student_id,exam_id" });\n      if (prefError) throw prefError;\n      const { error: updateError } = await db.auth.updateUser({ data:{ full_name:editProfile.name.trim(), phone_number:editProfile.phone.trim(), paper2_subject_id:editProfile.subjectId, category:editProfile.category, is_pwd:editProfile.isPwd, qualification_goal:editProfile.goal, target_attempt:editProfile.cycle } });\n      if (updateError) throw updateError;\n      setStudent(v => ({...v, name:editProfile.name.trim(), phone:editProfile.phone.trim()}));\n      setPreferences({category:editProfile.category, is_pwd:editProfile.isPwd, qualification_goal:editProfile.goal as Preferences["qualification_goal"], target_exam_cycle:editProfile.cycle, subject_name:subjectOptions.find(x=>x.id===editProfile.subjectId)?.name || null});\n      setProfileSuccess("Profile updated successfully."); setEditingProfile(false);\n    } catch (e:any) { setProfileError(e?.message || "Profile could not be updated."); }\n    finally { setSavingProfile(false); }\n  }\n\n  async function signOut() {
     setSigningOut(true);
     const db = createSupabaseBrowserClient();
     await db.auth.signOut();
@@ -161,7 +167,7 @@ export default function HomePage() {
               <span aria-hidden="true">⋯</span>
             </button>
             {profileOpen && <div className="mm-home-profile-menu">
-              <button type="button" onClick={() => { setProfileDialogOpen(true); setProfileOpen(false); }}><UserRound size={15}/>View profile</button>
+              <button type="button" onClick={() => { setProfileDialogOpen(true); setProfileOpen(false); setEditingProfile(false); }}><UserRound size={15}/>View profile</button>
               <button type="button" disabled={signingOut} onClick={() => void signOut()}><LogOut size={15}/>{signingOut ? "Logging out…" : "Log out"}</button>
             </div>}
           </div>
