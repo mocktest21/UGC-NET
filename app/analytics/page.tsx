@@ -159,7 +159,6 @@ export default function AnalyticsPage(){
        <div><strong>{timeLabel(overall?.average_time_per_question??null)}</strong><span>Average Time per Question</span></div>
       </div>
      </div>
-     <p className="an-footnote">Accuracy counts every answered question in completed attempts; unanswered questions are excluded. Unique questions count each question once.</p>
     </section>
 
     <section className="an-panel">
