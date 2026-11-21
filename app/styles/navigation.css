@@ -36,3 +36,15 @@ body:not(:has(.aw-shell,.aq-shell,.tb-shell)) :where(small,label,button,input,se
  .mm-shared-student-header nav a{flex:0 0 auto;font-size:11px;}
  .mm-shared-student-header>.mm-workspace-user{flex:0 0 auto;white-space:nowrap;}
 }
+
+
+/* Mobile-only hamburger menu; desktop keeps the full horizontal navigation. */
+.mm-mobile-menu-toggle{display:none;align-items:center;justify-content:center;flex:0 0 40px;width:40px;height:40px;border:1px solid var(--border);border-radius:10px;background:var(--surface);color:var(--ink);cursor:pointer}
+.mm-mobile-menu-panel{display:none}
+@media(max-width:760px){
+ .mm-shared-student-header{position:sticky}
+ .mm-mobile-menu-toggle{display:inline-flex;order:3;margin-left:auto}
+ .mm-mobile-menu-panel{position:absolute;top:calc(100% + 1px);left:0;right:0;z-index:90;display:grid;gap:4px;padding:10px 14px 14px;border-bottom:1px solid var(--border);background:var(--surface);box-shadow:0 14px 28px #17203318}
+ .mm-mobile-menu-panel a{display:flex;align-items:center;gap:11px;min-height:43px;padding:9px 12px;border-radius:9px;color:var(--muted);font-size:13px;font-weight:650}
+ .mm-mobile-menu-panel a.active,.mm-mobile-menu-panel a:hover{background:var(--primary-tint);color:var(--primary)}
+}
