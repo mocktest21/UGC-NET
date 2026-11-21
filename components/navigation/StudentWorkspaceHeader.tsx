@@ -2,14 +2,14 @@
 
 import Link from "next/link";
 import {usePathname} from "next/navigation";
-import {BookOpen,BookMarked,House,Info,Radio,Activity} from "lucide-react";
+import {BookOpen,BookMarked,House,Info,Radio,Activity,GraduationCap} from "lucide-react";
 
 const items=[
  {href:"/dashboard",label:"Home",Icon:House},
  {href:"/analytics",label:"Analytics",Icon:Activity},
  {href:"/practice",label:"Practice",Icon:BookOpen},
  {href:"/live-test",label:"Live Test",Icon:Radio},
- {href:"/personal-notebook",label:"Personal Notebook",Icon:BookMarked},
+ {href:"/personal-notebook",label:"Personal Notebook",Icon:BookMarked},\n {href:"/mentorship",label:"Mentorship",Icon:GraduationCap},
  {href:"/about",label:"About Us",Icon:Info},
 ];
 export default function StudentWorkspaceHeader({name,rightSlot,leftSlot,showNav=true}:{name?:string;rightSlot?:React.ReactNode;leftSlot?:React.ReactNode;showNav?:boolean}){
