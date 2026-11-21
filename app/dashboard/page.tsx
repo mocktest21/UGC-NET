@@ -185,37 +185,26 @@ export default function HomePage() {
 
   return (
     <div className="mm-home-page">
-      <aside className={menuOpen ? "mm-home-sidebar open" : "mm-home-sidebar"}>
-        <Link className="mm-home-brand" href="/dashboard"><span className="mm-home-brand-mark">M</span><span>MockMaster</span></Link>
-        <span className="mm-home-nav-label">WORKSPACE</span>
-        <nav aria-label="Main navigation">
-          <Link className="active" href="/dashboard" onClick={() => setMenuOpen(false)}><House size={17}/>Home</Link>
-          <Link href="/practice" onClick={() => setMenuOpen(false)}><BookOpen size={17}/>Practice</Link>
-          <Link href="/live-test" onClick={() => setMenuOpen(false)}><Radio size={17}/>Live Test</Link>
-          <Link href="/personal-notebook" onClick={() => setMenuOpen(false)}><NotebookPen size={17}/>Personal Notebook</Link>
-          <Link href="/analytics" onClick={() => setMenuOpen(false)}><Activity size={17}/>Analytics</Link>
-          <Link href="/mentorship" onClick={() => setMenuOpen(false)}><GraduationCap size={17}/>Mentorship</Link>
-          <Link href="/about" onClick={() => setMenuOpen(false)}><CircleHelp size={17}/>About Us</Link>
-        </nav>
-        <div className="mm-home-sidebar-bottom">
-          <div className="mm-home-profile-wrap">
-            <button className="mm-home-profile-trigger" type="button" onClick={() => setProfileOpen(v => !v)}>
-              <span className="mm-home-avatar">{initials || "S"}</span>
-              <span className="mm-home-profile-name"><strong>{student.name}</strong><small>Student account</small></span>
-              <span aria-hidden="true">⋯</span>
-            </button>
-            {profileOpen && <div className="mm-home-profile-menu">
-              <button type="button" onClick={() => { setProfileDialogOpen(true); setProfileOpen(false); setEditingProfile(false); }}><UserRound size={15}/>View profile</button>
-              <button type="button" disabled={signingOut} onClick={() => void signOut()}><LogOut size={15}/>{signingOut ? "Logging out…" : "Log out"}</button>
-            </div>}
-          </div>
-          <div className="mm-home-sidebar-note"><Sparkles size={16}/><span><strong>Stay consistent</strong><small>Small, regular practice adds up.</small></span></div>
-        </div>
-      </aside>
-      {menuOpen && <button className="mm-home-scrim" aria-label="Close navigation" onClick={() => setMenuOpen(false)}/>}
-
       <div className="mm-home-main">
-        <StudentWorkspaceHeader showNav={false} leftSlot={<button className="mm-home-menu-toggle" aria-label="Toggle menu" onClick={() => setMenuOpen(v => !v)}><Menu size={20}/></button>} rightSlot={<button className="mm-home-refresh" type="button" aria-label="Refresh Home" title="Refresh" disabled={refreshing} onClick={() => void loadHome(false)}><RefreshCw size={16} className={refreshing ? "spin" : ""}/></button>}/>
+        <StudentWorkspaceHeader
+          showNav={true}
+          rightSlot={
+            <div className="mm-home-header-actions">
+              <div className="mm-home-profile-wrap">
+                <button className="mm-home-profile-trigger" type="button" onClick={() => setProfileOpen(v => !v)} aria-label="Open account menu">
+                  <span className="mm-home-avatar">{initials || "S"}</span>
+                  <span className="mm-home-profile-name"><strong>{student.name}</strong><small>Student account</small></span>
+                  <span aria-hidden="true">⋯</span>
+                </button>
+                {profileOpen && <div className="mm-home-profile-menu">
+                  <button type="button" onClick={() => { setProfileDialogOpen(true); setProfileOpen(false); setEditingProfile(false); }}><UserRound size={15}/>View profile</button>
+                  <button type="button" disabled={signingOut} onClick={() => void signOut()}><LogOut size={15}/>{signingOut ? "Logging out…" : "Log out"}</button>
+                </div>}
+              </div>
+              <button className="mm-home-refresh" type="button" aria-label="Refresh Home" title="Refresh" disabled={refreshing} onClick={() => void loadHome(false)}><RefreshCw size={16} className={refreshing ? "spin" : ""}/></button>
+            </div>
+          }
+        />
         <main className="mm-home-content">
           <section className="mm-home-welcome">
             <div><span className="mm-home-eyebrow">YOUR UGC-NET WORKSPACE</span><h1>Welcome back, {firstName}!</h1><p>Stay focused on your target. Your preparation, your progress, one step at a time.</p>
