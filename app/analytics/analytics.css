@@ -271,3 +271,9 @@
 }
 
 .an-chart::-webkit-scrollbar{height:5px}.an-chart::-webkit-scrollbar-thumb{border-radius:99px;background:var(--primary-border)}.an-chart::-webkit-scrollbar-track{background:transparent}
+
+/* Weekly consistency chart: distribute the four week columns across the full card */
+.an-chart-weekly{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;overflow-x:hidden;overflow-y:hidden;scroll-snap-type:none}
+.an-chart-weekly .an-chart-col{width:100%;min-width:0;flex:none;scroll-snap-align:none}
+.an-chart-weekly .an-chart-col small{width:100%;height:25px;white-space:normal;text-align:center;line-height:1.2;font-size:9px}
+.an-chart-weekly .an-chart-track span{width:min(36px,75%)}
