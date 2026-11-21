@@ -262,10 +262,8 @@ export default function HomePage() {
               {notices.length ? <div className="mm-home-notice-list">
                 {notices.map(notice => {
                   const isNew = Boolean(notice.new_until && Date.now() < new Date(notice.new_until).getTime());
-                  const title = notice.title.toLowerCase();
-                  const noticeType = /extension|extend/.test(title) ? "Extension" : /correction|edit window|particulars/.test(title) ? "Correction" : /schedule|date|examination/.test(title) ? "Schedule" : "Notice";
                   return <article className="mm-home-notice-item" key={notice.id}>
-                    <div className="mm-home-notice-meta"><span className={`mm-home-notice-type mm-home-notice-type-${noticeType.toLowerCase()}`}>{noticeType}</span>{isNew && <span className="mm-home-new-badge">LATEST</span>}</div>
+                    <div className="mm-home-notice-meta">{isNew && <span className="mm-home-new-badge">LATEST</span>}</div>
                     <span className="mm-home-notice-title">{notice.title}</span>
                     <a className="mm-home-notice-view" href={notice.source_url} target="_blank" rel="noopener noreferrer" aria-label={`View notice: ${notice.title}`} title="View official notice"><Eye size={17}/></a>
                   </article>;
