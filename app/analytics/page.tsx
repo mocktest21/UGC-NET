@@ -139,7 +139,7 @@ export default function AnalyticsPage(){
 
   return keys.map(key=>({
    key,
-   label:consistency==="daily"?labelDate(key):consistency==="weekly"?"Week of "+labelDate(key):new Date(key+"-01T00:00:00").toLocaleDateString("en-IN",{month:"short",year:"2-digit"}),
+   label:consistency==="daily"?labelDate(key):consistency==="weekly"?labelDate(key):new Date(key+"-01T00:00:00").toLocaleDateString("en-IN",{month:"short",year:"2-digit"}),
    count:buckets.get(key)?.size||0
   }));
  },[daily,consistency,range,from,to]);
@@ -193,7 +193,7 @@ export default function AnalyticsPage(){
      <div className="an-panel-title"><div><span className="an-kicker">STUDY ROUTINE</span><h2>Consistency Tracker</h2><p>Unique questions attempted in each time bucket.</p></div><CalendarDays size={19}/></div>
      <div className="an-consistency-controls"><div className="an-segments">{(["daily","weekly","monthly"] as ConsistencyKey[]).map(v=><button type="button" key={v} className={consistency===v?"active":""} onClick={()=>setConsistency(v)}>{v[0].toUpperCase()+v.slice(1)}</button>)}</div></div>
      <div className="an-consistency-summary"><div><strong>{consistencyTotals.average.toFixed(1)}</strong><span>Average questions per calendar day</span></div></div>
-     <div ref={chartRef} className="an-chart" role="img" aria-label={"Questions attempted "+consistency+" chart"}>
+     <div ref={chartRef} className={"an-chart"+(consistency==="weekly"?" an-chart-weekly":"")} role="img" aria-label={"Questions attempted "+consistency+" chart"}>
       {chartRows.length?chartRows.map(row=><div className="an-chart-col" key={row.key}><strong>{row.count}</strong><div className="an-chart-track"><span style={{height:(Math.max(...chartRows.map(x=>x.count),1)?Math.max(5,row.count/Math.max(...chartRows.map(x=>x.count),1)*100):5)+"%"}}/></div><small>{row.label}</small></div>):<div className="an-empty">No completed question activity in this date range.</div>}
      </div>
     </section>
