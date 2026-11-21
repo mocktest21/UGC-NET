@@ -122,7 +122,7 @@ export default function AnalyticsPage(){
 
   const today=dateKey(new Date());
   const dates=daily.map(r=>r.activity_date).sort();
-  const start=consistency==="daily"?dateKey(new Date(Date.now()-9*86400000)):range==="today"?today:range==="week"?dateKey(new Date(Date.now()-6*86400000)):range==="month"?dateKey(new Date(Date.now()-29*86400000)):range==="3months"?dateKey(new Date(Date.now()-89*86400000)):range==="custom"?(from||dates[0]||today):(dates[0]||today);
+  const start=consistency==="daily"?dateKey(new Date(Date.now()-9*86400000)):consistency==="weekly"?dateKey(startOfWeek(new Date(Date.now()-21*86400000))):range==="today"?today:range==="week"?dateKey(new Date(Date.now()-6*86400000)):range==="month"?dateKey(new Date(Date.now()-29*86400000)):range==="3months"?dateKey(new Date(Date.now()-89*86400000)):range==="custom"?(from||dates[0]||today):(dates[0]||today);
   const end=consistency==="daily"?today:range==="custom"?(to||today):today;
   const startDate=new Date(start+"T00:00:00");
   const endDate=new Date(end+"T00:00:00");
