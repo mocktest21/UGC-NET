@@ -108,3 +108,25 @@
 .mm-home-new-badge{flex:0 0 auto;padding:4px 6px;border-radius:5px;background:#dcfce7;color:#15803d;font-size:8px;font-weight:850;letter-spacing:.35px}
 .mm-home-notice-arrow{flex:0 0 auto;color:var(--primary)}
 .mm-home-notice-source{margin-top:14px!important;padding-top:0!important}
+
+
+/* Unified workspace navigation: Home uses the same horizontal header as every section. */
+.mm-home-page{display:block;width:100%;min-width:0;overflow-x:clip}
+.mm-home-sidebar{display:none}
+.mm-home-main{width:100%;max-width:100%;margin-left:0;min-width:0}
+.mm-home-main>.mm-workspace-header{width:100%;min-width:0}
+.mm-home-header-actions{display:flex;align-items:center;gap:10px;margin-left:auto}
+.mm-home-header-actions .mm-home-profile-wrap{width:190px;max-width:24vw}
+.mm-home-header-actions .mm-home-profile-trigger{min-width:0;padding:5px 7px;gap:8px}
+.mm-home-header-actions .mm-home-avatar{width:31px;height:31px;flex-basis:31px}
+.mm-home-header-actions .mm-home-profile-name strong{font-size:11px}
+.mm-home-header-actions .mm-home-profile-name small{font-size:9px}
+.mm-home-header-actions .mm-home-profile-menu{z-index:80;bottom:auto;top:calc(100% + 8px)}
+.mm-home-content{width:min(1200px,calc(100% - 64px))}
+@media(max-width:760px){
+ .mm-home-main>.mm-workspace-header{padding:9px 12px;gap:10px}
+ .mm-home-header-actions{gap:7px}
+ .mm-home-header-actions .mm-home-profile-wrap{width:auto;max-width:44vw}
+ .mm-home-header-actions .mm-home-profile-name{display:none}
+ .mm-home-content{width:calc(100% - 28px)}
+}
