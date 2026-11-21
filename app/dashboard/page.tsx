@@ -191,7 +191,7 @@ export default function HomePage() {
           rightSlot={
             <div className="mm-home-header-actions">
               <div className="mm-home-profile-wrap">
-                <button className="mm-home-name-trigger" type="button" onClick={() => setProfileOpen(v => !v)} aria-label="Open account menu">{student.name}<span aria-hidden="true">⌄</span></button>
+                <button className="mm-home-name-trigger" type="button" onClick={() => setProfileOpen(v => !v)} aria-label="Open account menu"><span className="mm-home-trigger-avatar"><UserRound size={16}/></span><span className="mm-home-trigger-name">{student.name}</span><span className="mm-home-trigger-chevron" aria-hidden="true">⌄</span></button>
                 {profileOpen && <div className="mm-home-profile-menu">
                   <button type="button" onClick={() => { setProfileDialogOpen(true); setProfileOpen(false); setEditingProfile(false); }}><UserRound size={15}/>View profile</button>
                   <button type="button" disabled={signingOut} onClick={() => void signOut()}><LogOut size={15}/>{signingOut ? "Logging out…" : "Log out"}</button>
