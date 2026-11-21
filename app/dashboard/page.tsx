@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import {
   Activity, ArrowRight, Bell, BookOpen, CalendarDays, CheckCircle2,
   CircleHelp, Clock3, GraduationCap, House, LogOut, Menu, NotebookPen,
-  Radio, RefreshCw, ShieldCheck, Sparkles, Target, TrendingUp, UserRound, X
+  Radio, ShieldCheck, Sparkles, Target, TrendingUp, UserRound, X
 } from "lucide-react";
 import StudentWorkspaceHeader from "@/components/navigation/StudentWorkspaceHeader";
 import MockMasterLoading from "@/app/components/ui/MockMasterLoading";
@@ -191,17 +191,19 @@ export default function HomePage() {
           rightSlot={
             <div className="mm-home-header-actions">
               <div className="mm-home-profile-wrap">
-                <button className="mm-home-profile-trigger" type="button" onClick={() => setProfileOpen(v => !v)} aria-label="Open account menu">
-                  <span className="mm-home-avatar">{initials || "S"}</span>
-                  <span className="mm-home-profile-name"><strong>{student.name}</strong><small>Student account</small></span>
-                  <span aria-hidden="true">⋯</span>
-                </button>
+                <button className="mm-home-name-trigger" type="button" onClick={() => setProfileOpen(v => !v)} aria-label="Open account menu">{student.name}<span aria-hidden="true">⌄</span></button>
                 {profileOpen && <div className="mm-home-profile-menu">
                   <button type="button" onClick={() => { setProfileDialogOpen(true); setProfileOpen(false); setEditingProfile(false); }}><UserRound size={15}/>View profile</button>
                   <button type="button" disabled={signingOut} onClick={() => void signOut()}><LogOut size={15}/>{signingOut ? "Logging out…" : "Log out"}</button>
                 </div>}
               </div>
-              <button className="mm-home-refresh" type="button" aria-label="Refresh Home" title="Refresh" disabled={refreshing} onClick={() => void loadHome(false)}><RefreshCw size={16} className={refreshing ? "spin" : ""}/></button>
+            </div>
+          }
+          mobileMenuExtra={
+            <div className="mm-home-mobile-account">
+              <strong>{student.name}</strong>
+              <button type="button" onClick={() => { setProfileDialogOpen(true); setProfileOpen(false); setEditingProfile(false); }}><UserRound size={15}/>View profile</button>
+              <button type="button" disabled={signingOut} onClick={() => void signOut()}><LogOut size={15}/>{signingOut ? "Logging out…" : "Log out"}</button>
             </div>
           }
         />
