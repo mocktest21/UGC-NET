@@ -56,6 +56,7 @@ export default function HomePage() {
   const [preferences, setPreferences] = useState<Preferences | null>(null);
   const [data, setData] = useState<HomeData | null>(null);
   const [readiness, setReadiness] = useState<ReadinessData | null>(null);
+  const [notices, setNotices] = useState<{id:number;title:string;source_url:string;first_seen_at:string}[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
@@ -111,6 +112,12 @@ export default function HomePage() {
       setEditProfile({ name: meta.full_name || "Student", phone: meta.phone_number || "", subjectId: pref?.selected_subject_id || "", category: pref?.category || "", isPwd: Boolean(pref?.is_pwd), goal: pref?.qualification_goal || "Both", cycle: pref?.target_exam_cycle || "June 2027" });
       setData((analyticsResult.data || {}) as HomeData);
       setReadiness((readinessResult.data || {}) as ReadinessData);
+      const { data: noticeRows } = await db.from("nta_ugcnet_notices")
+        .select("id,title,source_url,first_seen_at")
+        .eq("is_active", true)
+        .order("source_order", { ascending: true })
+        .limit(6);
+      setNotices(noticeRows || []);
     } catch (e: any) {
       setError(e?.message || "Home could not be loaded. Please retry.");
     } finally {
@@ -260,9 +267,18 @@ export default function HomePage() {
             </article>
             <article className="mm-home-card mm-home-updates">
               <div className="mm-home-card-title"><span className="mm-home-icon"><Bell size={18}/></span><span>OFFICIAL UGC-NET UPDATES</span></div>
-              <h2>Verified notices</h2>
-              <div className="mm-home-empty-update"><ShieldCheck size={22}/><strong>No verified notice published here yet</strong><p>Only NTA or UGC notices with a source link and publication date will appear in this section.</p></div>
-              <a href="https://ugcnet.nta.ac.in/" target="_blank" rel="noreferrer">Visit official UGC-NET website <ArrowRight size={14}/></a>
+              <div className="mm-home-notice-heading"><div><h2>Latest notices</h2><p>Latest 6 notices from the official NTA website</p></div><span className="mm-home-verified"><ShieldCheck size={13}/> Verified</span></div>
+              {notices.length ? <div className="mm-home-notice-list">
+                {notices.map(notice => {
+                  const isNew = Date.now() - new Date(notice.first_seen_at).getTime() < 7 * 24 * 60 * 60 * 1000;
+                  return <a className="mm-home-notice-item" href={notice.source_url} target="_blank" rel="noopener noreferrer" key={notice.id}>
+                    <span className="mm-home-notice-title">{notice.title}</span>
+                    {isNew && <span className="mm-home-new-badge">NEW</span>}
+                    <ArrowRight size={14} className="mm-home-notice-arrow"/>
+                  </a>;
+                })}
+              </div> : <div className="mm-home-empty-update"><ShieldCheck size={22}/><strong>No notices loaded yet</strong><p>Notices will appear here after the first successful NTA check.</p></div>}
+              <a className="mm-home-notice-source" href="https://ugcnet.nta.nic.in/" target="_blank" rel="noreferrer">Visit official UGC-NET website <ArrowRight size={14}/></a>
             </article>
           </section>
 
