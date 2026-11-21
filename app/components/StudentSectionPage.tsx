@@ -54,9 +54,9 @@ export default function StudentSectionPage({section}:{section:Section}){
     const liveIds=(liveRows||[]).map((test:any)=>test.id);
     const questionCounts:Record<string,number>={};
     if(liveIds.length){
-      const {data:questionLinks,error:questionError}=await db.from("test_questions").select("test_id").in("test_id",liveIds);
+      const {data:countRows,error:questionError}=await db.rpc("student_get_live_test_question_counts",{p_test_ids:liveIds});
       if(questionError&&active)setError(questionError.message);
-      for(const link of questionLinks||[])questionCounts[link.test_id]=(questionCounts[link.test_id]||0)+1;
+      for(const row of countRows||[])questionCounts[row.test_id]=Number(row.question_count||0);
     }
     const mapped=(liveRows||[]).map((test:any)=>({...test,question_count:questionCounts[test.id]||0})).filter((test:any)=>test.question_count>0) as LiveTest[];
     if(section==="practice"){
