@@ -104,6 +104,11 @@ export default function HomePage() {
         target_exam_cycle: pref.target_exam_cycle,
         subject_name: Array.isArray(pref.subjects) ? pref.subjects[0]?.name : pref.subjects?.name
       } : null);
+      const { data: exam } = await db.from("exams").select("id").eq("code", "UGC_NET").maybeSingle();
+      const { data: paper } = exam ? await db.from("papers").select("id").eq("exam_id", exam.id).eq("code", "PAPER_2").maybeSingle() : { data: null };
+      const { data: subjectRows } = paper ? await db.from("subjects").select("id,name").eq("paper_id", paper.id).eq("is_active", true).order("display_order") : { data: [] };
+      setSubjectOptions(subjectRows || []);
+      setEditProfile({ name: meta.full_name || "Student", phone: meta.phone_number || "", subjectId: pref?.selected_subject_id || "", category: pref?.category || "", isPwd: Boolean(pref?.is_pwd), goal: pref?.qualification_goal || "Both", cycle: pref?.target_exam_cycle || "June 2027" });
       setData((analyticsResult.data || {}) as HomeData);
       setReadiness((readinessResult.data || {}) as ReadinessData);
     } catch (e: any) {
@@ -138,7 +143,31 @@ export default function HomePage() {
     return last - first;
   }, [data]);
 
-  function beginEditProfile() {\n    setEditProfile(v => ({...v, name: student.name, phone: student.phone}));\n    setProfileError(""); setProfileSuccess(""); setEditingProfile(true);\n  }\n\n  async function saveProfile() {\n    setSavingProfile(true); setProfileError(""); setProfileSuccess("");\n    try {\n      const db = createSupabaseBrowserClient();\n      const { data: { user }, error: authError } = await db.auth.getUser();\n      if (authError || !user) throw authError || new Error("Please log in again.");\n      const { data: exam, error: examError } = await db.from("exams").select("id").eq("code", "UGC_NET").maybeSingle();\n      if (examError || !exam) throw examError || new Error("UGC NET setup not found.");\n      const { error: prefError } = await db.from("student_exam_preferences").upsert({ student_id:user.id, exam_id:exam.id, selected_subject_id:editProfile.subjectId || null, category:editProfile.category || null, is_pwd:editProfile.isPwd, qualification_goal:editProfile.goal || null, target_exam_cycle:editProfile.cycle || null }, { onConflict:"student_id,exam_id" });\n      if (prefError) throw prefError;\n      const { error: updateError } = await db.auth.updateUser({ data:{ full_name:editProfile.name.trim(), phone_number:editProfile.phone.trim(), paper2_subject_id:editProfile.subjectId, category:editProfile.category, is_pwd:editProfile.isPwd, qualification_goal:editProfile.goal, target_attempt:editProfile.cycle } });\n      if (updateError) throw updateError;\n      setStudent(v => ({...v, name:editProfile.name.trim(), phone:editProfile.phone.trim()}));\n      setPreferences({category:editProfile.category, is_pwd:editProfile.isPwd, qualification_goal:editProfile.goal as Preferences["qualification_goal"], target_exam_cycle:editProfile.cycle, subject_name:subjectOptions.find(x=>x.id===editProfile.subjectId)?.name || null});\n      setProfileSuccess("Profile updated successfully."); setEditingProfile(false);\n    } catch (e:any) { setProfileError(e?.message || "Profile could not be updated."); }\n    finally { setSavingProfile(false); }\n  }\n\n  async function signOut() {
+  function beginEditProfile() {
+    setEditProfile(v => ({...v, name: student.name, phone: student.phone}));
+    setProfileError(""); setProfileSuccess(""); setEditingProfile(true);
+  }
+
+  async function saveProfile() {
+    setSavingProfile(true); setProfileError(""); setProfileSuccess("");
+    try {
+      const db = createSupabaseBrowserClient();
+      const { data: { user }, error: authError } = await db.auth.getUser();
+      if (authError || !user) throw authError || new Error("Please log in again.");
+      const { data: exam, error: examError } = await db.from("exams").select("id").eq("code", "UGC_NET").maybeSingle();
+      if (examError || !exam) throw examError || new Error("UGC NET setup not found.");
+      const { error: prefError } = await db.from("student_exam_preferences").upsert({ student_id:user.id, exam_id:exam.id, selected_subject_id:editProfile.subjectId || null, category:editProfile.category || null, is_pwd:editProfile.isPwd, qualification_goal:editProfile.goal || null, target_exam_cycle:editProfile.cycle || null }, { onConflict:"student_id,exam_id" });
+      if (prefError) throw prefError;
+      const { error: updateError } = await db.auth.updateUser({ data:{ full_name:editProfile.name.trim(), phone_number:editProfile.phone.trim(), paper2_subject_id:editProfile.subjectId, category:editProfile.category, is_pwd:editProfile.isPwd, qualification_goal:editProfile.goal, target_attempt:editProfile.cycle } });
+      if (updateError) throw updateError;
+      setStudent(v => ({...v, name:editProfile.name.trim(), phone:editProfile.phone.trim()}));
+      setPreferences({category:editProfile.category, is_pwd:editProfile.isPwd, qualification_goal:editProfile.goal as Preferences["qualification_goal"], target_exam_cycle:editProfile.cycle, subject_name:subjectOptions.find(x=>x.id===editProfile.subjectId)?.name || null});
+      setProfileSuccess("Profile updated successfully."); setEditingProfile(false);
+    } catch (e:any) { setProfileError(e?.message || "Profile could not be updated."); }
+    finally { setSavingProfile(false); }
+  }
+
+  async function signOut() {
     setSigningOut(true);
     const db = createSupabaseBrowserClient();
     await db.auth.signOut();
@@ -243,8 +272,19 @@ export default function HomePage() {
         <section className="mm-home-modal" role="dialog" aria-modal="true" aria-labelledby="mm-home-profile-title">
           <div className="mm-home-modal-head"><div><span className="mm-home-eyebrow">ACCOUNT DETAILS</span><h2 id="mm-home-profile-title">My profile</h2></div><button type="button" aria-label="Close profile" onClick={() => setProfileDialogOpen(false)}><X size={18}/></button></div>
           <div className="mm-home-modal-identity"><span className="mm-home-avatar">{initials || "S"}</span><div><strong>{student.name}</strong><small>{student.email}</small></div></div>
-          <dl><div><dt>Full name</dt><dd>{student.name}</dd></div><div><dt>Email address</dt><dd>{student.email}</dd></div><div><dt>Mobile number</dt><dd>{student.phone || "Not provided"}</dd></div><div><dt>Paper 2 subject</dt><dd>{preferences?.subject_name || "Not selected"}</dd></div><div><dt>Category</dt><dd>{preferences?.category || "Not provided"}</dd></div><div><dt>PwBD</dt><dd>{preferences?.is_pwd ? "Yes" : "No"}</dd></div><div><dt>Qualification goal</dt><dd>{preferences?.qualification_goal || "Not provided"}</dd></div><div><dt>Target exam cycle</dt><dd>{preferences?.target_exam_cycle || "Not provided"}</dd></div></dl>
-          <button className="mm-home-modal-close" type="button" onClick={() => setProfileDialogOpen(false)}>Close</button>
+          {profileSuccess && <p className="mm-home-profile-success" role="status">{profileSuccess}</p>}
+          {profileError && <p className="mm-home-profile-error" role="alert">{profileError}</p>}
+          {editingProfile ? <div className="mm-home-edit-form">
+            <label>Full name<input value={editProfile.name} onChange={e=>setEditProfile(v=>({...v,name:e.target.value}))} required /></label>
+            <label>Mobile number<input value={editProfile.phone} onChange={e=>setEditProfile(v=>({...v,phone:e.target.value}))} inputMode="tel" /></label>
+            <label>Paper 2 subject<select value={editProfile.subjectId} onChange={e=>setEditProfile(v=>({...v,subjectId:e.target.value}))}><option value="">Select subject</option>{subjectOptions.map(x=><option key={x.id} value={x.id}>{x.name}</option>)}</select></label>
+            <label>Category<select value={editProfile.category} onChange={e=>setEditProfile(v=>({...v,category:e.target.value}))}><option value="">Select category</option>{["General","EWS","OBC-NCL","SC","ST"].map(x=><option key={x}>{x}</option>)}</select></label>
+            <label>PwBD<select value={editProfile.isPwd?"yes":"no"} onChange={e=>setEditProfile(v=>({...v,isPwd:e.target.value==="yes"}))}><option value="no">No</option><option value="yes">Yes</option></select></label>
+            <label>Qualification goal<select value={editProfile.goal} onChange={e=>setEditProfile(v=>({...v,goal:e.target.value}))}>{["Assistant Professor","JRF","Both"].map(x=><option key={x}>{x}</option>)}</select></label>
+            <label>Target exam cycle<select value={editProfile.cycle} onChange={e=>setEditProfile(v=>({...v,cycle:e.target.value}))}>{["December 2026","June 2027","December 2027","June 2028"].map(x=><option key={x}>{x}</option>)}</select></label>
+            <div className="mm-home-edit-actions"><button type="button" onClick={()=>setEditingProfile(false)}>Cancel</button><button type="button" disabled={savingProfile || !editProfile.name.trim()} onClick={()=>void saveProfile()}>{savingProfile?"Saving…":"Save changes"}</button></div>
+          </div> : <><dl><div><dt>Full name</dt><dd>{student.name}</dd></div><div><dt>Email address</dt><dd>{student.email}</dd></div><div><dt>Mobile number</dt><dd>{student.phone || "Not provided"}</dd></div><div><dt>Paper 2 subject</dt><dd>{preferences?.subject_name || "Not selected"}</dd></div><div><dt>Category</dt><dd>{preferences?.category || "Not provided"}</dd></div><div><dt>PwBD</dt><dd>{preferences?.is_pwd ? "Yes" : "No"}</dd></div><div><dt>Qualification goal</dt><dd>{preferences?.qualification_goal || "Not provided"}</dd></div><div><dt>Target exam cycle</dt><dd>{preferences?.target_exam_cycle || "Not provided"}</dd></div></dl><button className="mm-home-modal-close" type="button" onClick={beginEditProfile}>Edit profile</button></>}
+          <button className="mm-home-modal-secondary" type="button" onClick={() => setProfileDialogOpen(false)}>Close</button>
         </section>
       </div>}
     </div>
