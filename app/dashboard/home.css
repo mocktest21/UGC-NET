@@ -211,3 +211,22 @@
  /* No category filter chips are rendered above the notices on mobile. */
  .mm-home-notice-filters,.mm-home-notice-filter-row{display:none!important}
 }
+
+
+/* Keep every NTA notice in its own distinct card with a minimal inter-card gap. */
+.mm-home-notice-list{
+ display:grid!important;
+ grid-template-columns:minmax(0,1fr)!important;
+ gap:6px!important;
+}
+.mm-home-notice-item{
+ display:grid!important;
+ margin:0!important;
+ border:1px solid #e9e4d8!important;
+ border-radius:14px!important;
+ background:#fff!important;
+}
+@media(max-width:760px){
+ .mm-home-notice-list{gap:6px!important}
+ .mm-home-notice-item{padding:13px 12px!important;border-radius:14px!important}
+}
