@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import {usePathname} from "next/navigation";
-import {BookOpen,BookMarked,House,Info,Radio,Activity,GraduationCap} from "lucide-react";
+import {usePathname} from "next/navigation";\nimport {useState} from "react";
+import {BookOpen,BookMarked,House,Info,Radio,Activity,GraduationCap,Menu,X} from "lucide-react";
 
 const items=[
  {href:"/dashboard",label:"Home",Icon:House},
