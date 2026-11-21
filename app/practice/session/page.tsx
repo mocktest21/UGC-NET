@@ -40,23 +40,21 @@ export default function PracticeSessionPage(){
   if(!auth.user){router.replace("/login");return;}
   if(live){setStudent((auth.user.user_metadata?.full_name as string)||"Student");setStudentId(auth.user.id);}
   if(!testId||!attemptId){setError("Your practice attempt is missing. Return to the test builder.");setLoading(false);return;}
-  const {data:attempt,error:attemptError}=await db.from("test_attempts").select("id,status,expires_at").eq("id",attemptId).maybeSingle();
-  if(attemptError||!attempt||attempt.status!=="in_progress"){setError(attemptError?.message||"This practice attempt is no longer active.");setLoading(false);return;}
-  const {data:links,error:linkError}=await db.from("test_questions").select("id,question_id,question_version_id,position,marks,negative_marks").eq("test_id",testId).order("position");
-  if(linkError){setError(linkError.message);setLoading(false);return;}
-  const ids=(links||[]).map((x:any)=>x.question_version_id);
-  const {data:versions,error:versionError}=await db.from("question_versions").select("id,question_type,prompt,stimulus,options").in("id",ids);
-  if(versionError){setError(versionError.message);setLoading(false);return;}
-  const versionMap=new Map((versions||[]).map((v:any)=>[v.id,v]));
-  const built=(links||[]).flatMap((link:any)=>{const v:any=versionMap.get(link.question_version_id);return v?[{id:link.id,questionId:link.question_id,type:v.question_type,prompt:v.prompt||{},stimulus:v.stimulus,options:Array.isArray(v.options)?v.options:[],marks:Number(link.marks||2),negative:Number(link.negative_marks||0),responseId:link.id} as Q]:[];});
+  const {data:attemptData,error:attemptError}=await db.rpc("student_get_attempt_questions",{p_attempt_id:attemptId});
+  if(attemptError||!attemptData){setError(attemptError?.message||"This practice attempt is no longer available.");setLoading(false);return;}
+  const payload=attemptData as any;
+  if(payload.status!=="in_progress"){setError("This practice attempt is no longer active.");setLoading(false);return;}
+  const built=(Array.isArray(payload.questions)?payload.questions:[]).map((row:any)=>({
+    id:row.id,questionId:row.question_id,type:row.question_type,prompt:row.prompt||{},
+    stimulus:row.stimulus,options:Array.isArray(row.options)?row.options:[],
+    marks:Number(row.marks||2),negative:Number(row.negative_marks||0),responseId:row.id
+  })) as Q[];
   const {data:bookmarkRows,error:bookmarkError}=await db.from("bookmarks").select("question_id").eq("student_id",auth.user.id).in("question_id",built.map((q:any)=>q.questionId));
   if(bookmarkError){setError("Bookmarks could not be loaded: "+bookmarkError.message);setLoading(false);return;}
-  const {data:responses,error:responseError}=await db.from("student_responses").select("test_question_id,response,is_marked_for_review").eq("attempt_id",attemptId);
-  if(responseError){setError("Saved responses could not be loaded: "+responseError.message);setLoading(false);return;}
   const answerState:Record<string,any>={},reviewState:string[]=[];
-  (responses||[]).forEach((r:any)=>{if(r.response!==null)answerState[r.test_question_id]=r.response;if(r.is_marked_for_review)reviewState.push(r.test_question_id);});
-  const expiry=attempt.expires_at?Math.max(0,Math.floor((new Date(attempt.expires_at).getTime()-Date.now())/1000)):Math.max(1,Number(params.get("minutes")||50)*60);
-  if(live){setQuestions(built);setAnswers(answerState);setReview(reviewState);setVisited([0,...built.map((item:any,index:number)=>({item,index})).filter(({item,index}:any)=>answerState[item.id]!==undefined&&answerState[item.id]!==null&&answerState[item.id]!==""||reviewState.includes(item.id)).map(({index}:any)=>index)]);setBookmarked((bookmarkRows||[]).map((b:any)=>b.question_id));setExpiresAt(attempt.expires_at||null);setSeconds(expiry);setLoading(false);if(!built.length)setError("No questions were found in this practice attempt.");}
+  (payload.questions||[]).forEach((r:any)=>{if(r.response!==null)answerState[r.id]=r.response;if(r.is_marked_for_review)reviewState.push(r.id);});
+  const expiry=payload.expires_at?Math.max(0,Math.floor((new Date(payload.expires_at).getTime()-Date.now())/1000)):0;
+  if(live){setQuestions(built);setAnswers(answerState);setReview(reviewState);setVisited([0,...built.map((item:any,index:number)=>({item,index})).filter(({item,index}:any)=>answerState[item.id]!==undefined&&answerState[item.id]!==null&&answerState[item.id]!==""||reviewState.includes(item.id)).map(({index}:any)=>index)]);setBookmarked((bookmarkRows||[]).map((b:any)=>b.question_id));setExpiresAt(payload.expires_at||null);setSeconds(expiry);setTestStarted(Boolean(payload.timer_started_at));setLoading(false);if(!built.length)setError("No questions were found in this practice attempt.");}
  })();return()=>{live=false;};},[db,router,params,testId,attemptId]);
 
  const persist=useCallback((id:string,value:any,flag:boolean)=>{
@@ -119,7 +117,17 @@ export default function PracticeSessionPage(){
  },[db,attemptId,router,flushPending]);
  useEffect(()=>{
   if(launchCountdown===null)return;
-  if(launchCountdown<=0){setLaunchCountdown(null);setTestStarted(true);return;}
+  if(launchCountdown<=0){
+    setLaunchCountdown(null);
+    void (async()=>{
+      if(!db||!attemptId){setError("Could not start the test. Please reload.");return;}
+      const {data,error}=await db.rpc("student_begin_attempt",{p_attempt_id:attemptId});
+      if(error||!data){setError(error?.message||"Could not start the timer.");return;}
+      const started=data as {expires_at:string;remaining_seconds:number};
+      setExpiresAt(started.expires_at);setSeconds(Math.max(0,Number(started.remaining_seconds)||0));setTestStarted(true);
+    })();
+    return;
+  }
   const timer=window.setTimeout(()=>setLaunchCountdown(value=>value===null?null:value-1),1000);
   return()=>window.clearTimeout(timer);
  },[launchCountdown]);
