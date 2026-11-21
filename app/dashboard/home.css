@@ -145,6 +145,14 @@
 @media(max-width:760px){
  .mm-home-header-actions{display:none}
  .mm-home-main>.mm-workspace-header{display:flex;flex-wrap:nowrap}
- .mm-home-main>.mm-workspace-header .mm-brand{margin-right:auto}
- .mm-home-main>.mm-workspace-header .mm-mobile-menu-toggle{order:5;margin-left:auto}
+ .mm-home-main>.mm-workspace-header .mm-brand{margin-right:0}
+ .mm-home-main>.mm-workspace-header .mm-mobile-menu-toggle{order:-1;margin:0 9px 0 0}
 }
+
+/* Refined dashboard profile trigger to match the shared student account control */
+.mm-home-name-trigger{display:inline-flex;align-items:center;gap:9px;min-height:42px;padding:5px 12px 5px 6px;border:1px solid var(--primary-border);border-radius:13px;background:linear-gradient(135deg,var(--surface),var(--primary-tint));color:var(--ink);font-size:12px;font-weight:750;cursor:pointer;box-shadow:0 3px 12px rgba(15,118,110,.07)}
+.mm-home-name-trigger:before{content:"";width:30px;height:30px;display:inline-block;border-radius:10px;background:var(--primary);box-shadow:inset 0 0 0 8px rgba(255,255,255,.12)}
+.mm-home-name-trigger span{color:var(--primary);font-size:15px}
+.mm-home-profile-menu{z-index:160;padding:7px;border:1px solid var(--border);border-radius:14px;background:var(--surface);box-shadow:0 16px 38px rgba(15,35,45,.16)}
+.mm-home-profile-menu button{display:flex;align-items:center;gap:9px;width:100%;min-height:38px;padding:9px 10px;border:0;border-radius:9px;background:transparent;color:var(--ink);font-size:12px;text-align:left;cursor:pointer}
+.mm-home-profile-menu button:hover{background:var(--primary-tint);color:var(--primary)}
