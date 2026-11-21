@@ -13,7 +13,7 @@ const items=[
  {href:"/mentorship",label:"Mentorship",Icon:GraduationCap},
  {href:"/about",label:"About Us",Icon:Info},
 ];
-export default function StudentWorkspaceHeader({name,rightSlot,leftSlot,showNav=true}:{name?:string;rightSlot?:React.ReactNode;leftSlot?:React.ReactNode;showNav?:boolean}){
+export default function StudentWorkspaceHeader({name,rightSlot,leftSlot,mobileMenuExtra,showNav=true}:{name?:string;rightSlot?:React.ReactNode;leftSlot?:React.ReactNode;mobileMenuExtra?:React.ReactNode;showNav?:boolean}){
  const pathname=usePathname();
  return <header className="mm-workspace-header mm-shared-student-header">
   {leftSlot}
