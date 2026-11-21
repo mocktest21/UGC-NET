@@ -114,23 +114,44 @@ export default function AnalyticsPage(){
   const buckets=new Map<string,Set<string>>();
   for(const row of daily){
    const d=new Date(row.activity_date+"T00:00:00");
-   let key=row.activity_date;
-   if(consistency==="weekly")key=dateKey(startOfWeek(d));
-   if(consistency==="monthly")key=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");
+   const key=consistency==="daily"?row.activity_date:consistency==="weekly"?dateKey(startOfWeek(d)):d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");
    if(!buckets.has(key))buckets.set(key,new Set());
    for(const id of row.question_ids||[])buckets.get(key)!.add(id);
   }
-  return Array.from(buckets.entries()).map(([key,ids])=>({key,label:consistency==="daily"?labelDate(key):consistency==="weekly"?"Week of "+labelDate(key):new Date(key+"-01T00:00:00").toLocaleDateString("en-IN",{month:"short",year:"2-digit"}),count:ids.size})).slice(consistency==="daily"?-14:consistency==="weekly"?-8:-6);
- },[daily,consistency]);
+
+  const today=dateKey(new Date());
+  const dates=daily.map(r=>r.activity_date).sort();
+  const start=range==="today"?today:range==="week"?dateKey(new Date(Date.now()-6*86400000)):range==="month"?dateKey(new Date(Date.now()-29*86400000)):range==="3months"?dateKey(new Date(Date.now()-89*86400000)):range==="custom"?(from||dates[0]||today):(dates[0]||today);
+  const end=range==="custom"?(to||today):today;
+  const startDate=new Date(start+"T00:00:00");
+  const endDate=new Date(end+"T00:00:00");
+  const keys:string[]=[];
+  if(consistency==="daily"){
+   for(const d=new Date(startDate);d<=endDate;d.setDate(d.getDate()+1))keys.push(dateKey(d));
+  }else if(consistency==="weekly"){
+   const first=startOfWeek(startDate);
+   for(const d=new Date(first);d<=endDate;d.setDate(d.getDate()+7))keys.push(dateKey(d));
+  }else{
+   const first=new Date(startDate.getFullYear(),startDate.getMonth(),1);
+   for(const d=new Date(first);d<=endDate;d.setMonth(d.getMonth()+1))keys.push(d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0"));
+  }
+
+  return keys.map(key=>({
+   key,
+   label:consistency==="daily"?labelDate(key):consistency==="weekly"?"Week of "+labelDate(key):new Date(key+"-01T00:00:00").toLocaleDateString("en-IN",{month:"short",year:"2-digit"}),
+   count:buckets.get(key)?.size||0
+  })).slice(consistency==="daily"?-14:consistency==="weekly"?-8:-6);
+ },[daily,consistency,range,from,to]);
 
  const consistencyTotals=useMemo(()=>{
-  const unique=new Set<string>();let activeDayCount=0;let eventCount=0;
-  for(const row of daily){for(const id of row.question_ids||[])unique.add(id);eventCount+=Number(row.questions||0);if(Number(row.questions)>0)activeDayCount++;}
+  let eventCount=0;
+  for(const row of daily)eventCount+=Number(row.questions||0);
   const dates=daily.map(r=>r.activity_date).sort();
-  const start=range==="today"?dateKey(new Date()):range==="custom"?(from||dates[0]):range==="week"?dateKey(new Date(Date.now()-6*86400000)):range==="month"?dateKey(new Date(Date.now()-29*86400000)):range==="3months"?dateKey(new Date(Date.now()-89*86400000)):dates[0];
-  const end=range==="custom"?(to||dateKey(new Date())):dateKey(new Date());
-  const days=start?Math.max(1,Math.floor((new Date(end+"T00:00:00").getTime()-new Date(start+"T00:00:00").getTime())/86400000)+1):0;
-  return {unique:unique.size,average:days?eventCount/days:0,activeDayCount};
+  const today=dateKey(new Date());
+  const start=range==="today"?today:range==="custom"?(from||dates[0]||today):range==="week"?dateKey(new Date(Date.now()-6*86400000)):range==="month"?dateKey(new Date(Date.now()-29*86400000)):range==="3months"?dateKey(new Date(Date.now()-89*86400000)):(dates[0]||today);
+  const end=range==="custom"?(to||today):today;
+  const days=Math.max(1,Math.floor((new Date(end+"T00:00:00").getTime()-new Date(start+"T00:00:00").getTime())/86400000)+1);
+  return {average:eventCount/days};
  },[daily,range,from,to]);
 
  const toggleUnit=(id:string)=>setExpandedUnits(current=>current.includes(id)?current.filter(x=>x!==id):[...current,id]);
@@ -164,7 +185,7 @@ export default function AnalyticsPage(){
     <section className="an-panel">
      <div className="an-panel-title"><div><span className="an-kicker">STUDY ROUTINE</span><h2>Consistency Tracker</h2><p>Unique questions attempted in each time bucket.</p></div><CalendarDays size={19}/></div>
      <div className="an-consistency-controls"><div className="an-segments">{(["daily","weekly","monthly"] as ConsistencyKey[]).map(v=><button type="button" key={v} className={consistency===v?"active":""} onClick={()=>setConsistency(v)}>{v[0].toUpperCase()+v.slice(1)}</button>)}</div></div>
-     <div className="an-consistency-summary"><div><strong>{fmt(consistencyTotals.unique)}</strong><span>Total unique questions</span></div><div><strong>{consistencyTotals.average.toFixed(1)}</strong><span>Average questions per calendar day</span></div></div>
+     <div className="an-consistency-summary"><div><strong>{consistencyTotals.average.toFixed(1)}</strong><span>Average questions per calendar day</span></div></div>
      <div className="an-chart" role="img" aria-label={"Questions attempted "+consistency+" chart"}>
       {chartRows.length?chartRows.map(row=><div className="an-chart-col" key={row.key}><strong>{row.count}</strong><div className="an-chart-track"><span style={{height:(Math.max(...chartRows.map(x=>x.count),1)?Math.max(5,row.count/Math.max(...chartRows.map(x=>x.count),1)*100):5)+"%"}}/></div><small>{row.label}</small></div>):<div className="an-empty">No completed question activity in this date range.</div>}
      </div>
