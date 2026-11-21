@@ -48,3 +48,12 @@ body:not(:has(.aw-shell,.aq-shell,.tb-shell)) :where(small,label,button,input,se
  .mm-mobile-menu-panel a{display:flex;align-items:center;gap:11px;min-height:43px;padding:9px 12px;border-radius:9px;color:var(--muted);font-size:13px;font-weight:650}
  .mm-mobile-menu-panel a.active,.mm-mobile-menu-panel a:hover{background:var(--primary-tint);color:var(--primary)}
 }
+
+
+/* Fix: the shared mobile nav rule was also hiding the opened hamburger panel. */
+@media(max-width:760px){
+ .mm-shared-student-header .mm-mobile-menu-panel{display:grid;position:absolute;top:100%;left:0;right:0;z-index:120;max-height:calc(100vh - 58px);overflow-y:auto;overscroll-behavior:contain}
+ .mm-shared-student-header .mm-mobile-menu-toggle{order:-1;margin-left:0;margin-right:8px;position:relative;z-index:121;flex:0 0 40px}
+ .mm-shared-student-header .mm-brand{order:0;margin-right:auto}
+ .mm-shared-student-header .mm-home-header-actions{display:none}
+}
