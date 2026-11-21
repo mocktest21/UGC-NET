@@ -26,3 +26,13 @@ small{font-size:max(12px,1em)}
 
 /* Keep public and student-facing text readable; admin screens retain their existing typography. */
 body:not(:has(.aw-shell,.aq-shell,.tb-shell)) :where(small,label,button,input,select,textarea,th,td,li,p,span,a){font-size:max(12px,1em)}
+
+
+/* Desktop student navigation: keep all links on one line without creating a second horizontal bar. */
+@media(min-width:761px){
+ .mm-shared-student-header{flex-wrap:nowrap;}
+ .mm-shared-student-header .mm-brand{flex:0 0 auto;}
+ .mm-shared-student-header nav{flex:1 1 auto;min-width:0;flex-wrap:nowrap;justify-content:center;gap:clamp(6px,1vw,14px);white-space:nowrap;}
+ .mm-shared-student-header nav a{flex:0 0 auto;font-size:11px;}
+ .mm-shared-student-header>.mm-workspace-user{flex:0 0 auto;white-space:nowrap;}
+}
