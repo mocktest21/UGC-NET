@@ -121,7 +121,7 @@ export default function HomePage() {
     ? latestFive.reduce((sum, a) => sum + (Number(a.score) / Number(a.max_score) * 100), 0) / latestFive.length
     : null;
   const profileComplete = Boolean(preferences?.category && preferences?.qualification_goal && preferences?.target_exam_cycle && preferences?.subject_name);
-  const readinessStatus = !profileComplete || fullLengthCount < 5
+  const readinessStatus = !profileComplete || scoredAttempts.length < 5
     ? "Insufficient Data"
     : "Benchmark Pending";
   const recentTrend = useMemo(() => {
