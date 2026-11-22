@@ -267,7 +267,7 @@ export default function HomePage() {
               <div className="mm-home-profile-wrap">
                 <button className="mm-home-name-trigger" type="button" onClick={() => setProfileOpen(v => !v)} aria-label="Open account menu"><span className="mm-home-trigger-avatar"><UserRound size={16}/></span><span className="mm-home-trigger-name">{student.name}</span><span className="mm-home-trigger-chevron" aria-hidden="true">⌄</span></button>
                 {profileOpen && <div className="mm-home-profile-menu">
-                  <button type="button" onClick={() => { setProfileDialogOpen(true); setProfileOpen(false); setEditingProfile(false); }}><UserRound size={15}/>View profile</button>
+                  <Link href="/profile" onClick={() => setProfileOpen(false)}><UserRound size={15}/>View profile</Link>
                   <button type="button" disabled={signingOut} onClick={() => void signOut()}><LogOut size={15}/>{signingOut ? "Logging out…" : "Log out"}</button>
                 </div>}
               </div>
@@ -276,7 +276,7 @@ export default function HomePage() {
           mobileMenuExtra={
             <div className="mm-home-mobile-account">
               <strong>{student.name}</strong>
-              <button type="button" onClick={() => { setProfileDialogOpen(true); setProfileOpen(false); setEditingProfile(false); }}><UserRound size={15}/>View profile</button>
+              <Link href="/profile"><UserRound size={15}/>View profile</Link>
               <button type="button" disabled={signingOut} onClick={() => void signOut()}><LogOut size={15}/>{signingOut ? "Logging out…" : "Log out"}</button>
             </div>
           }
