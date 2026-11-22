@@ -238,7 +238,7 @@ export default function HomePage() {
                 const target = new Date(examScheduleDate + "T00:00:00");
                 const today = new Date(); today.setHours(0,0,0,0);
                 const days = Math.ceil((target.getTime()-today.getTime())/86400000);
-                return <><strong className="mm-home-awaiting">{target.toLocaleDateString("en-IN",{day:"numeric",month:"long",year:"numeric"})}</strong><p>{days>0?days+" days remaining":days===0?"Exam date is today":Math.abs(days)+" days since scheduled date"} · Default date can be updated by admin.</p></>;
+                return <div className="mm-home-countdown-display"><strong>{days>0?days+" days remaining":days===0?"Exam date is today":Math.abs(days)+" days overdue"}</strong></div>;
               })()}
             </article>
             <article className="mm-home-card mm-home-readiness">
