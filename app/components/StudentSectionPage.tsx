@@ -20,7 +20,9 @@ function formatCountdown(target:number,now:number){
 }
 export default function StudentSectionPage({section}:{section:Section}){
  const router=useRouter();
- const [name,setName]=useState("Student"),[loading,setLoading]=useState(true),[completedTests,setCompletedTests]=useState<LiveTest[]>([]),[liveTests,setLiveTests]=useState<LiveTest[]>([]),[overview,setOverview]=useState<Record<string,LiveOverview>>({}),[startingTest,setStartingTest]=useState(""),[startingSmartQuiz,setStartingSmartQuiz]=useState(false),[smartQuizCount,setSmartQuizCount]=useState(0),[error,setError]=useState(""),[currentTime,setCurrentTime]=useState(()=>Date.now());
+ const [name,setName]=useState("Student"),[loading,setLoading]=useState(true),[completedTests,setCompletedTests]=useState<LiveTest[]>([]),[liveTests,setLiveTests]=useState<LiveTest[]>([]),[overview,setOverview]=useState<Record<string,LiveOverview>>({}),[startingTest,setStartingTest]=useState(""),[startingSmartQuiz,setStartingSmartQuiz]=useState(false),[smartQuizCount,setSmartQuizCount]=useState(0),[error,setError]=useState(""),[currentTime,setCurrentTime]=useState(()=>Date.now()),[quickDistribution,setQuickDistribution]=useState<any>(null),[quickPopup,setQuickPopup]=useState(false),[quickKind,setQuickKind]=useState(""),[quickCountdown,setQuickCountdown]=useState<number|null>(null),[quickBusy,setQuickBusy]=useState(false);
+ useEffect(()=>{if(quickCountdown===null)return;if(quickCountdown>0){const timer=window.setTimeout(()=>setQuickCountdown(value=>value===null?null:value-1),1000);return()=>window.clearTimeout(timer);}if(quickCountdown===0&&quickKind){void(async()=>{setQuickBusy(true);setError("");const db=createSupabaseBrowserClient();const {data,error}=await db.rpc("student_start_quick_practice",{p_kind:quickKind});setQuickBusy(false);setQuickCountdown(null);setQuickPopup(false);if(error){setError(error.message);return;}const result=data as {test_id:string;attempt_id:string;duration_seconds:number};router.push("/practice/session?"+new URLSearchParams({test:result.test_id,attempt:result.attempt_id,minutes:String(Math.ceil(result.duration_seconds/60))}).toString());})();}},[quickCountdown,quickKind,router]);
+ async function handleQuickPractice(kind:string){setError("");setQuickKind(kind);if(kind==="twenty"){setQuickBusy(true);const db=createSupabaseBrowserClient();const {data,error}=await db.rpc("student_get_quick_practice_distribution",{p_question_count:20});setQuickBusy(false);if(error){setError(error.message);return;}setQuickDistribution(data);setQuickPopup(true);return;}setQuickCountdown(0);}
  useEffect(()=>{if(section!=="live-test")return;const timer=window.setInterval(()=>setCurrentTime(Date.now()),1000);return()=>window.clearInterval(timer);},[section]);
  useEffect(()=>{let active=true;void(async()=>{
   const db=createSupabaseBrowserClient();
@@ -93,12 +95,21 @@ export default function StudentSectionPage({section}:{section:Section}){
     <section className="mm-practice-v2-quick">
      <div className="mm-practice-v2-heading"><h2><Zap size={17}/> Quick practice</h2><Link href="/practice/build-test">Custom practice →</Link></div>
      <div className="mm-practice-v2-quick-scroll">
-      <Link href="/practice/build-test"><Play size={17}/><strong>10 Qs</strong><small>10 min</small></Link>
-      <Link href="/practice/build-test"><Layers size={17}/><strong>20 Qs</strong><small>20 min</small></Link>
-      <Link href="/practice/build-test"><span className="mm-practice-v2-square">□</span><strong>Unattempted</strong><small>Only</small></Link>
-      <Link href="/personal-notebook"><Bookmark size={17}/><strong>Bookmarked</strong><small>Questions</small></Link>
-      <Link href="/practice/build-test"><Shuffle size={17}/><strong>Surprise me</strong><small>Mixed</small></Link>
+      <button type="button" disabled={quickBusy||quickCountdown!==null} onClick={()=>void handleQuickPractice("ten")}><Play size={17}/><strong>10 Qs</strong><small>10 min</small></button>
+      <button type="button" disabled={quickBusy||quickCountdown!==null} onClick={()=>void handleQuickPractice("twenty")}><Layers size={17}/><strong>20 Qs</strong><small>20 min</small></button>
+      <button type="button" disabled={quickBusy||quickCountdown!==null} onClick={()=>void handleQuickPractice("bookmarked")}><Bookmark size={17}/><strong>Bookmarked</strong><small>Up to 20</small></button>
+      <button type="button" disabled={quickBusy||quickCountdown!==null} onClick={()=>void handleQuickPractice("surprise")}><Shuffle size={17}/><strong>Surprise me</strong><small>10–30 · Mixed</small></button>
      </div>
+     {quickCountdown!==null&&<div className="mm-quick-countdown" role="status">{quickCountdown>0?<>Test starts in <b>{quickCountdown}</b>…</>:"Preparing your test…"}</div>}
+     {quickPopup&&<div className="mm-quick-modal-backdrop" role="presentation"><section className="mm-quick-modal" role="dialog" aria-modal="true" aria-labelledby="mm-quick-modal-title">
+      <button className="mm-quick-modal-close" type="button" onClick={()=>setQuickPopup(false)} aria-label="Close">×</button>
+      <span className="mm-quick-modal-kicker">YOUR RANDOM SET</span><h2 id="mm-quick-modal-title">20 Questions · Distribution</h2>
+      <p>{quickDistribution?.selected??20} questions selected from the approved question bank.</p>
+      <div className="mm-quick-distribution-group"><h3>Paper-wise</h3>{(quickDistribution?.papers||[]).map((item:any)=><div key={item.name}><span>{item.name}</span><b>{item.count}</b></div>)}</div>
+      <div className="mm-quick-distribution-group"><h3>Unit-wise</h3>{(quickDistribution?.units||[]).map((item:any)=><div key={item.name}><span>{item.name}</span><b>{item.count}</b></div>)}</div>
+      <div className="mm-quick-distribution-group"><h3>Source-wise</h3>{(quickDistribution?.sources||[]).map((item:any)=><div key={item.name}><span>{item.name}</span><b>{item.count}</b></div>)}</div>
+      <button className="mm-quick-start-now" type="button" disabled={quickBusy} onClick={()=>{setQuickPopup(false);setQuickCountdown(5);}}>Start Now →</button>
+     </section></div>}
     </section>
     <section className="mm-practice-v2-smart">
      <div className="mm-practice-v2-smart-top"><span><Sparkles size={20}/></span><div><h2>Smart Quiz</h2><p>Revise your incorrect answers and weakest units.</p></div><b>{smartQuizCount}</b></div>
