@@ -94,6 +94,7 @@ export default function StudentSectionPage({section}:{section:Section}){
 
     <section className="mm-practice-v2-quick">
      <div className="mm-practice-v2-heading"><h2><Zap size={17}/> Quick practice</h2><Link href="/practice/build-test">Custom practice →</Link></div>
+     {error&&<div className="mm-workspace-error" role="alert">{error}</div>}
      <div className="mm-practice-v2-quick-scroll">
       <button type="button" disabled={quickBusy||quickCountdown!==null} onClick={()=>void handleQuickPractice("ten")}><Play size={17}/><strong>10 Qs</strong><small>10 min</small></button>
       <button type="button" disabled={quickBusy||quickCountdown!==null} onClick={()=>void handleQuickPractice("twenty")}><Layers size={17}/><strong>20 Qs</strong><small>20 min</small></button>
