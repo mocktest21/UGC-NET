@@ -321,3 +321,19 @@
  .mm-home-urgency-stat strong{font-size:16px}
  .mm-home-urgency-stat span{font-size:8px}
 }
+
+
+/* Compact exam countdown card after removing the secondary week summary. */
+.mm-home-countdown{padding-top:18px!important;padding-bottom:15px!important;gap:0!important}
+.mm-home-countdown-hero{margin-top:8px!important;margin-bottom:10px!important}
+.mm-home-countdown-hero>strong{font-size:clamp(70px,11vw,92px)!important}
+.mm-home-urgency-grid{margin-top:2px!important;margin-bottom:9px!important}
+.mm-home-urgency-stat{min-height:91px!important;padding-top:10px!important;padding-bottom:9px!important}
+.mm-home-target-edit-row{margin-bottom:8px!important}
+.mm-home-countdown-cta{min-height:44px!important;padding-top:10px!important;padding-bottom:10px!important}
+@media(max-width:760px){
+ .mm-home-countdown{padding:18px 18px 15px!important}
+ .mm-home-countdown-hero{margin:8px 0 10px!important}
+ .mm-home-countdown-hero>strong{font-size:clamp(70px,21vw,88px)!important}
+ .mm-home-urgency-stat{min-height:88px!important;padding:9px 8px!important}
+}
