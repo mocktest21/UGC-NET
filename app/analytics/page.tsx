@@ -2,7 +2,7 @@
 
 import {useCallback,useEffect,useMemo,useRef,useState} from "react";
 import {useRouter} from "next/navigation";
-import {Activity,BarChart3,BookOpenCheck,CalendarDays,ChevronDown,Clock3,RefreshCw,Target} from "lucide-react";
+import {Activity,BarChart3,BookOpenCheck,CalendarDays,ChevronDown,Clock3,Play,RefreshCw,Target} from "lucide-react";
 import StudentWorkspaceHeader from "@/components/navigation/StudentWorkspaceHeader";
 import MockMasterLoading from "@/app/components/ui/MockMasterLoading";
 import {createSupabaseBrowserClient} from "@/lib/supabase/client";
