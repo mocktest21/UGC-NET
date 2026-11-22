@@ -230,3 +230,11 @@
  .mm-home-notice-list{gap:6px!important}
  .mm-home-notice-item{padding:13px 12px!important;border-radius:14px!important}
 }
+
+
+/* Center and emphasize the remaining-days value; keep the exact date hidden. */
+.mm-home-countdown{display:flex!important;flex-direction:column!important;align-items:center!important;text-align:center!important}
+.mm-home-countdown .mm-home-card-title{align-self:stretch!important;text-align:left!important}
+.mm-home-countdown-display{display:flex;align-items:center;justify-content:center;width:100%;min-height:105px;padding:14px 8px 4px}
+.mm-home-countdown-display strong{display:block;color:var(--primary);font-size:clamp(27px,4vw,38px);font-weight:850;line-height:1.12;letter-spacing:-.035em;text-align:center}
+@media(max-width:760px){.mm-home-countdown-display{min-height:92px}.mm-home-countdown-display strong{font-size:32px}}
