@@ -24,6 +24,11 @@ export default function AdminDashboardPage(){
   const [adminName,setAdminName]=useState("Administrator");
   const [counts,setCounts]=useState<Counts>({questions:0,approved:0,drafts:0,imports:0,tests:0,students:0});
   const [error,setError]=useState("");
+  const [examCycle,setExamCycle]=useState("December 2026");
+  const [examDate,setExamDate]=useState("2026-12-15");
+  const [examSchedules,setExamSchedules]=useState<{exam_cycle:string;exam_date:string}[]>([]);
+  const [savingSchedule,setSavingSchedule]=useState(false);
+  const [scheduleMessage,setScheduleMessage]=useState("");
 
   useEffect(()=>{
     let active=true;
@@ -33,6 +38,8 @@ export default function AdminDashboardPage(){
       if(authError||!data.user){router.replace("/admin/login");return;}
       if(data.user.app_metadata?.role!=="admin"){setIsAdmin(false);setLoading(false);return;}
       setIsAdmin(true);
+      const {data:scheduleRows}=await supabase.from("exam_schedule_settings").select("exam_cycle,exam_date").order("exam_cycle");
+      if(scheduleRows?.length){setExamSchedules(scheduleRows);const selected=scheduleRows.find(x=>x.exam_cycle==="December 2026")||scheduleRows[0];setExamCycle(selected.exam_cycle);setExamDate(selected.exam_date);}
       const fullName=String(data.user.user_metadata?.full_name||"Administrator");
       setAdminName(fullName.trim().split(/\s+/)[0]||"Administrator");
       const [allQ,approvedQ,draftQ,importsQ,testsQ,studentsQ]=await Promise.all([
@@ -52,6 +59,16 @@ export default function AdminDashboardPage(){
     void load();
     return()=>{active=false;};
   },[router,supabase]);
+
+  async function saveExamSchedule(){
+    if(!supabase||!examCycle.trim()||!examDate)return;
+    setSavingSchedule(true);setScheduleMessage("");
+    const {data:{user}}=await supabase.auth.getUser();
+    const {error:saveError}=await supabase.from("exam_schedule_settings").upsert({exam_cycle:examCycle.trim(),exam_date:examDate,updated_at:new Date().toISOString(),updated_by:user?.id||null},{onConflict:"exam_cycle"});
+    if(saveError)setScheduleMessage("Could not save exam date: "+saveError.message);
+    else {setScheduleMessage("Exam date saved. Student dashboards will use this date.");setExamSchedules(rows=>[...rows.filter(x=>x.exam_cycle!==examCycle.trim()),{exam_cycle:examCycle.trim(),exam_date:examDate}].sort((a,b)=>a.exam_cycle.localeCompare(b.exam_cycle)));}
+    setSavingSchedule(false);
+  }
 
   async function signOut(){await supabase.auth.signOut();router.replace("/login");}
 
@@ -78,6 +95,16 @@ export default function AdminDashboardPage(){
         <header className="aw-topbar"><div><span className="aw-breadcrumb">MockMaster / Admin</span><h1>Admin overview</h1></div><div className="aw-user"><span>{adminName.slice(0,1).toUpperCase()}</span><div><b>{adminName}</b><small>Administrator</small></div></div></header>
         <div className="aw-content">
           <section className="aw-welcome"><div><span>CONTROL CENTRE</span><h2>Welcome back, {adminName}.</h2><p>Manage your question content, imports and examination operations from one place.</p></div><a href="/admin/questions" className="aw-cta">＋ Add question</a></section>
+          <section className="aw-exam-schedule">
+            <div><span>EXAM OPERATIONS</span><h2>UGC-NET exam countdown</h2><p>Set the exam date shown on student dashboards. If a cycle has no saved date, the system uses the 15th of that month by default.</p></div>
+            <div className="aw-exam-schedule-form">
+              <label>Exam cycle<input value={examCycle} onChange={e=>setExamCycle(e.target.value)} placeholder="December 2026"/></label>
+              <label>Exam date<input type="date" value={examDate} onChange={e=>setExamDate(e.target.value)}/></label>
+              <button type="button" onClick={()=>void saveExamSchedule()} disabled={savingSchedule||!examCycle.trim()||!examDate}>{savingSchedule?"Saving…":"Save exam date"}</button>
+            </div>
+            {scheduleMessage&&<p className="aw-exam-schedule-message" role="status">{scheduleMessage}</p>}
+            {examSchedules.length>0&&<div className="aw-exam-schedule-list"><b>Saved exam dates</b>{examSchedules.map(row=><button type="button" key={row.exam_cycle} onClick={()=>{setExamCycle(row.exam_cycle);setExamDate(row.exam_date);setScheduleMessage("");}}><span>{row.exam_cycle}</span><strong>{new Date(row.exam_date+"T00:00:00").toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"})}</strong></button>)}</div>}
+          </section>
           {error&&<div className="aw-warning">Some dashboard counts could not be loaded: {error}</div>}
           <div className="aw-section-heading"><div><h2>Platform snapshot</h2><p>Live counts from your MockMaster database.</p></div><span>Updated just now</span></div>
           <section className="aw-stats">
