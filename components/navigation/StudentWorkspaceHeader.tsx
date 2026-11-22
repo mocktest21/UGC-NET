@@ -4,7 +4,7 @@ import Link from "next/link";
 import {usePathname,useRouter} from "next/navigation";
 import {useEffect,useState} from "react";
 import {createPortal} from "react-dom";
-import {BookOpen,BookMarked,House,Info,Radio,Activity,GraduationCap,Menu,X,UserRound,LogOut,ChevronDown} from "lucide-react";
+import {BookOpen,BookMarked,House,Info,Radio,Activity,GraduationCap,Menu,X,UserRound,LogOut,ChevronDown,Mail} from "lucide-react";
 import {createSupabaseBrowserClient} from "@/lib/supabase/client";
 
 const items=[
@@ -15,6 +15,7 @@ const items=[
  {href:"/personal-notebook",label:"Personal Notebook",Icon:BookMarked},
  {href:"/mentorship",label:"Mentorship",Icon:GraduationCap},
  {href:"/about",label:"About Us",Icon:Info},
+ {href:"/contact",label:"Contact Us",Icon:Mail},
 ];
 export default function StudentWorkspaceHeader({name,rightSlot,leftSlot,mobileMenuExtra,showNav=true}:{name?:string;rightSlot?:React.ReactNode;leftSlot?:React.ReactNode;mobileMenuExtra?:React.ReactNode;showNav?:boolean}){
  const pathname=usePathname();
