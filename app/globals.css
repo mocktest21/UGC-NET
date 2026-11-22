@@ -2583,3 +2583,43 @@ button{font-family:var(--mm-font);font-weight:600}
 .mm-quick-distribution-group>div b{color:var(--primary-hover);font-variant-numeric:tabular-nums}
 .mm-quick-start-now{width:100%;min-height:44px;margin-top:8px;border:0;border-radius:10px;background:var(--primary,#0f766e);color:#fff;font-size:12px;font-weight:800;cursor:pointer}
 @media(max-width:480px){.mm-practice-v2-quick-scroll{grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}.mm-practice-v2-quick-scroll>button{min-height:76px;padding:7px 3px}.mm-practice-v2-quick-scroll>button strong{font-size:9px}.mm-quick-modal{padding:18px}}
+
+
+/* Full-width practice feature cards inspired by the supplied reference */
+.mm-practice-v2-card-list{display:grid;gap:16px}
+.mm-practice-v2-feature-card{box-sizing:border-box;display:flex;width:100%;min-height:146px;align-items:center;gap:24px;padding:24px 30px;border:2px solid #efdfc5;border-radius:28px;background:#fff;color:#111c28;text-align:left;text-decoration:none}
+.mm-practice-v2-feature-card:disabled{opacity:1;cursor:default}
+.mm-practice-v2-feature-icon{display:grid;place-items:center;flex:0 0 112px;width:112px;height:112px;border-radius:28px;background:#def5ed;color:#078365}
+.mm-practice-v2-feature-copy{display:grid;min-width:0;flex:1;gap:7px}
+.mm-practice-v2-feature-copy strong{font-size:clamp(20px,3vw,30px);font-weight:750;line-height:1.15;letter-spacing:-.5px}
+.mm-practice-v2-feature-copy small{color:#626158;font-size:clamp(14px,2.2vw,21px);line-height:1.42}
+.mm-practice-v2-feature-status{flex:none;padding:12px 19px;border-radius:999px;background:#f0ece4;color:#55534b;font-size:16px;font-style:normal;font-weight:750;white-space:nowrap}
+.mm-practice-v2-feature-status.smart-count{background:#ffeadf;color:#b8340b;font-size:18px}
+.mm-practice-v2-feature-arrow{flex:none;color:#66645b;font-size:42px;font-weight:400;line-height:1}
+.mm-practice-v2-feature-card.way-build .mm-practice-v2-feature-icon{background:#ffefcf;color:#9b5d00}
+.mm-practice-v2-feature-card.way-daily .mm-practice-v2-feature-icon{background:#f0e8ff;color:#6942b5}
+.mm-practice-v2-feature-card.way-pyq .mm-practice-v2-feature-icon{background:#dfedff;color:#1764ae}
+.mm-practice-v2-feature-card.way-saved .mm-practice-v2-feature-icon{background:#def5ed;color:#078365}
+.mm-practice-v2-feature-card.is-planned{cursor:default}
+.mm-practice-v2-more{display:grid;gap:16px}
+.mm-practice-v2-more>h2{margin:0 0 2px;font-size:18px}
+@media(max-width:700px){
+ .mm-practice-v2-card-list,.mm-practice-v2-more{gap:11px}
+ .mm-practice-v2-feature-card{min-height:100px;gap:12px;padding:13px;border-width:1.5px;border-radius:20px}
+ .mm-practice-v2-feature-icon{flex-basis:66px;width:66px;height:66px;border-radius:19px}
+ .mm-practice-v2-feature-icon svg{width:25px;height:25px}
+ .mm-practice-v2-feature-copy{gap:4px}
+ .mm-practice-v2-feature-copy strong{font-size:17px;letter-spacing:-.3px}
+ .mm-practice-v2-feature-copy small{font-size:12px;line-height:1.35}
+ .mm-practice-v2-feature-status{padding:7px 10px;font-size:11px}
+ .mm-practice-v2-feature-status.smart-count{font-size:11px}
+ .mm-practice-v2-feature-arrow{font-size:30px}
+}
+@media(max-width:390px){
+ .mm-practice-v2-feature-card{gap:9px;padding:11px}
+ .mm-practice-v2-feature-icon{flex-basis:56px;width:56px;height:56px;border-radius:16px}
+ .mm-practice-v2-feature-copy strong{font-size:15px}
+ .mm-practice-v2-feature-copy small{font-size:10px}
+ .mm-practice-v2-feature-status{padding:6px 8px;font-size:10px}
+ .mm-practice-v2-feature-arrow{font-size:26px}
+}
