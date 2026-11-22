@@ -218,27 +218,34 @@ export default function HomePage() {
         />
         <main className="mm-home-content">
           <section className="mm-home-welcome">
-            <div><span className="mm-home-eyebrow">YOUR UGC-NET WORKSPACE</span><h1>Welcome back, {firstName}!</h1><p>Stay focused on your target. Your preparation, your progress, one step at a time.</p>
-              <div className="mm-home-profile-tags">
-                {preferences?.subject_name && <span><BookOpen size={13}/>{preferences.subject_name}</span>}
-                {preferences?.target_exam_cycle && <span><CalendarDays size={13}/>{preferences.target_exam_cycle}</span>}
-                {preferences?.qualification_goal && <span><GraduationCap size={13}/>{preferences.qualification_goal}</span>}
+            <div className="mm-home-welcome-main">
+              <span className="mm-home-greeting">{new Date().getHours()<12?"Good morning,":new Date().getHours()<17?"Good afternoon,":"Good evening,"}</span>
+              <h1>{firstName}</h1>
+              <div className="mm-home-welcome-meta">
+                <div><small>EXAM</small><strong>UGC-NET</strong></div>
+                <div><small>SUBJECT</small><strong>{preferences?.subject_name || "Not selected"}</strong></div>
+                <div><small>PAPERS</small><strong>1 + 2</strong></div>
               </div>
             </div>
-            <div className="mm-home-welcome-icon"><GraduationCap size={38}/></div>
+            <div className="mm-home-welcome-icon"><GraduationCap size={28}/></div>
           </section>
 
           {error && <div className="mm-home-error" role="alert">{error}<button type="button" onClick={() => void loadHome(false)}>Retry</button></div>}
 
           <section className="mm-home-grid-top">
             <article className="mm-home-card mm-home-countdown">
-              <div className="mm-home-card-title"><span className="mm-home-icon"><CalendarDays size={18}/></span><span>EXAM COUNTDOWN</span></div>
-              <h2>{preferences?.target_exam_cycle || "December 2026"}</h2>
-              {examScheduleDate && (() => {
-                const target = new Date(examScheduleDate + "T00:00:00");
+              {(() => {
+                const target = examScheduleDate ? new Date(examScheduleDate + "T00:00:00") : null;
                 const today = new Date(); today.setHours(0,0,0,0);
-                const days = Math.ceil((target.getTime()-today.getTime())/86400000);
-                return <div className="mm-home-countdown-display"><strong>{days>0?days+" days remaining":days===0?"Exam date is today":Math.abs(days)+" days overdue"}</strong></div>;
+                const days = target ? Math.ceil((target.getTime()-today.getTime())/86400000) : null;
+                const weeks = days !== null && days > 0 ? Math.floor(days/7) : 0;
+                const rest = days !== null && days > 0 ? days%7 : 0;
+                return <>
+                  <div className="mm-home-countdown-top"><div className="mm-home-countdown-label"><span>◷</span> EXAM COUNTDOWN</div>{days !== null && days <= 30 && days > 0 && <span className="mm-home-countdown-badge">Final stretch</span>}</div>
+                  <div className="mm-home-countdown-hero"><strong>{days===null?"—":days>0?days:days===0?"Today":Math.abs(days)}</strong><div><b>{days===0?"Exam day":days!==null&&days<0?"days overdue":"days to go"}</b><span>UGC-NET · {preferences?.target_exam_cycle || "December 2026"}</span></div></div>
+                  {days!==null&&days>0&&<div className="mm-home-countdown-pills"><span>{weeks>0?weeks+" weeks ":""}{rest>0?rest+" days":""} left</span><span>{days*24} hours</span></div>}
+                  <Link className="mm-home-countdown-cta" href="/practice">Start today's practice <ArrowRight size={17}/></Link>
+                </>;
               })()}
             </article>
             <article className="mm-home-card mm-home-readiness">
