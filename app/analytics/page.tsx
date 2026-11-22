@@ -39,7 +39,8 @@ export default function AnalyticsPage(){
  const [tracker,setTracker]=useState<TrackerData|null>(null);
  const [syllabusTopics,setSyllabusTopics]=useState<SyllabusTopic[]>([]);
  const [loading,setLoading]=useState(true);
- const [refreshing,setRefreshing]=useState(false);\n const [startingPractice,setStartingPractice]=useState(false);
+ const [refreshing,setRefreshing]=useState(false);
+ const [startingPractice,setStartingPractice]=useState(false);
  const [error,setError]=useState("");
  const [tab,setTab]=useState<"performance"|"syllabus">("performance");
  const [range,setRange]=useState<RangeKey>("month");
