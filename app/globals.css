@@ -2430,3 +2430,21 @@ button{font-family:var(--mm-font);font-weight:600}
  nav.mm-bottom-nav>a.mm-bottom-link{min-width:0;padding-left:2px;padding-right:2px;gap:3px}
  nav.mm-bottom-nav>a.mm-bottom-link small{font-size:9px;line-height:1.15;white-space:normal;text-align:center}
 }
+
+
+/* Practice Centre redesign: custom tests first, premium full mocks visible, revision and live-test library retained. */
+.mm-practice-quick-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;width:100%;max-width:760px;margin-top:20px}
+.mm-practice-quick-actions .mm-practice-action-card{min-height:78px;padding:13px 15px;border-radius:14px}
+.mm-practice-premium-card{position:relative;cursor:not-allowed!important;background:linear-gradient(135deg,#f5fbfa,#fff)!important;border-color:#b9ddd7!important;opacity:1!important}
+.mm-practice-premium-card .mm-practice-action-icon{background:#e6f4f1;color:#0f766e}
+.mm-practice-premium-card .mm-practice-action-copy strong{display:flex;align-items:center;flex-wrap:wrap;gap:7px}
+.mm-practice-premium-card .mm-practice-action-copy strong em{padding:3px 6px;border-radius:5px;background:#fff2d9;color:#9a6412;font-size:8px;font-style:normal;font-weight:850;letter-spacing:.5px}
+.mm-practice-lock-label{flex:none;padding:5px 8px;border-radius:7px;background:#f2f4f3;color:#64748b;font-size:9px;font-weight:750}
+.mm-practice-dashboard{margin-top:34px}
+.mm-practice-dashboard .mm-practice-section-heading{align-items:center}
+.mm-practice-dashboard .mm-practice-section-heading h2{font-size:20px}
+@media(max-width:600px){
+ .mm-practice-quick-actions{grid-template-columns:1fr;max-width:100%;gap:9px;margin-top:16px}
+ .mm-practice-quick-actions .mm-practice-action-card{min-height:70px;padding:11px 12px}
+ .mm-practice-dashboard{margin-top:28px}
+}
