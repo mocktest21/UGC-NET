@@ -754,3 +754,8 @@
  .ps-summary-item strong{flex-basis:32px;height:32px;font-size:17px}
  .ps-summary-item span{font-size:11px}
 }
+
+
+.ps-launch-back{position:absolute;top:max(18px,env(safe-area-inset-top));left:18px;display:inline-flex;align-items:center;gap:7px;min-height:40px;padding:0 13px;border:1px solid #ffffff70;border-radius:10px;background:#ffffff18;color:#fff;font:700 12px var(--font-poppins),Arial,sans-serif;cursor:pointer}
+.ps-launch-back:active{background:#ffffff30}
+@media(max-width:560px){.ps-launch-back{top:max(14px,env(safe-area-inset-top));left:14px;min-height:38px;padding:0 11px}.ps-launch-brand{margin-top:38px}}
