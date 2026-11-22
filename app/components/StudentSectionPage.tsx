@@ -89,11 +89,7 @@ export default function StudentSectionPage({section}:{section:Section}){
      <div><span>MOCKMASTER WORKSPACE</span><h1>Practice Centre</h1><p>Build tests, revise mistakes, practise PYQs and prepare for the real exam.</p></div>
      <div className="mm-practice-v2-art" aria-hidden="true"><FileQuestion size={42}/><Sparkles size={18}/></div>
     </div>
-    <section className="mm-practice-v2-goal">
-     <div className="mm-practice-v2-goal-icon"><Target size={25}/></div>
-     <div><small>YOUR DAILY PRACTICE</small><strong>Make today count</strong><p>Start a focused practice session and keep your preparation moving.</p></div>
-     <Link href="/practice/build-test">Set a goal <span>→</span></Link>
-    </section>
+
     <section className="mm-practice-v2-quick">
      <div className="mm-practice-v2-heading"><h2><Zap size={17}/> Quick practice</h2><Link href="/practice/build-test">Custom practice →</Link></div>
      <div className="mm-practice-v2-quick-scroll">
@@ -123,22 +119,8 @@ export default function StudentSectionPage({section}:{section:Section}){
      <div className="mm-practice-v2-compare"><span>Smart Quiz <b>✓</b></span><span>Build Your Own Test <b>✓</b></span><span>Reattempt live tests <b>✓</b></span><span>Full-length mocks <b>🔒</b></span></div>
      <button type="button" disabled>Unlock Premium · Coming soon</button>
     </section>
-    <section className="mm-practice-v2-focus">
-     <div className="mm-practice-v2-heading"><h2><Target size={18}/> Focus Areas</h2><Link href="/analytics">See all units →</Link></div>
-     <p>Review your unit-wise accuracy and identify topics that need more practice.</p>
-     <Link href="/analytics" className="mm-practice-v2-focus-link">Open unit-wise performance <span>→</span></Link>
-    </section>
-    <section className="mm-practice-v2-library">
-     <div className="mm-practice-v2-library-heading"><div><small>YOUR PRACTICE LIBRARY</small><h2>Previous Live Tests</h2></div><span>{completedTests.length} available</span></div>
-     <div className="mm-practice-v2-library-shortcuts"><div><History size={18}/><strong>Previous Live Tests</strong><small>Reattempt completed live tests.</small></div><Link href="/practice/build-test"><FileQuestion size={18}/><strong>My Practice Tests</strong><small>Create a new personalised test.</small></Link></div>
-     {error&&<div className="mm-workspace-error" role="alert">{error} <button type="button" onClick={()=>window.location.reload()}>Retry</button></div>}
-     {completedTests.length?<div className="mm-completed-live-grid mm-practice-live-grid">{completedTests.map(test=><article className="mm-completed-live-card" key={test.id}>
-      <div className="mm-live-card-top"><span className="mm-live-status is-completed"><i/>COMPLETED</span><span className="mm-live-card-mark">{Number(test.total_marks).toLocaleString("en-IN")} Marks</span></div>
-      <h3>{test.title}</h3>{test.description&&<p className="mm-live-card-description">{test.description}</p>}
-      <div className="mm-live-card-stats"><span><FileQuestion size={14}/>{test.question_count} Qs</span><span><Clock3 size={14}/>{Math.ceil(test.duration_seconds/60)} min</span></div>
-      <button type="button" disabled={startingTest===test.id} onClick={async()=>{setStartingTest(test.id);const db=createSupabaseBrowserClient();const {data,error}=await db.rpc("student_start_completed_live_test",{p_source_live_test_id:test.id});setStartingTest("");if(error){setError(error.message);return;}const result=data as {test_id:string;attempt_id:string;duration_seconds:number};router.push("/practice/session?"+new URLSearchParams({test:result.test_id,attempt:result.attempt_id,minutes:String(Math.ceil(result.duration_seconds/60))}).toString());}}>{startingTest===test.id?"Preparing…":"Practice again"}</button>
-     </article>)}</div>:<div className="mm-workspace-empty mm-completed-live-empty"><span><Clock3 size={22}/></span><h2>No completed live tests yet</h2><p>Once a scheduled live test ends, it will automatically appear here as a ready-made practice test.</p></div>}
-    </section>
+
+
    </div>}
    {section==="live-test"&&<div className="mm-practice-dashboard mm-live-dashboard">
     {error&&<div className="mm-workspace-error" role="alert">{error} <button type="button" onClick={()=>window.location.reload()}>Retry</button></div>}
