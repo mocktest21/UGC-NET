@@ -296,7 +296,6 @@ export default function HomePage() {
                 return <>
                   <div className="mm-home-countdown-top"><div className="mm-home-countdown-label"><span>◷</span> EXAM COUNTDOWN</div>{days !== null && days <= 30 && days > 0 && <span className="mm-home-countdown-badge">Final stretch</span>}</div>
                   <div className="mm-home-countdown-hero"><strong>{days===null?"—":days>0?days:days===0?"Today":Math.abs(days)}</strong><div><b>{days===0?"Exam day":days!==null&&days<0?"days overdue":"days to go"}</b><span>UGC-NET · {preferences?.target_exam_cycle || "December 2026"}</span></div></div>
-                  {days!==null&&days>0&&<div className="mm-home-countdown-pills"><span>{weeks>0?weeks+" weeks ":""}{rest>0?rest+" days":""} left</span></div>}
                   <div className="mm-home-urgency-grid">
                     <div className="mm-home-urgency-stat"><Flame size={18}/><strong>{dailyActivity.streak}</strong><span>Day streak</span></div>
                     <div className="mm-home-urgency-stat"><ClipboardCheck size={18}/><strong>{dailyActivity.mocks}/{dailyTargets.mocks}</strong><span>Daily mocks</span></div>
@@ -318,18 +317,6 @@ export default function HomePage() {
               <p>{!profileComplete ? "Complete your exam profile to identify the relevant qualification benchmark." : scoredAttempts.length < 5 ? "Complete at least five eligible full-length UGC-NET mocks to establish a more reliable baseline." : "Your mock-test baseline is available. An official, matching cutoff benchmark is still required before readiness can be classified."}</p>
               <div className="mm-home-readiness-foot"><span>{fullLengthCount} eligible full-length mocks</span><span>{profileComplete ? "Profile complete" : "Profile incomplete"}</span></div>
             </article>
-          </section>
-
-          <section className="mm-home-section">
-            <div className="mm-home-section-heading"><div><span className="mm-home-eyebrow">YOUR CURRENT BASELINE</span><h2>Preparation snapshot</h2><p>Summary of completed test activity. Open Analytics for detailed breakdowns.</p></div><Link href="/analytics">View Analytics <ArrowRight size={15}/></Link></div>
-            <div className="mm-home-stats">
-              <article><span className="mm-home-stat-icon"><ClipboardIcon/></span><div><strong>{fmt(overall.attempts ?? overall.completed_tests)}</strong><small>Completed tests</small></div></article>
-              <article><span className="mm-home-stat-icon"><Target size={18}/></span><div><strong>{fmt(overall.unique_questions)}</strong><small>Unique questions attempted</small></div></article>
-              <article><span className="mm-home-stat-icon"><TrendingUp size={18}/></span><div><strong>{averageRecent === null ? "—" : averageRecent.toFixed(1) + "%"}</strong><small>Full-mock average · latest {latestFive.length || 0}</small></div></article>
-              <article><span className="mm-home-stat-icon"><Activity size={18}/></span><div><strong>{fmt(overall.accuracy)}{overall.accuracy == null ? "" : "%"}</strong><small>Overall accuracy</small></div></article>
-              <article><span className="mm-home-stat-icon"><CircleHelp size={18}/></span><div><strong>{fmt(overall.total_questions)}</strong><small>Questions attempted</small></div></article>
-              <article><span className="mm-home-stat-icon"><Clock3 size={18}/></span><div><strong>{duration(overall.average_time)}</strong><small>Average time / question</small></div></article>
-            </div>
           </section>
 
           <section className="mm-home-grid-bottom">
