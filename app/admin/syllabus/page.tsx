@@ -29,8 +29,12 @@ export default function AdminSyllabusPage(){
   const next={} as Record<Level,Row[]>;
   keys.forEach((k,i)=>{if(res[i].error)throw res[i].error;next[k]=(res[i].data||[]) as Row[];});
   setRows(next);
-  const {data,error:e}=await supabase.from("questions").select("unit_id,topic_id");
-  if(e)throw e;setCounts((data||[]) as QRef[]);
+  const allRefs:QRef[]=[];
+  for(let offset=0;;offset+=1000){
+   const {data,error:e}=await supabase.from("questions").select("unit_id,topic_id").range(offset,offset+999);
+   if(e)throw e;allRefs.push(...((data||[]) as QRef[]));if(!data||data.length<1000)break;
+  }
+  setCounts(allRefs);
   setExam(v=>v||next.exams[0]?.id||"");setPaper(v=>v||next.papers[0]?.id||"");
   setSubject(v=>v||next.subjects[0]?.id||"");setUnit(v=>v||next.units[0]?.id||"");
  },[supabase]);
@@ -70,7 +74,7 @@ export default function AdminSyllabusPage(){
   if(level==="units")payload.unit_number=Number(form.unit_number)||null;
   if(level==="papers")payload.is_compulsory=form.is_compulsory;
   setBusy(true);
-  const result=editing?await supabase.from(level).update(payload).eq("id",editing):await supabase.from(level).insert(payload);
+  const result=editing?await supabase.from(level as any).update(payload).eq("id",editing):await supabase.from(level as any).insert(payload);
   setBusy(false);if(result.error){setError(result.error.message);return;}
   setMessage(editing?"Record updated successfully.":"Record added successfully.");setShowForm(false);setEditing(null);
   try{await load();}catch(err:any){setError(err?.message||"Saved, but refresh failed.");}
@@ -78,7 +82,7 @@ export default function AdminSyllabusPage(){
  async function toggle(r:Row){
   if(r.is_active&&!window.confirm('Deactivate "'+r.name+'"? Existing question links and student history will be retained.'))return;
   setBusy(true);setError("");setMessage("");
-  const {error:e}=await supabase.from(level).update({is_active:!r.is_active}).eq("id",r.id);
+  const {error:e}=await supabase.from(level as any).update({is_active:!r.is_active}).eq("id",r.id);
   setBusy(false);if(e){setError(e.message);return;}
   setMessage(r.name+(r.is_active?" deactivated.":" activated."));
   try{await load();}catch(err:any){setError(err?.message||"Refresh failed.");}
