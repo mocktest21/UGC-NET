@@ -277,3 +277,47 @@
 .an-chart-weekly .an-chart-col{width:100%;min-width:0;flex:none;scroll-snap-align:none}
 .an-chart-weekly .an-chart-col small{width:100%;height:25px;white-space:normal;text-align:center;line-height:1.2;font-size:9px}
 .an-chart-weekly .an-chart-track span{width:min(36px,75%)}
+
+
+/* Unit-wise and difficulty rows — compact accuracy-first reference layout */
+.an-reference-list{gap:0;overflow:hidden}
+.an-reference-row{padding:18px 4px;border:0;border-bottom:1px solid #eee9df;border-radius:0;background:transparent}
+.an-reference-row:last-child{border-bottom:0}
+.an-reference-main{display:grid;grid-template-columns:minmax(0,1fr) auto 62px;align-items:center;gap:18px}
+.an-reference-copy{display:grid;min-width:0;gap:7px}
+.an-reference-copy>strong{font-size:15px;line-height:1.35;font-weight:750;color:#172033}
+.an-reference-copy>small{font-size:12px;line-height:1.35;color:#64748b}
+.an-reference-track{height:8px;width:100%;overflow:hidden;border-radius:99px;background:#f0eee8}
+.an-reference-track>span{display:block;height:100%;border-radius:inherit}
+.an-reference-track>span.low{background:#e34d55}
+.an-reference-track>span.medium{background:#e2a000}
+.an-reference-track>span.high{background:#42a36a}
+.an-reference-track>span.idle{background:#d6d3c8}
+.an-reference-badge{display:grid;place-items:center;align-content:center;gap:1px;min-width:94px;min-height:70px;padding:8px 10px;border-radius:17px}
+.an-reference-badge b{font-size:22px;line-height:1.15;font-weight:850}
+.an-reference-badge small{font-size:12px;font-weight:650}
+.an-reference-badge.low{background:#fce5e5;color:#a92d32}
+.an-reference-badge.medium{background:#fff0d0;color:#8b5700}
+.an-reference-badge.high{background:#def4e6;color:#20764a}
+.an-reference-badge.idle{background:#f0eee7;color:#66736f}
+.an-reference-play{display:grid;place-items:center;width:62px;height:70px;border:1px solid #eee6d8;border-radius:17px;background:#fff;color:#0f766e;cursor:pointer}
+.an-reference-play:hover{border-color:#99d9cb;background:#f0fdfa}
+.an-reference-play svg{fill:none;stroke-width:2.6}
+@media(max-width:700px){
+ .an-reference-row{padding:15px 0}
+ .an-reference-main{grid-template-columns:minmax(0,1fr) auto 48px;gap:10px}
+ .an-reference-copy{gap:6px}
+ .an-reference-copy>strong{font-size:12px;line-height:1.35}
+ .an-reference-copy>small{font-size:10px}
+ .an-reference-track{height:7px}
+ .an-reference-badge{min-width:70px;min-height:56px;padding:6px;border-radius:13px}
+ .an-reference-badge b{font-size:18px}
+ .an-reference-badge small{font-size:10px}
+ .an-reference-play{width:48px;height:56px;border-radius:13px}
+ .an-reference-play svg{width:17px;height:17px}
+}
+@media(max-width:360px){
+ .an-reference-main{grid-template-columns:minmax(0,1fr) 64px 42px;gap:7px}
+ .an-reference-badge{min-width:64px}
+ .an-reference-play{width:42px}
+}
