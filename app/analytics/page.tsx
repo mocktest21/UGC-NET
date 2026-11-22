@@ -39,7 +39,7 @@ export default function AnalyticsPage(){
  const [tracker,setTracker]=useState<TrackerData|null>(null);
  const [syllabusTopics,setSyllabusTopics]=useState<SyllabusTopic[]>([]);
  const [loading,setLoading]=useState(true);
- const [refreshing,setRefreshing]=useState(false);
+ const [refreshing,setRefreshing]=useState(false);\n const [startingPractice,setStartingPractice]=useState(false);
  const [error,setError]=useState("");
  const [tab,setTab]=useState<"performance"|"syllabus">("performance");
  const [range,setRange]=useState<RangeKey>("month");
@@ -89,15 +89,20 @@ export default function AnalyticsPage(){
  const topics=data?.topics||[];
  const difficulty=data?.difficulty||[];
  const daily=data?.consistency||[];
- const startPractice=(paperCode:string,unitId?:string,difficultyValue?:string)=>{
-  const paper=papers.find(p=>p.paper_code===paperCode);
-  if(!paper)return;
-  try{
-   sessionStorage.setItem("mm-practice-paper-code",paperCode);
-   if(unitId)sessionStorage.setItem("mm-practice-unit-id",unitId);else sessionStorage.removeItem("mm-practice-unit-id");
-   if(difficultyValue)sessionStorage.setItem("mm-practice-difficulty",difficultyValue);else sessionStorage.removeItem("mm-practice-difficulty");
-   router.push("/practice");
-  }catch{router.push("/practice");}
+ const startPractice=async(paperCode:string,unitId?:string,difficultyValue?:string)=>{
+  if(startingPractice)return;
+  setStartingPractice(true);setError("");
+  const db=createSupabaseBrowserClient();
+  const {data:result,error:rpcError}=await db.rpc("student_start_analytics_focused_practice",{
+   p_paper_code:paperCode,p_unit_id:unitId||null,p_difficulty:difficultyValue||null,
+   p_question_count:50,p_duration_seconds:3000
+  });
+  setStartingPractice(false);
+  if(rpcError||!result){setError(rpcError?.message||"Could not start focused practice. Please try again.");return;}
+  const session=result as {test_id:string;attempt_id:string;question_count:number;duration_seconds:number};
+  router.push("/practice/session?"+new URLSearchParams({
+   test:session.test_id,attempt:session.attempt_id,minutes:"50"
+  }).toString());
  };
  const analysisPaper= papers.find(p=>p.paper_code===analysisPaperTab);
  const analysisUnits=units.filter(u=>u.paper_name===analysisPaper?.paper_name);
@@ -209,7 +214,7 @@ export default function AnalyticsPage(){
     <div className="an-analysis-selector" role="group" aria-label="Select paper for detailed analysis"><div className="an-analysis-paper-tabs">{papers.map(p=><button type="button" key={p.paper_code} aria-pressed={analysisPaperTab===p.paper_code} className={analysisPaperTab===p.paper_code?"active":""} onClick={()=>setAnalysisPaperTab(p.paper_code)}>{p.paper_code==="PAPER_2"?"Paper 2":"Paper 1"}</button>)}</div></div>
     <section className="an-panel">
      <div className="an-panel-title"><div><span className="an-kicker">DETAILED SYLLABUS ANALYSIS</span><h2>Unit-wise Performance</h2><p>Accuracy, correct and incorrect answers.</p></div></div>
-     <div className="an-unit-list an-reference-list">{analysisUnits.map(u=>{const accuracy=u.accuracy===null?null:Number(u.accuracy);const tone=accuracy===null?"idle":accuracy<65?"low":accuracy<80?"medium":"high";return <article className="an-unit an-reference-row" key={u.id}><div className="an-reference-main"><div className="an-reference-copy"><strong>{u.name}</strong><small>{fmt(u.attempted)} attempted · {fmt(u.incorrect)} wrong</small><div className="an-reference-track"><span className={tone} style={{width:pct(accuracy)+"%"}}/></div></div><span className={"an-reference-badge "+tone}><b>{accuracy===null?"—":Math.round(accuracy)+"%"}</b><small>Accuracy</small></span><button type="button" className="an-reference-play" aria-label={"Practice "+u.name} onClick={()=>startPractice(analysisPaperTab,u.id)}><Play size={19}/></button></div></article>})}</div>
+     <div className="an-unit-list an-reference-list">{analysisUnits.map(u=>{const accuracy=u.accuracy===null?null:Number(u.accuracy);const tone=accuracy===null?"idle":accuracy<65?"low":accuracy<80?"medium":"high";return <article className="an-unit an-reference-row" key={u.id}><div className="an-reference-main"><div className="an-reference-copy"><strong>{u.name}</strong><small>{fmt(u.attempted)} attempted · {fmt(u.incorrect)} wrong</small><div className="an-reference-track"><span className={tone} style={{width:pct(accuracy)+"%"}}/></div></div><span className={"an-reference-badge "+tone}><b>{accuracy===null?"—":Math.round(accuracy)+"%"}</b><small>Accuracy</small></span><button type="button" className="an-reference-play" aria-label={"Practice "+u.name} disabled={startingPractice} onClick={()=>void startPractice(analysisPaperTab,u.id)}><Play size={19}/></button></div></article>})}</div>
      {!analysisUnits.length&&<div className="an-empty">Unit performance will appear after you attempt unit-tagged questions.</div>}
     </section>
 
@@ -220,7 +225,7 @@ export default function AnalyticsPage(){
 
     <section className="an-panel">
      <div className="an-panel-title"><div><span className="an-kicker">QUESTION DIFFICULTY</span><h2>Difficulty Analysis</h2><p>Correct and incorrect answers by difficulty.</p></div></div>
-     <div className="an-unit-list an-reference-list">{analysisDifficulty.map(d=>{const accuracy=d.attempted?d.correct/d.attempted*100:null;const tone=accuracy===null?"idle":accuracy<65?"low":accuracy<80?"medium":"high";return <article className="an-unit an-reference-row" key={d.paper_code+"-"+d.difficulty}><div className="an-reference-main"><div className="an-reference-copy"><strong>{d.difficulty.charAt(0).toUpperCase()+d.difficulty.slice(1)} Questions</strong><small>{fmt(d.attempted)} attempted · {fmt(d.incorrect)} wrong</small><div className="an-reference-track"><span className={tone} style={{width:pct(accuracy)+"%"}}/></div></div><span className={"an-reference-badge "+tone}><b>{accuracy===null?"—":Math.round(accuracy)+"%"}</b><small>Accuracy</small></span><button type="button" className="an-reference-play" aria-label={"Practice "+d.difficulty+" questions"} onClick={()=>startPractice(d.paper_code,undefined,d.difficulty)}><Play size={19}/></button></div></article>})}</div>
+     <div className="an-unit-list an-reference-list">{analysisDifficulty.map(d=>{const accuracy=d.attempted?d.correct/d.attempted*100:null;const tone=accuracy===null?"idle":accuracy<65?"low":accuracy<80?"medium":"high";return <article className="an-unit an-reference-row" key={d.paper_code+"-"+d.difficulty}><div className="an-reference-main"><div className="an-reference-copy"><strong>{d.difficulty.charAt(0).toUpperCase()+d.difficulty.slice(1)} Questions</strong><small>{fmt(d.attempted)} attempted · {fmt(d.incorrect)} wrong</small><div className="an-reference-track"><span className={tone} style={{width:pct(accuracy)+"%"}}/></div></div><span className={"an-reference-badge "+tone}><b>{accuracy===null?"—":Math.round(accuracy)+"%"}</b><small>Accuracy</small></span><button type="button" className="an-reference-play" aria-label={"Practice "+d.difficulty+" questions"} disabled={startingPractice} onClick={()=>void startPractice(analysisPaperTab,undefined,d.difficulty)}><Play size={19}/></button></div></article>})}</div>
      {!analysisDifficulty.length&&<div className="an-empty">Difficulty analysis will appear after completed attempts.</div>}
     </section>
    </>}
