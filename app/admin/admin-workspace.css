@@ -13,3 +13,20 @@
 @media(max-width:1050px){.aw-shell{grid-template-columns:210px minmax(0,1fr)}.aw-stats,.aw-modules{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:680px){.aw-shell{display:block}.aw-sidebar{position:relative;height:auto;min-height:0;padding:13px;display:block;border-right:0;border-bottom:1px solid var(--border)}.aw-brand{padding:0 3px 10px}.aw-nav-label,.aw-sidebar-bottom{display:none}.aw-sidebar>a.aw-nav{display:inline-flex;width:auto;padding:0 9px;height:34px;margin:2px;font-size:10px}.aw-sidebar>a.aw-nav i{display:none}.aw-sidebar>a.disabled{display:none}.aw-topbar{height:64px;padding:0 16px}.aw-content{padding:18px 14px}.aw-welcome{align-items:flex-start;flex-direction:column;padding:20px}.aw-welcome h2{font-size:19px}.aw-stats,.aw-modules{grid-template-columns:1fr 1fr;gap:8px}.aw-stats article{padding:11px;gap:8px}.aw-stat-icon{width:30px;height:30px}.aw-stats b{font-size:18px}.aw-modules .aw-module{padding:12px;min-height:165px}.aw-footer{font-size:8px}.aw-user div{display:none}}
 @media(max-width:390px){.aw-stats,.aw-modules{grid-template-columns:1fr}}
+
+
+.aw-exam-schedule{margin:22px 0;padding:22px;border:1px solid #dce8e4;border-radius:16px;background:#fff;box-shadow:0 5px 18px rgba(20,50,45,.035)}
+.aw-exam-schedule>div:first-child>span{color:#0f766e;font-size:10px;font-weight:850;letter-spacing:.13em}
+.aw-exam-schedule h2{margin:6px 0;font-size:18px;color:#172b29}
+.aw-exam-schedule p{margin:0;color:#64748b;font-size:12px;line-height:1.55}
+.aw-exam-schedule-form{display:grid;grid-template-columns:1fr 1fr auto;align-items:end;gap:12px;margin-top:18px}
+.aw-exam-schedule-form label{display:grid;gap:6px;color:#475569;font-size:11px;font-weight:750}
+.aw-exam-schedule-form input{width:100%;min-height:40px;padding:8px 10px;border:1px solid #dce5e1;border-radius:9px;background:#fff;color:#1f2937;font:inherit;font-size:12px}
+.aw-exam-schedule-form button{min-height:40px;padding:9px 14px;border:0;border-radius:9px;background:#0f766e;color:#fff;font-size:12px;font-weight:800;cursor:pointer}
+.aw-exam-schedule-form button:disabled{opacity:.55;cursor:not-allowed}
+.aw-exam-schedule-message{margin-top:12px!important;padding:9px 11px;border-radius:8px;background:#effaf6;color:#08745f!important}
+.aw-exam-schedule-list{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:15px;padding-top:14px;border-top:1px solid #edf1ef}
+.aw-exam-schedule-list>b{width:100%;font-size:11px;color:#475569}
+.aw-exam-schedule-list button{display:flex;gap:10px;align-items:center;padding:8px 10px;border:1px solid #e2e8e5;border-radius:9px;background:#fbfdfc;color:#334155;font-size:11px;cursor:pointer}
+.aw-exam-schedule-list button strong{color:#0f766e}
+@media(max-width:650px){.aw-exam-schedule{padding:16px}.aw-exam-schedule-form{grid-template-columns:1fr}.aw-exam-schedule-form button{width:100%}}
