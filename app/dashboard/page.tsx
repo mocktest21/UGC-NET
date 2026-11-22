@@ -213,6 +213,18 @@ export default function HomePage() {
       if (examError || !exam) throw examError || new Error("UGC NET setup not found.");
       const { error: prefError } = await db.from("student_exam_preferences").upsert({ student_id:user.id, exam_id:exam.id, selected_subject_id:editProfile.subjectId || null, category:editProfile.category || null, is_pwd:editProfile.isPwd, qualification_goal:editProfile.goal || null, target_exam_cycle:editProfile.cycle || null }, { onConflict:"student_id,exam_id" });
       if (prefError) throw prefError;
+
+      // Keep the countdown in sync immediately when the student changes their target cycle.
+      const { data: scheduleRow, error: scheduleError } = await db.from("exam_schedule_settings")
+        .select("exam_date").eq("exam_cycle", editProfile.cycle).maybeSingle();
+      if (scheduleError) throw scheduleError;
+      const cycleMatch = editProfile.cycle.match(/^([A-Za-z]+)\\s+(\\d{4})$/);
+      const cycleMonth = cycleMatch ? new Date(Date.parse(cycleMatch[1] + " 1, " + cycleMatch[2])).getMonth() : 11;
+      const cycleYear = cycleMatch ? Number(cycleMatch[2]) : 2026;
+      const fallback = new Date(cycleYear, cycleMonth, 15);
+      const fallbackIso = fallback.getFullYear()+"-"+String(fallback.getMonth()+1).padStart(2,"0")+"-"+String(fallback.getDate()).padStart(2,"0");
+      setExamScheduleDate(scheduleRow?.exam_date || fallbackIso);
+
       const { error: updateError } = await db.auth.updateUser({ data:{ full_name:editProfile.name.trim(), phone_number:editProfile.phone.trim(), paper2_subject_id:editProfile.subjectId, category:editProfile.category, is_pwd:editProfile.isPwd, qualification_goal:editProfile.goal, target_attempt:editProfile.cycle } });
       if (updateError) throw updateError;
       setStudent(v => ({...v, name:editProfile.name.trim(), phone:editProfile.phone.trim()}));
