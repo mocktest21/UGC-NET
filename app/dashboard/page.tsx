@@ -126,12 +126,18 @@ export default function HomePage() {
       const dateKey=(value:string)=>new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Kolkata",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date(value));
       const todayKey=dateKey(new Date().toISOString());
       const activeDays=new Set<string>();
+      const responseQuestionIds=[...new Set(activityRows.map((row:any)=>row.test_question_id).filter(Boolean))];
+      let canonicalQuestionByTestQuestion=new Map<string,string>();
+      if(responseQuestionIds.length){
+        const {data:mappedQuestions}=await db.from("test_questions").select("id,question_id").in("id",responseQuestionIds).limit(10000);
+        canonicalQuestionByTestQuestion=new Map((mappedQuestions||[]).map((row:any)=>[row.id,row.question_id||row.id]));
+      }
       const todayQuestionIds=new Set<string>();
       activityRows.forEach((row:any)=>{
         const answered=row.response!==null&&row.response!==undefined&&row.response!==""&&(typeof row.response!=="object"||Object.keys(row.response).length>0);
         if(!answered)return;
         const activityDate=row.last_saved_at||row.first_seen_at;
-        if(activityDate){const key=dateKey(activityDate);activeDays.add(key);if(key===todayKey)todayQuestionIds.add(row.test_question_id);}
+        if(activityDate){const key=dateKey(activityDate);activeDays.add(key);if(key===todayKey)todayQuestionIds.add(canonicalQuestionByTestQuestion.get(row.test_question_id)||row.test_question_id);}
       });
       let streak=0;
       const cursor=new Date();cursor.setHours(0,0,0,0);
