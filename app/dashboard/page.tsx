@@ -56,6 +56,7 @@ export default function HomePage() {
   const [preferences, setPreferences] = useState<Preferences | null>(null);
   const [data, setData] = useState<HomeData | null>(null);
   const [readiness, setReadiness] = useState<ReadinessData | null>(null);
+  const [examScheduleDate, setExamScheduleDate] = useState<string | null>(null);
   const [notices, setNotices] = useState<{id:number;title:string;source_url:string;first_seen_at:string;new_until:string|null}[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -98,6 +99,14 @@ export default function HomePage() {
       if (analyticsResult.error) throw analyticsResult.error;
       if (readinessResult.error) throw readinessResult.error;
       const pref = prefResult.data as any;
+      const examCycle = String(pref?.target_exam_cycle || "December 2026");
+      const { data: scheduleRow } = await db.from("exam_schedule_settings").select("exam_date").eq("exam_cycle", examCycle).maybeSingle();
+      const monthMatch = examCycle.match(/^([A-Za-z]+)\\s+(\\d{4})$/);
+      const monthIndex = monthMatch ? new Date(Date.parse(monthMatch[1] + " 1, " + monthMatch[2])).getMonth() : 11;
+      const yearNumber = monthMatch ? Number(monthMatch[2]) : 2026;
+      const fallbackDate = new Date(yearNumber, monthIndex, 15);
+      const fallbackIso = fallbackDate.getFullYear()+"-"+String(fallbackDate.getMonth()+1).padStart(2,"0")+"-"+String(fallbackDate.getDate()).padStart(2,"0");
+      setExamScheduleDate(scheduleRow?.exam_date || fallbackIso);
       setPreferences(pref ? {
         category: pref.category,
         is_pwd: Boolean(pref.is_pwd),
@@ -224,9 +233,13 @@ export default function HomePage() {
           <section className="mm-home-grid-top">
             <article className="mm-home-card mm-home-countdown">
               <div className="mm-home-card-title"><span className="mm-home-icon"><CalendarDays size={18}/></span><span>EXAM COUNTDOWN</span></div>
-              <h2>{preferences?.target_exam_cycle || "Target cycle not set"}</h2>
-              <strong className="mm-home-awaiting">Official exam date awaited</strong>
-              <p>Countdown will start when NTA publishes the confirmed schedule.</p>
+              <h2>{preferences?.target_exam_cycle || "December 2026"}</h2>
+              {examScheduleDate && (() => {
+                const target = new Date(examScheduleDate + "T00:00:00");
+                const today = new Date(); today.setHours(0,0,0,0);
+                const days = Math.ceil((target.getTime()-today.getTime())/86400000);
+                return <><strong className="mm-home-awaiting">{target.toLocaleDateString("en-IN",{day:"numeric",month:"long",year:"numeric"})}</strong><p>{days>0?days+" days remaining":days===0?"Exam date is today":Math.abs(days)+" days since scheduled date"} · Default date can be updated by admin.</p></>;
+              })()}
             </article>
             <article className="mm-home-card mm-home-readiness">
               <div className="mm-home-card-title"><span className="mm-home-icon"><Target size={18}/></span><span>EXAM READINESS</span></div>
