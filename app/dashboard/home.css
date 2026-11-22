@@ -238,3 +238,59 @@
 .mm-home-countdown-display{display:flex;align-items:center;justify-content:center;width:100%;min-height:105px;padding:14px 8px 4px}
 .mm-home-countdown-display strong{display:block;color:var(--primary);font-size:clamp(27px,4vw,38px);font-weight:850;line-height:1.12;letter-spacing:-.035em;text-align:center}
 @media(max-width:760px){.mm-home-countdown-display{min-height:92px}.mm-home-countdown-display strong{font-size:32px}}
+
+
+/* Home identity and countdown cards: compact mobile-first visual refresh. */
+.mm-home-welcome{
+ position:relative!important;overflow:hidden!important;
+ display:flex!important;align-items:flex-start!important;justify-content:space-between!important;
+ gap:14px!important;padding:21px 20px 16px!important;
+ border:1px solid #c9e9e2!important;border-radius:23px!important;
+ background:linear-gradient(125deg,#eaf9f6 0%,#f9fdfc 70%,#eef8f5 100%)!important;
+}
+.mm-home-welcome-main{min-width:0;flex:1}
+.mm-home-greeting{display:block;color:#425653;font-size:13px;font-weight:500}
+.mm-home-welcome h1{margin:3px 0 17px!important;color:#103f3b;font-size:34px!important;font-weight:850;line-height:1.05;letter-spacing:-1.1px}
+.mm-home-welcome-meta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid #bfe5dc;padding-top:13px}
+.mm-home-welcome-meta>div{display:grid;gap:5px;min-width:0;padding:0 10px;border-right:1px solid #cce9e2}
+.mm-home-welcome-meta>div:first-child{padding-left:0}
+.mm-home-welcome-meta>div:last-child{border-right:0;padding-right:0}
+.mm-home-welcome-meta small{color:#536764;font-size:9px;font-weight:800;letter-spacing:.13em}
+.mm-home-welcome-meta strong{overflow:hidden;color:#164c46;font-size:12px;font-weight:750;text-overflow:ellipsis;white-space:nowrap}
+.mm-home-welcome-icon{width:56px!important;height:56px!important;flex:0 0 56px!important;display:grid;place-items:center;border-radius:17px!important;background:#0f766e!important;color:#fff!important;box-shadow:0 8px 16px rgba(15,118,110,.2)}
+.mm-home-countdown{
+ position:relative!important;isolation:isolate;overflow:hidden!important;
+ display:flex!important;flex-direction:column!important;align-items:stretch!important;
+ padding:21px 20px 19px!important;border:0!important;border-radius:25px!important;
+ background:#0c514b!important;color:#fff!important;
+ box-shadow:0 13px 25px rgba(7,74,67,.16)!important;
+}
+.mm-home-countdown:before,.mm-home-countdown:after{content:"";position:absolute;z-index:-1;border:1px solid rgba(166,224,213,.12);border-radius:50%;pointer-events:none}
+.mm-home-countdown:before{width:220px;height:220px;right:-70px;top:-105px}
+.mm-home-countdown:after{width:145px;height:145px;right:-28px;top:-60px}
+.mm-home-countdown-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.mm-home-countdown-label{display:flex;align-items:center;gap:8px;color:#a9d6ce;font-size:10px;font-weight:850;letter-spacing:.16em}
+.mm-home-countdown-label span{font-size:17px}
+.mm-home-countdown-badge{padding:7px 12px;border-radius:99px;background:#ffbf37;color:#382800;font-size:10px;font-weight:850}
+.mm-home-countdown-hero{display:flex;align-items:center;gap:14px;margin:13px 0 15px}
+.mm-home-countdown-hero>strong{color:#fff;font-size:clamp(76px,12vw,104px);font-weight:900;line-height:.95;letter-spacing:-.075em}
+.mm-home-countdown-hero>div{display:grid;gap:4px;min-width:0;padding-top:10px}
+.mm-home-countdown-hero b{color:#fff;font-size:clamp(19px,4vw,24px);font-weight:800;line-height:1.1;white-space:nowrap}
+.mm-home-countdown-hero span{color:#b4d9d2;font-size:11px}
+.mm-home-countdown-pills{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:17px}
+.mm-home-countdown-pills span{padding:8px 12px;border-radius:11px;background:rgba(255,255,255,.13);color:#f2fbf9;font-size:11px;font-weight:750}
+.mm-home-countdown-cta{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:49px;margin-top:3px;padding:12px 15px;border-radius:15px;background:#fff;color:#075b53;font-size:13px;font-weight:800;text-decoration:none}
+.mm-home-countdown-cta:hover{background:#e9f8f4}
+@media(max-width:760px){
+ .mm-home-content{width:calc(100% - 32px)!important;padding-top:22px!important}
+ .mm-home-welcome{padding:20px 19px 16px!important;border-radius:23px!important}
+ .mm-home-welcome h1{font-size:34px!important;margin-bottom:17px!important}
+ .mm-home-welcome-icon{width:56px!important;height:56px!important;flex-basis:56px!important}
+ .mm-home-welcome-meta>div{padding:0 8px}
+ .mm-home-welcome-meta strong{font-size:11px}
+ .mm-home-grid-top{grid-template-columns:1fr!important;gap:12px!important;margin-top:15px!important}
+ .mm-home-countdown{padding:21px 20px 19px!important;border-radius:25px!important}
+ .mm-home-countdown-hero>strong{font-size:clamp(76px,23vw,100px)}
+ .mm-home-countdown-hero b{font-size:23px}
+ .mm-home-countdown-pills span{font-size:11px}
+}
