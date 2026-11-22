@@ -112,18 +112,25 @@ export default function StudentSectionPage({section}:{section:Section}){
       <button className="mm-quick-start-now" type="button" disabled={quickBusy} onClick={()=>{setQuickPopup(false);setQuickCountdown(5);}}>Start Now →</button>
      </section></div>}
     </section>
-    <section className="mm-practice-v2-smart">
-     <div className="mm-practice-v2-smart-top"><span><Sparkles size={20}/></span><div><h2>Smart Quiz</h2><p>Revise your incorrect answers and weakest units.</p></div><b>{smartQuizCount}</b></div>
-     <div className="mm-practice-v2-smart-foot"><span>{smartQuizCount} incorrect questions to revise</span><span>{smartQuizCount>0?"Ready to revise":"All caught up"}</span></div>
-     <button type="button" disabled={startingSmartQuiz||smartQuizCount===0} onClick={async()=>{setError("");setStartingSmartQuiz(true);const db=createSupabaseBrowserClient();const {data,error}=await db.rpc("student_start_smart_quiz");setStartingSmartQuiz(false);if(error){setError(error.message);return;}const result=data as {test_id:string;attempt_id:string;duration_seconds:number};router.push("/practice/session?"+new URLSearchParams({test:result.test_id,attempt:result.attempt_id,minutes:String(Math.ceil(result.duration_seconds/60))}).toString());}}>{startingSmartQuiz?"Preparing quiz…":smartQuizCount>0?"Start Smart Quiz →":"No incorrect questions to revise"}</button>
-     <small>Questions are selected from your Personal Notebook.</small>
-    </section>
-    <section className="mm-practice-v2-more">
-     <h2>More ways to practise</h2>
-     <Link href="/practice/build-test" className="mm-practice-v2-way way-build"><span><FileQuestion size={18}/></span><div><strong>Build Your Own Test</strong><small>Pick paper, units, source, number of questions and time.</small></div><b>›</b></Link>
-     <div className="mm-practice-v2-way way-daily is-planned"><span><CalendarDays size={18}/></span><div><strong>Daily Challenge</strong><small>A short, focused quiz to build consistency.</small></div><em>Coming soon</em></div>
-     <div className="mm-practice-v2-way way-pyq is-planned"><span><BookOpen size={18}/></span><div><strong>PYQ Practice</strong><small>Practise previous year questions unit-wise or year-wise.</small></div><em>Coming soon</em></div>
-     <Link href="/personal-notebook" className="mm-practice-v2-way way-saved"><span><Bookmark size={18}/></span><div><strong>My Saved Questions</strong><small>Revise your bookmarked questions anytime.</small></div><b>›</b></Link>
+    <section className="mm-practice-v2-card-list">
+     <button type="button" className="mm-practice-v2-feature-card smart-card" disabled={startingSmartQuiz||smartQuizCount===0} onClick={async()=>{setError("");setStartingSmartQuiz(true);const db=createSupabaseBrowserClient();const {data,error}=await db.rpc("student_start_smart_quiz");setStartingSmartQuiz(false);if(error){setError(error.message);return;}const result=data as {test_id:string;attempt_id:string;duration_seconds:number};router.push("/practice/session?"+new URLSearchParams({test:result.test_id,attempt:result.attempt_id,minutes:String(Math.ceil(result.duration_seconds/60))}).toString());}}>
+      <span className="mm-practice-v2-feature-icon"><Sparkles size={28}/></span><span className="mm-practice-v2-feature-copy"><strong>Smart Quiz</strong><small>Revise your incorrect answers and weakest units.</small></span><span className="mm-practice-v2-feature-status smart-count">{startingSmartQuiz?"…":smartQuizCount+" to revise"}</span><b className="mm-practice-v2-feature-arrow">›</b>
+     </button>
+     <section className="mm-practice-v2-more">
+      <h2>More ways to practise</h2>
+      <Link href="/practice/build-test" className="mm-practice-v2-feature-card way-build">
+       <span className="mm-practice-v2-feature-icon"><FileQuestion size={28}/></span><span className="mm-practice-v2-feature-copy"><strong>Build Your Own Test</strong><small>Pick paper, units, source, questions and time.</small></span><b className="mm-practice-v2-feature-arrow">›</b>
+      </Link>
+      <div className="mm-practice-v2-feature-card way-daily is-planned">
+       <span className="mm-practice-v2-feature-icon"><CalendarDays size={28}/></span><span className="mm-practice-v2-feature-copy"><strong>Daily Challenge</strong><small>A short, focused quiz to build consistency.</small></span><em className="mm-practice-v2-feature-status">Soon</em><b className="mm-practice-v2-feature-arrow">›</b>
+      </div>
+      <div className="mm-practice-v2-feature-card way-pyq is-planned">
+       <span className="mm-practice-v2-feature-icon"><BookOpen size={28}/></span><span className="mm-practice-v2-feature-copy"><strong>PYQ Practice</strong><small>Previous year questions, unit-wise or year-wise.</small></span><em className="mm-practice-v2-feature-status">Soon</em><b className="mm-practice-v2-feature-arrow">›</b>
+      </div>
+      <Link href="/personal-notebook" className="mm-practice-v2-feature-card way-saved">
+       <span className="mm-practice-v2-feature-icon"><Bookmark size={28}/></span><span className="mm-practice-v2-feature-copy"><strong>My Saved Questions</strong><small>Revise your bookmarked questions anytime.</small></span><b className="mm-practice-v2-feature-arrow">›</b>
+      </Link>
+     </section>
     </section>
     <section className="mm-practice-v2-premium">
      <div><span>PREMIUM</span><small> Your next step after practice</small></div>
