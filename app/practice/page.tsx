@@ -1,7 +1,8 @@
 import type {Metadata} from "next";
-export const metadata:Metadata={title:"Practice Centre | MockMaster",description:"Build a personalised UGC NET practice test."};
-import StudentBuildTestPage from "@/app/practice/build-test/page";
+import StudentSectionPage from "@/app/components/StudentSectionPage";
+
+export const metadata:Metadata={title:"Practice Centre | MockMaster",description:"Build custom tests, revise incorrect questions and practise with MockMaster."};
 
 export default function PracticePage() {
-  return <StudentBuildTestPage />;
+  return <StudentSectionPage section="practice" />;
 }
