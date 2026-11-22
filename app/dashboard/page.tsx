@@ -106,7 +106,7 @@ export default function HomePage() {
       const pref = prefResult.data as any;
       const examCycle = String(pref?.target_exam_cycle || "December 2026");
       const { data: scheduleRow } = await db.from("exam_schedule_settings").select("exam_date").eq("exam_cycle", examCycle).maybeSingle();
-      const monthMatch = examCycle.match(/^([A-Za-z]+)\\s+(\\d{4})$/);
+      const monthMatch = examCycle.match(/^([A-Za-z]+)\s+(\d{4})$/);
       const monthIndex = monthMatch ? new Date(Date.parse(monthMatch[1] + " 1, " + monthMatch[2])).getMonth() : 11;
       const yearNumber = monthMatch ? Number(monthMatch[2]) : 2026;
       const fallbackDate = new Date(yearNumber, monthIndex, 15);
@@ -218,7 +218,7 @@ export default function HomePage() {
       const { data: scheduleRow, error: scheduleError } = await db.from("exam_schedule_settings")
         .select("exam_date").eq("exam_cycle", editProfile.cycle).maybeSingle();
       if (scheduleError) throw scheduleError;
-      const cycleMatch = editProfile.cycle.match(/^([A-Za-z]+)\\s+(\\d{4})$/);
+      const cycleMatch = editProfile.cycle.match(/^([A-Za-z]+)\s+(\d{4})$/);
       const cycleMonth = cycleMatch ? new Date(Date.parse(cycleMatch[1] + " 1, " + cycleMatch[2])).getMonth() : 11;
       const cycleYear = cycleMatch ? Number(cycleMatch[2]) : 2026;
       const fallback = new Date(cycleYear, cycleMonth, 15);
