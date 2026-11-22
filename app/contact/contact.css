@@ -1,0 +1,25 @@
+.mm-contact-page{min-height:100svh;padding:34px 18px 64px;background:var(--bg-page,#fff9ee);color:var(--ink,#172b3a)}
+.mm-contact-container{width:min(900px,100%);margin:0 auto}
+.mm-contact-crumb{display:flex;align-items:center;gap:9px;color:var(--muted);font-size:12px}
+.mm-contact-crumb a{color:var(--primary-hover);font-weight:700}
+.mm-contact-heading{max-width:650px;margin:52px auto 34px;text-align:center}
+.mm-contact-kicker{display:inline-flex;align-items:center;gap:7px;color:var(--primary);font-size:10px;font-weight:850;letter-spacing:1.4px}
+.mm-contact-heading h1{margin:12px 0;font-size:clamp(32px,5vw,46px);line-height:1.15;letter-spacing:-1.5px}
+.mm-contact-heading h1 span{color:var(--primary)}
+.mm-contact-heading p{margin:0;color:var(--muted);font-size:14px;line-height:1.7}
+.mm-contact-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.mm-contact-card{display:flex;min-width:0;align-items:center;gap:14px;padding:19px;border:1px solid var(--border);border-radius:17px;background:#fff;color:var(--ink);text-decoration:none;transition:border-color .18s,transform .18s,box-shadow .18s}
+.mm-contact-card:hover{transform:translateY(-2px);border-color:var(--primary-border);box-shadow:0 10px 28px #173c3210}
+.mm-contact-icon{display:grid;place-items:center;flex:0 0 52px;width:52px;height:52px;border-radius:15px;background:var(--primary-tint);color:var(--primary)}
+.mm-contact-card.instagram .mm-contact-icon{background:#fce8f1;color:#c13584}
+.mm-contact-card.telegram .mm-contact-icon{background:#e4f4fc;color:#229ed9}
+.mm-contact-card.whatsapp .mm-contact-icon{background:#e6f8ed;color:#159b55}
+.mm-contact-card.gmail .mm-contact-icon{background:#fff0ed;color:#d84b3e}
+.mm-contact-copy{display:grid;min-width:0;flex:1;gap:2px}
+.mm-contact-copy strong{font-size:15px}
+.mm-contact-copy b{overflow-wrap:anywhere;color:var(--primary-hover);font-size:12px}
+.mm-contact-copy small{color:var(--muted);font-size:10px;line-height:1.45}
+.mm-contact-arrow{flex:none;color:#89938f}
+.mm-contact-demo-note{margin:20px 0 0;padding:12px 14px;border:1px dashed #d8c9a9;border-radius:11px;background:#fffaf0;color:#786b52;font-size:11px;line-height:1.6;text-align:center}
+.mm-contact-back{display:inline-flex;margin-top:24px;color:var(--primary-hover);font-size:12px;font-weight:750}
+@media(max-width:560px){.mm-contact-page{padding:22px 16px 48px}.mm-contact-heading{margin:38px auto 24px}.mm-contact-heading p{font-size:12px}.mm-contact-grid{grid-template-columns:1fr;gap:10px}.mm-contact-card{padding:15px;border-radius:14px}.mm-contact-icon{flex-basis:46px;width:46px;height:46px;border-radius:13px}}
