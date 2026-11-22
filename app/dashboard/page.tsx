@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Activity, ArrowRight, Bell, BookOpen, CalendarDays, CheckCircle2,
-  CircleHelp, Clock3, Eye, GraduationCap, House, LogOut, Menu, NotebookPen,
+  CircleHelp, Clock3, Eye, Flame, ClipboardCheck, GraduationCap, House, LogOut, Menu, NotebookPen,
   Radio, ShieldCheck, Sparkles, Target, TrendingUp, UserRound, X
 } from "lucide-react";
 import StudentWorkspaceHeader from "@/components/navigation/StudentWorkspaceHeader";
@@ -57,6 +57,11 @@ export default function HomePage() {
   const [data, setData] = useState<HomeData | null>(null);
   const [readiness, setReadiness] = useState<ReadinessData | null>(null);
   const [examScheduleDate, setExamScheduleDate] = useState<string | null>(null);
+  const [dailyTargets, setDailyTargets] = useState({mocks:1,questions:50});
+  const [targetDraft, setTargetDraft] = useState({mocks:1,questions:50});
+  const [targetEditorOpen, setTargetEditorOpen] = useState(false);
+  const [savingTargets, setSavingTargets] = useState(false);
+  const [dailyActivity, setDailyActivity] = useState({streak:0,mocks:0,questions:0});
   const [notices, setNotices] = useState<{id:number;title:string;source_url:string;first_seen_at:string;new_until:string|null}[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -107,6 +112,34 @@ export default function HomePage() {
       const fallbackDate = new Date(yearNumber, monthIndex, 15);
       const fallbackIso = fallbackDate.getFullYear()+"-"+String(fallbackDate.getMonth()+1).padStart(2,"0")+"-"+String(fallbackDate.getDate()).padStart(2,"0");
       setExamScheduleDate(scheduleRow?.exam_date || fallbackIso);
+      const { data: targetRow } = await db.from("student_daily_targets").select("daily_mock_target,daily_question_target").eq("student_id", auth.user.id).maybeSingle();
+      const loadedTargets = {mocks:Number(targetRow?.daily_mock_target ?? 1),questions:Number(targetRow?.daily_question_target ?? 50)};
+      setDailyTargets(loadedTargets); setTargetDraft(loadedTargets);
+      const activitySince = new Date(Date.now()-120*86400000).toISOString();
+      const { data: activityAttempts } = await db.from("test_attempts").select("id,started_at").eq("student_id",auth.user.id).gte("started_at",activitySince).limit(1000);
+      const attemptIds = (activityAttempts||[]).map((a:any)=>a.id);
+      let activityRows:any[] = [];
+      if(attemptIds.length){
+        const {data:rows} = await db.from("student_responses").select("attempt_id,test_question_id,first_seen_at,last_saved_at,response").in("attempt_id",attemptIds).limit(10000);
+        activityRows=rows||[];
+      }
+      const dateKey=(value:string)=>new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Kolkata",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date(value));
+      const todayKey=dateKey(new Date().toISOString());
+      const activeDays=new Set<string>();
+      const todayQuestionIds=new Set<string>();
+      activityRows.forEach((row:any)=>{
+        const answered=row.response!==null&&row.response!==undefined&&row.response!==""&&(typeof row.response!=="object"||Object.keys(row.response).length>0);
+        if(!answered)return;
+        const activityDate=row.last_saved_at||row.first_seen_at;
+        if(activityDate){const key=dateKey(activityDate);activeDays.add(key);if(key===todayKey)todayQuestionIds.add(row.test_question_id);}
+      });
+      let streak=0;
+      const cursor=new Date();cursor.setHours(0,0,0,0);
+      // A current streak may include yesterday when today's activity has not started yet.
+      if(!activeDays.has(todayKey)){cursor.setDate(cursor.getDate()-1);}
+      for(let i=0;i<120;i++){const key=dateKey(cursor.toISOString());if(!activeDays.has(key))break;streak++;cursor.setDate(cursor.getDate()-1);}
+      const todayMocks=(readinessResult.data?.attempts||[]).filter((a:any)=>a.submitted_at&&dateKey(a.submitted_at)===todayKey).length;
+      setDailyActivity({streak,mocks:todayMocks,questions:todayQuestionIds.size});
       setPreferences(pref ? {
         category: pref.category,
         is_pwd: Boolean(pref.is_pwd),
@@ -183,6 +216,20 @@ export default function HomePage() {
     finally { setSavingProfile(false); }
   }
 
+  async function saveDailyTargets(){
+    setSavingTargets(true);
+    try{
+      const db=createSupabaseBrowserClient();
+      const {data:{user},error:authError}=await db.auth.getUser();
+      if(authError||!user)throw authError||new Error("Please log in again.");
+      const {error:saveError}=await db.from("student_daily_targets").upsert({student_id:user.id,daily_mock_target:Math.max(0,Math.min(10,Math.floor(targetDraft.mocks))),daily_question_target:Math.max(0,Math.min(1000,Math.floor(targetDraft.questions))),updated_at:new Date().toISOString()},{onConflict:"student_id"});
+      if(saveError)throw saveError;
+      const next={mocks:Math.max(0,Math.min(10,Math.floor(targetDraft.mocks))),questions:Math.max(0,Math.min(1000,Math.floor(targetDraft.questions)))};
+      setDailyTargets(next);setTargetDraft(next);setTargetEditorOpen(false);
+    }catch(e:any){setError(e?.message||"Daily targets could not be saved.");}
+    finally{setSavingTargets(false);}
+  }
+
   async function signOut() {
     setSigningOut(true);
     const db = createSupabaseBrowserClient();
@@ -243,7 +290,18 @@ export default function HomePage() {
                 return <>
                   <div className="mm-home-countdown-top"><div className="mm-home-countdown-label"><span>◷</span> EXAM COUNTDOWN</div>{days !== null && days <= 30 && days > 0 && <span className="mm-home-countdown-badge">Final stretch</span>}</div>
                   <div className="mm-home-countdown-hero"><strong>{days===null?"—":days>0?days:days===0?"Today":Math.abs(days)}</strong><div><b>{days===0?"Exam day":days!==null&&days<0?"days overdue":"days to go"}</b><span>UGC-NET · {preferences?.target_exam_cycle || "December 2026"}</span></div></div>
-                  {days!==null&&days>0&&<div className="mm-home-countdown-pills"><span>{weeks>0?weeks+" weeks ":""}{rest>0?rest+" days":""} left</span><span>{days*24} hours</span></div>}
+                  {days!==null&&days>0&&<div className="mm-home-countdown-pills"><span>{weeks>0?weeks+" weeks ":""}{rest>0?rest+" days":""} left</span></div>}
+                  <div className="mm-home-urgency-grid">
+                    <div className="mm-home-urgency-stat"><Flame size={18}/><strong>{dailyActivity.streak}</strong><span>Day streak</span></div>
+                    <div className="mm-home-urgency-stat"><ClipboardCheck size={18}/><strong>{dailyActivity.mocks}/{dailyTargets.mocks}</strong><span>Daily mocks</span></div>
+                    <div className="mm-home-urgency-stat"><Target size={18}/><strong>{dailyActivity.questions}/{dailyTargets.questions}</strong><span>Practice Qs</span></div>
+                  </div>
+                  <div className="mm-home-target-edit-row"><span>Daily goals</span><button type="button" onClick={()=>{setTargetDraft(dailyTargets);setTargetEditorOpen(v=>!v)}}>{targetEditorOpen?"Close":"Edit targets"}</button></div>
+                  {targetEditorOpen&&<div className="mm-home-target-editor">
+                    <label>Mocks per day<input type="number" min="0" max="10" value={targetDraft.mocks} onChange={e=>setTargetDraft(v=>({...v,mocks:Number(e.target.value)}))}/></label>
+                    <label>Practice questions per day<input type="number" min="0" max="1000" value={targetDraft.questions} onChange={e=>setTargetDraft(v=>({...v,questions:Number(e.target.value)}))}/></label>
+                    <button type="button" disabled={savingTargets} onClick={()=>void saveDailyTargets()}>{savingTargets?"Saving…":"Save daily goals"}</button>
+                  </div>}
                   <Link className="mm-home-countdown-cta" href="/practice">Start today's practice <ArrowRight size={17}/></Link>
                 </>;
               })()}
