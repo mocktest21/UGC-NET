@@ -3,7 +3,7 @@ import Link from "next/link";
 
 import {useEffect,useState} from "react";
 import {useRouter} from "next/navigation";
-import {CalendarDays,Clock3,FileQuestion,Users,Trophy,Medal,Sparkles,Lock} from "lucide-react";
+import {CalendarDays,Clock3,FileQuestion,Users,Trophy,Medal,Sparkles,Lock,Target,Zap,Play,Layers,Bookmark,Shuffle,BookOpen,History} from "lucide-react";
 import StudentWorkspaceHeader from "@/components/navigation/StudentWorkspaceHeader";
 import MockMasterLoading from "@/app/components/ui/MockMasterLoading";
 import {createSupabaseBrowserClient} from "@/lib/supabase/client";
