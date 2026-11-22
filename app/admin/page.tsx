@@ -13,7 +13,7 @@ const modules = [
   { title:"Test Builder", description:"Create practice tests and schedule live examinations.", href:"/admin/tests", icon:"▤", status:"Available" },
   { title:"Student Management", description:"View registrations, profiles and exam preferences.", href:"#", icon:"♙", status:"Coming next" },
   { title:"Analytics & Reports", description:"Monitor attempts, scores and question performance.", href:"#", icon:"⌁", status:"Coming next" },
-  { title:"Syllabus Manager", description:"Maintain examinations, papers, subjects and units.", href:"#", icon:"☷", status:"Coming next" },
+  { title:"Syllabus Manager", description:"Maintain examinations, papers, subjects, units and topics.", href:"/admin/syllabus", icon:"☷", status:"Available" },
 ];
 
 export default function AdminDashboardPage(){
@@ -88,7 +88,7 @@ export default function AdminDashboardPage(){
         <div className="aw-nav-label">MANAGEMENT</div>
         <a className="aw-nav disabled" aria-disabled="true"><i>♙</i>Students <em>Next</em></a>
         <a className="aw-nav disabled" aria-disabled="true"><i>⌁</i>Analytics <em>Next</em></a>
-        <a className="aw-nav disabled" aria-disabled="true"><i>☷</i>Syllabus <em>Next</em></a>
+        <a className="aw-nav" href="/admin/syllabus"><i>☷</i>Syllabus Manager</a>
         <div className="aw-sidebar-bottom"><div className="aw-secure"><span>✓</span><div><b>Secure workspace</b><small>Administrator access only</small></div></div><button onClick={signOut}>↪ <span>Sign out</span></button></div>
       </aside>
       <section className="aw-main">
