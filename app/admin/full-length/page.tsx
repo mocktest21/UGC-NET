@@ -13,7 +13,6 @@ type Taxonomy = { id:string; name:string; code?:string|null };
 const PAPER1_ID = "0471751a-0a43-48d7-8641-3537fd9965d2";
 const PAPER2_ID = "b8b8e8e3-5b34-4338-9aef-0148de0c1c1f";
 const PAPER1_SUBJECT_ID = "6d0de77f-2022-4c5e-967a-3de56b2ac84a";
-const EXAM_ID = "b2a1b8c4-3a3e-4e2c-9b01-000000000001";
 export default function FullLengthAdminPage(){
  const router=useRouter();
  const [db]=useState(()=>typeof window==="undefined"?null:createSupabaseBrowserClient());
