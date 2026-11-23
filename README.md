@@ -1,6 +1,6 @@
-# MockMaster — Module 1: Public Website
+# Mock Buddy — Module 1: Public Website
 
-A responsive public website foundation for MockMaster, a competitive-examination practice platform.
+A responsive public website foundation for Mock Buddy, a competitive-examination practice platform.
 
 ## Included in this module
 
