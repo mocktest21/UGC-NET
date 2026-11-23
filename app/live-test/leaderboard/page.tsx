@@ -26,10 +26,10 @@ export default function LiveTestLeaderboardPage(){
  return()=>{active=false;};},[db,router,testId]);
  const mine=rows.find(row=>row.student_id===studentId);
  return <main className="mm-workspace-page mm-leaderboard-page">
-  <header className="mm-workspace-header"><a className="mm-brand" href="/"><span className="mm-brand-mark">M</span><span>MockMaster</span></a></header>
+  <header className="mm-workspace-header"><a className="mm-brand" href="/"><span className="mm-brand-mark">M</span><span>Mock Buddy</span></a></header>
   <section className="mm-workspace-content">
    <button className="mm-leaderboard-back" onClick={()=>router.push("/live-test")}><ArrowLeft size={16}/> Back to Live Tests</button>
-   <div className="mm-leaderboard-heading"><span>MOCKMASTER · RESULTS</span><h1>Leaderboard</h1><p>{title}</p></div>
+   <div className="mm-leaderboard-heading"><span>Mock Buddy · RESULTS</span><h1>Leaderboard</h1><p>{title}</p></div>
    {mine&&<div className="mm-leaderboard-you"><Trophy size={18}/><div><b>Your position</b><span>Rank #{mine.leaderboard_rank} · {Number(mine.score).toLocaleString("en-IN")} marks</span></div></div>}
    {error&&<div className="mm-workspace-error">{error}</div>}
    {loading?<div className="mm-workspace-empty">Loading leaderboard…</div>:!error?<div className="mm-leaderboard-card">
