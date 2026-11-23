@@ -5,8 +5,8 @@ import { GraduationCap, ArrowLeft } from "lucide-react";
 import "./mentorship.css";
 
 export const metadata: Metadata = {
-  title: "Mentorship | MockMaster",
-  description: "Mentorship at MockMaster — coming soon.",
+  title: "Mentorship | Mock Buddy",
+  description: "Mentorship at Mock Buddy — coming soon.",
 };
 
 export default function MentorshipPage() {
@@ -17,7 +17,7 @@ export default function MentorshipPage() {
         <Link className="mm-mentorship-back" href="/dashboard"><ArrowLeft size={15}/> Back to Dashboard</Link>
         <div className="mm-mentorship-card">
           <div className="mm-mentorship-icon"><GraduationCap size={30}/></div>
-          <span className="mm-mentorship-kicker">MOCKMASTER MENTORSHIP</span>
+          <span className="mm-mentorship-kicker">Mock Buddy MENTORSHIP</span>
           <h1>Guidance for your next step.</h1>
           <p>We’re preparing a mentorship experience to help aspirants get structured academic guidance and make informed preparation decisions.</p>
           <span className="mm-mentorship-status">Coming Soon</span>
