@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import * as XLSX from "xlsx";
 import { useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
-import MockMasterLoading from "@/app/components/ui/MockMasterLoading";
+import Mock BuddyLoading from "@/app/components/ui/Mock BuddyLoading";
 import "./admin-workspace.css";
 import AdminNavigation from "./AdminNavigation";
 
@@ -92,7 +92,7 @@ export default function AdminDashboardPage(){
   }
   function downloadScheduleTemplate(){
     const ws=XLSX.utils.json_to_sheet([{exam_cycle:"December 2026",subject_code:"008",subject_name:"Commerce",exam_date:"2026-12-16"},{exam_cycle:"December 2026",subject_code:"017",subject_name:"Management",exam_date:"2026-12-18"}]);
-    ws["!cols"]=[{wch:20},{wch:16},{wch:22},{wch:16}];const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"Subject Exam Dates");XLSX.writeFile(wb,"MockMaster_Subject_Exam_Schedule_Template.xlsx");
+    ws["!cols"]=[{wch:20},{wch:16},{wch:22},{wch:16}];const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"Subject Exam Dates");XLSX.writeFile(wb,"MockBuddy_Subject_Exam_Schedule_Template.xlsx");
   }
   async function previewScheduleFile(file:File|null){
     setScheduleFile(file);setSchedulePreview([]);setScheduleImportSummary("");if(!file)return;
@@ -116,7 +116,7 @@ export default function AdminDashboardPage(){
 
   async function signOut(){await supabase.auth.signOut();router.replace("/login");}
 
-  if(loading)return <MockMasterLoading variant="admin" title="Preparing your admin workspace"/>;
+  if(loading)return <Mock BuddyLoading variant="admin" title="Preparing your admin workspace"/>;
   if(!isAdmin)return <main className="aw-state"><section style={{maxWidth:480,margin:"12vh auto",padding:32,background:"#fff",borderRadius:18,textAlign:"center"}}><h1>Administrator access required</h1><p>This workspace is restricted to authorised Mock Buddy administrators. Sign in with your administrator account to continue.</p><div style={{display:"flex",gap:10,justifyContent:"center",flexWrap:"wrap",marginTop:20}}><button onClick={async()=>{await supabase.auth.signOut();router.replace("/admin/login");}}>Go to admin login</button><button onClick={()=>router.replace("/dashboard")}>Return to student dashboard</button></div></section></main>;
   if(error && !counts.questions && !counts.students) { /* Show the workspace with a visible data warning. */ }
   return (
