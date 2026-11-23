@@ -63,26 +63,47 @@ export default function StudentProfilePage(){
  }
  if(loading)return <MockMasterLoading variant="workspace" title="Loading your profile" message="Fetching your account and exam details."/>;
  const field=(label:string,value:React.ReactNode,icon:React.ReactNode)=><div className="mm-profile-field"><span>{icon}</span><div><small>{label}</small><strong>{value||"Not provided"}</strong></div></div>;
+ const subjectName=subjects.find(s=>s.id===saved.subjectId)?.name||"Not selected";
+ const initials=saved.name.trim().split(/\\s+/).slice(0,2).map(x=>x[0]).join("").toUpperCase()||"S";
+ const cycleLabel=saved.cycle.replace(/^([A-Za-z]+) (\\d{4})$/,"$1 $2");
+ const targetMonth=saved.cycle.match(/^([A-Za-z]+) (\\d{4})$/);
+ const monthIndex=targetMonth?new Date(`${targetMonth[1]} 1, ${targetMonth[2]}`).getMonth():5;
+ const targetDate=new Date(targetMonth?Number(targetMonth[2]):2027,monthIndex,15);
+ const today=new Date();
+ const monthSpan=Math.max(1,(targetDate.getFullYear()-today.getFullYear())*12+targetDate.getMonth()-today.getMonth());
+ const elapsed=Math.max(0,Math.min(8,8-(Math.ceil(monthSpan/1.5))));
+ const field=(label:string,value:React.ReactNode,icon:React.ReactNode)=><div className="mm-profile-field"><span>{icon}</span><div><small>{label}</small><strong>{value||"Not provided"}</strong></div></div>;
  return <div className="mm-profile-page">
   <StudentWorkspaceHeader name={saved.name||"Student"} showNav/>
   <main className="mm-profile-content">
-   <div className="mm-profile-heading"><div><span className="mm-profile-eyebrow">ACCOUNT SETTINGS</span><h1>My Profile</h1><p>View and manage your personal and UGC-NET exam details.</p></div><button type="button" onClick={()=>{setEditing(v=>!v);setError("");setSuccess("");}}>{editing?<><X size={16}/>Cancel</>:<><Edit3 size={16}/>Edit profile</>}</button></div>
+   <section className="mm-profile-hero">
+    <div className="mm-profile-identity"><span className="mm-profile-avatar">{initials}</span><div><span className="mm-profile-eyebrow">MY PROFILE</span><h1>{saved.name||"Student"}</h1></div></div>
+   </section>
+   <section className="mm-profile-summary">
+    <div className="mm-profile-summary-top"><div><small>QUALIFICATION GOAL</small><strong>{saved.goal==="Both"?"JRF + Assistant Professor":saved.goal==="Assistant Professor"?"Assistant Professor":saved.goal}</strong></div><div><small>TARGET CYCLE</small><b>{cycleLabel}</b></div></div>
+    <div className="mm-profile-summary-bottom"><div><small>Paper 2</small><strong>{subjectName}</strong></div><div><small>Category</small><strong>{saved.category||"Not set"}</strong></div><div><small>PwBD</small><strong>{saved.isPwd?"Yes":"No"}</strong></div></div>
+   </section>
    {error&&<div className="mm-profile-alert error">{error}</div>}{success&&<div className="mm-profile-alert success">{success}</div>}
-   <section className="mm-profile-card">
-    <div className="mm-profile-identity"><span className="mm-profile-avatar"><UserRound size={27}/></span><div><h2>{saved.name||"Student"}</h2><p>{email}</p></div></div>
-    {editing?<div className="mm-profile-form">
+   <section className="mm-profile-section"><h2>Contact</h2><div className="mm-profile-contact">
+    <div className="mm-profile-contact-card"><span><Mail size={18}/></span><div><small>Email address</small><strong>{email||"Not provided"}</strong></div></div>
+    <div className="mm-profile-contact-card"><span><Phone size={18}/></span><div><small>Mobile number</small><strong>{saved.phone||"Not provided"}</strong></div></div>
+   </div></section>
+   <section className="mm-profile-road"><div className="mm-profile-road-head"><strong>Road to {saved.cycle}</strong><span>{saved.goal==="Both"?"JRF + Assistant Professor":saved.goal} · {subjectName}</span></div><div className="mm-profile-road-bars">{Array.from({length:8},(_,i)=><span key={i} className={i<elapsed?"done":i===7?"final":""}/>)}</div><div className="mm-profile-road-foot"><span>{today.toLocaleDateString("en-IN",{month:"short",year:"numeric"})} · Now</span><strong>{saved.cycle} · Exam</strong></div></section>
+   <section className="mm-profile-section mm-profile-jump"><h2>Jump back in</h2><div className="mm-profile-jump-grid">
+    <a href="/practice"><span><BookOpen size={20}/></span><strong>Practice</strong></a>
+    <a href="/live-test"><span className="radio-icon">◉</span><strong>Live Test</strong></a>
+    <a href="/personal-notebook"><span><Edit3 size={20}/></span><strong>Notebook</strong></a>
+   </div></section>
+   {editing&&<section className="mm-profile-edit-panel"><div className="mm-profile-edit-head"><h2>Edit profile</h2><button type="button" onClick={()=>{setForm(saved);setEditing(false);}}><X size={18}/></button></div><div className="mm-profile-form">
       <label>Full name<input value={form.name} onChange={e=>setForm(v=>({...v,name:e.target.value}))}/></label>
       <label>Mobile number<input value={form.phone} inputMode="tel" onChange={e=>setForm(v=>({...v,phone:e.target.value}))}/></label>
       <label>Paper 2 subject<select value={form.subjectId} onChange={e=>setForm(v=>({...v,subjectId:e.target.value}))}><option value="">Select subject</option>{subjects.map(s=><option key={s.id} value={s.id}>{s.name}</option>)}</select></label>
-      <label>Category<select value={form.category} onChange={e=>setForm(v=>({...v,category:e.target.value}))}><option value="">Select category</option>{["General","EWS","OBC-NCL","SC","ST"].map(x=><option key={x}>{x}</option>)}</select></label>
+      <label>Category<select value={form.category} onChange={e=>setForm(v=>({...v,category:e.target.value}))}><option value="">Select category</option>{["General","EWS","OBC-NCL","SC","ST","EWS"].filter((x,i,a)=>a.indexOf(x)===i).map(x=><option key={x}>{x}</option>)}</select></label>
       <label>PwBD<select value={form.isPwd?"yes":"no"} onChange={e=>setForm(v=>({...v,isPwd:e.target.value==="yes"}))}><option value="no">No</option><option value="yes">Yes</option></select></label>
       <label>Qualification goal<select value={form.goal} onChange={e=>setForm(v=>({...v,goal:e.target.value}))}>{["Assistant Professor","JRF","Both"].map(x=><option key={x}>{x}</option>)}</select></label>
       <label>Target exam cycle<select value={form.cycle} onChange={e=>setForm(v=>({...v,cycle:e.target.value}))}>{["December 2026","June 2027","December 2027","June 2028"].map(x=><option key={x}>{x}</option>)}</select></label>
       <div className="mm-profile-form-actions"><button type="button" onClick={()=>{setForm(saved);setEditing(false);}}>Cancel</button><button type="button" disabled={saving||!form.name.trim()} onClick={()=>void save()}><Save size={16}/>{saving?"Saving…":"Save changes"}</button></div>
-    </div>:<div className="mm-profile-grid">
-      {field("Full name",saved.name,<UserRound size={18}/>)}{field("Email address",email,<Mail size={18}/>)}{field("Mobile number",saved.phone,<Phone size={18}/>)}{field("Paper 2 subject",subjects.find(s=>s.id===saved.subjectId)?.name,<BookOpen size={18}/>)}{field("Category",saved.category,<ShieldCheck size={18}/>)}{field("PwBD",saved.isPwd?"Yes":"No",<ShieldCheck size={18}/>)}{field("Qualification goal",saved.goal,<GraduationCap size={18}/>)}{field("Target exam cycle",saved.cycle,<CalendarDays size={18}/>)}
-    </div>}
-   </section>
+    </div></section>}
   </main>
+  {!editing&&<button className="mm-profile-edit-fixed" type="button" onClick={()=>{setForm(saved);setEditing(true);setError("");setSuccess("");}}><Edit3 size={17}/>Edit profile</button>}
  </div>;
-}
