@@ -3,7 +3,7 @@ import { ChangeEvent, FormEvent, useCallback, useEffect, useMemo, useState } fro
 import * as XLSX from "xlsx";
 import { useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
-import Mock BuddyLoading from "@/app/components/ui/Mock BuddyLoading";
+import MockMasterLoading from "@/app/components/ui/MockMasterLoading";
 import "./syllabus.css";
 import AdminNavigation from "../AdminNavigation";
 
@@ -166,7 +166,7 @@ export default function AdminSyllabusPage(){
  }
 
  function mapped(r:Row){return level==="units"?counts.filter(x=>x.unit_id===r.id).length:counts.filter(x=>x.topic_id===r.id).length;}
- if(checking)return <Mock BuddyLoading variant="admin" title="Loading syllabus manager"/>;
+ if(checking)return <MockMasterLoading variant="admin" title="Loading syllabus manager"/>;
  if(!admin)return <main className="sy-state"><section><h1>Administrator access required</h1><p>This module is restricted to authorised administrators.</p><button onClick={()=>router.replace("/admin/login")}>Go to admin login</button></section></main>;
  return <main className="sy-shell">
   <AdminNavigation onSignOut={async()=>{await supabase.auth.signOut();router.replace("/admin/login");}} />
