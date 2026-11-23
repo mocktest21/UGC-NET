@@ -1,5 +1,6 @@
 "use client";
-import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
+import { ChangeEvent, FormEvent, useCallback, useEffect, useMemo, useState } from "react";
+import * as XLSX from "xlsx";
 import { useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import MockMasterLoading from "@/app/components/ui/MockMasterLoading";
@@ -8,6 +9,7 @@ import "./syllabus.css";
 type Level="exams"|"papers"|"subjects"|"units"|"topics";
 type Row={id:string;code?:string|null;name:string;description?:string|null;is_active:boolean;display_order:number;exam_id?:string;paper_id?:string;subject_id?:string;unit_id?:string;unit_number?:number|null;is_compulsory?:boolean};
 type QRef={unit_id:string|null;topic_id:string|null};
+type ImportRow={exam_code:string;exam_name:string;paper_code:string;paper_name:string;subject_code:string;subject_name:string;unit_number:string;unit_code:string;unit_name:string;topic_name:string;description:string;display_order:string;row:number;error?:string};
 const LEVELS:{key:Level;label:string;singular:string}[]=[{key:"exams",label:"Examinations",singular:"Examination"},{key:"papers",label:"Papers",singular:"Paper"},{key:"subjects",label:"Subjects",singular:"Subject"},{key:"units",label:"Units",singular:"Unit"},{key:"topics",label:"Topics",singular:"Topic"}];
 const EMPTY={name:"",code:"",description:"",display_order:"0",unit_number:"1",is_compulsory:false};
 
@@ -22,6 +24,7 @@ export default function AdminSyllabusPage(){
  const [form,setForm]=useState(EMPTY),[editing,setEditing]=useState<string|null>(null),[showForm,setShowForm]=useState(false);
  const [includeInactive,setIncludeInactive]=useState(false),[search,setSearch]=useState("");
  const [busy,setBusy]=useState(false),[message,setMessage]=useState(""),[error,setError]=useState("");
+ const [showImport,setShowImport]=useState(false),[importRows,setImportRows]=useState<ImportRow[]>([]),[importFile,setImportFile]=useState(""),[importing,setImporting]=useState(false),[importSummary,setImportSummary]=useState("");
 
  const load=useCallback(async()=>{
   const keys:Level[]=["exams","papers","subjects","units","topics"];
@@ -87,11 +90,82 @@ export default function AdminSyllabusPage(){
   setMessage(r.name+(r.is_active?" deactivated.":" activated."));
   try{await load();}catch(err:any){setError(err?.message||"Refresh failed.");}
  }
+
+ function downloadTemplate(){
+  const headers=["exam_code","exam_name","paper_code","paper_name","subject_code","subject_name","unit_number","unit_code","unit_name","topic_name","description","display_order"];
+  const example=["UGC_NET","UGC-NET","PAPER_2","Paper 2","08","Commerce","1","COM_U1","Business Environment and International Business","Concept, Nature and Scope","","1"];
+  const ws=XLSX.utils.aoa_to_sheet([headers,example]);
+  ws["!cols"]=headers.map(h=>({wch:Math.max(15,h.length+3)}));
+  const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"Syllabus");
+  XLSX.writeFile(wb,"MockMaster_Syllabus_Import_Template.xlsx");
+ }
+ async function parseImportFile(e:ChangeEvent<HTMLInputElement>){
+  const file=e.target.files?.[0];if(!file)return;
+  setError("");setMessage("");setImportSummary("");setImportFile(file.name);setImportRows([]);
+  try{
+   const wb=XLSX.read(await file.arrayBuffer(),{type:"array"});
+   const first=wb.SheetNames[0];if(!first)throw new Error("Excel file has no worksheet.");
+   const raw=XLSX.utils.sheet_to_json<Record<string,unknown>>(wb.Sheets[first],{defval:""});
+   if(!raw.length)throw new Error("The worksheet is empty.");
+   const required=["exam_code","exam_name","paper_code","paper_name","subject_name","unit_number","unit_name"];
+   const headers=Object.keys(raw[0]).map(x=>x.trim().toLowerCase());
+   const missing=required.filter(x=>!headers.includes(x));
+   if(missing.length)throw new Error("Missing required columns: "+missing.join(", "));
+   const parsed:ImportRow[]=raw.map((r,i)=>{
+    const val=(key:string)=>String(r[Object.keys(r).find(k=>k.trim().toLowerCase()===key)]??"").trim();
+    return {exam_code:val("exam_code"),exam_name:val("exam_name"),paper_code:val("paper_code"),paper_name:val("paper_name"),subject_code:val("subject_code"),subject_name:val("subject_name"),unit_number:val("unit_number"),unit_code:val("unit_code"),unit_name:val("unit_name"),topic_name:val("topic_name"),description:val("description"),display_order:val("display_order"),row:i+2};
+   });
+   const seen=new Set<string>();
+   parsed.forEach(r=>{
+    const requiredValues=[r.exam_code,r.exam_name,r.paper_code,r.paper_name,r.subject_name,r.unit_number,r.unit_name];
+    if(requiredValues.some(x=>!x))r.error="Required hierarchy field is blank.";
+    else if(!/^[1-9]\d*$/.test(r.unit_number))r.error="Unit number must be a positive integer.";
+    else{
+     const key=[r.exam_code,r.paper_code,r.subject_name,r.unit_number,r.unit_name,r.topic_name].map(x=>x.toLowerCase()).join("|");
+     if(seen.has(key))r.error="Duplicate hierarchy row in this Excel file.";else seen.add(key);
+    }
+   });
+   setImportRows(parsed);
+  }catch(err:any){setError(err?.message||"Could not read this Excel file.");}
+  e.target.value="";
+ }
+ async function importSyllabus(){
+  if(!importRows.length||importRows.some(r=>r.error)||importing)return;
+  if(!window.confirm("Import "+importRows.length+" syllabus row(s)? Existing matching records will be reused; only missing hierarchy records will be added. No existing syllabus record or student progress will be deleted."))return;
+  setImporting(true);setError("");setImportSummary("");
+  let added={exams:0,papers:0,subjects:0,units:0,topics:0},reused={exams:0,papers:0,subjects:0,units:0,topics:0};
+  const failed:{row:number;message:string}[]=[];
+  const cache={
+   exams:[...rows.exams],papers:[...rows.papers],subjects:[...rows.subjects],units:[...rows.units],topics:[...rows.topics]
+  } as Record<Level,Row[]>;
+  async function findOrCreate(table:Level,match:(x:Row)=>boolean,payload:Record<string,unknown>):Promise<Row>{
+   const found=cache[table].find(match);if(found){reused[table]++;return found;}
+   const {data,error:e}=await supabase.from(table).insert(payload).select("*").single();
+   if(e)throw e;
+   const created=data as Row;cache[table].push(created);added[table]++;return created;
+  }
+  for(const r of importRows){
+   try{
+    const ex=await findOrCreate("exams",x=>x.code?.toLowerCase()===r.exam_code.toLowerCase(),{code:r.exam_code,name:r.exam_name,description:null,is_active:true,display_order:0});
+    const pa=await findOrCreate("papers",x=>x.exam_id===ex.id&&(x.code?.toLowerCase()===r.paper_code.toLowerCase()||x.name.toLowerCase()===r.paper_name.toLowerCase()),{exam_id:ex.id,code:r.paper_code,name:r.paper_name,description:null,is_compulsory:r.paper_code.toUpperCase()==="PAPER_1",is_active:true,display_order:0});
+    const su=await findOrCreate("subjects",x=>x.paper_id===pa.id&&((r.subject_code&&x.code?.toLowerCase()===r.subject_code.toLowerCase())||x.name.toLowerCase()===r.subject_name.toLowerCase()),{exam_id:ex.id,paper_id:pa.id,code:r.subject_code||null,name:r.subject_name,description:null,is_active:true,display_order:0});
+    const un=await findOrCreate("units",x=>x.subject_id===su.id&&(x.unit_number===Number(r.unit_number)||x.name.toLowerCase()===r.unit_name.toLowerCase()),{subject_id:su.id,unit_number:Number(r.unit_number),code:r.unit_code||null,name:r.unit_name,description:r.description||null,is_active:true,display_order:Number(r.display_order)||Number(r.unit_number)});
+    if(r.topic_name.trim())await findOrCreate("topics",x=>x.unit_id===un.id&&x.name.toLowerCase()===r.topic_name.toLowerCase(),{unit_id:un.id,name:r.topic_name,description:null,is_active:true,display_order:Number(r.display_order)||0});
+   }catch(err:any){failed.push({row:r.row,message:err?.message||"Import failed"});}
+  }
+  setImporting(false);
+  setImportSummary("Added — Exams: "+added.exams+", Papers: "+added.papers+", Subjects: "+added.subjects+", Units: "+added.units+", Topics: "+added.topics+". Reused existing: "+Object.values(reused).reduce((a,b)=>a+b,0)+". Failed rows: "+failed.length+(failed.length?" (Excel rows "+failed.slice(0,8).map(x=>x.row).join(", ")+")":""));
+  if(failed.length)setError(failed.slice(0,8).map(x=>"Row "+x.row+": "+x.message).join(" | "));
+  else setMessage("Syllabus Excel import completed successfully.");
+  await load();
+ }
+
  function mapped(r:Row){return level==="units"?counts.filter(x=>x.unit_id===r.id).length:counts.filter(x=>x.topic_id===r.id).length;}
  if(checking)return <MockMasterLoading variant="admin" title="Loading syllabus manager"/>;
  if(!admin)return <main className="sy-state"><section><h1>Administrator access required</h1><p>This module is restricted to authorised administrators.</p><button onClick={()=>router.replace("/admin/login")}>Go to admin login</button></section></main>;
  return <main className="sy-shell">
-  <header className="sy-header"><div><a href="/admin">← Admin workspace</a><span>CONTENT MANAGEMENT</span><h1>Syllabus Manager</h1><p>Manage the exam hierarchy used by Question Bank and student practice.</p></div><button className="sy-primary" onClick={openCreate}>＋ Add {LEVELS.find(x=>x.key===level)!.singular}</button></header>
+  <header className="sy-header"><div><a href="/admin">← Admin workspace</a><span>CONTENT MANAGEMENT</span><h1>Syllabus Manager</h1><p>Manage the exam hierarchy used by Question Bank and student practice.</p></div><div className="sy-header-actions"><button className="sy-secondary" onClick={()=>{setShowImport(v=>!v);setShowForm(false);}}>⇧ Excel Import</button><button className="sy-primary" onClick={openCreate}>＋ Add {LEVELS.find(x=>x.key===level)!.singular}</button></div></header>
+  {showImport&&<section className="sy-import"><div className="sy-import-head"><div><span>EXCEL BULK UPLOAD</span><h2>Import complete syllabus hierarchy</h2><p>One row per topic. Parent records are matched within their selected parent; existing records are reused, missing records are created.</p></div><button onClick={()=>setShowImport(false)}>×</button></div><div className="sy-import-format"><b>Required columns</b><code>exam_code, exam_name, paper_code, paper_name, subject_name, unit_number, unit_name</code><b>Optional columns</b><code>subject_code, unit_code, topic_name, description, display_order</code><small>Example: UGC_NET → PAPER_2 → Commerce → Unit 1 → Business Environment and International Business → Topic name</small></div><div className="sy-import-actions"><button className="sy-secondary" onClick={downloadTemplate}>↓ Download Excel template</button><label className="sy-file">Choose Excel file<input type="file" accept=".xlsx,.xls" onChange={parseImportFile}/></label></div>{importFile&&<p className="sy-file-name">Selected: {importFile}</p>}{importRows.length>0&&<><div className="sy-preview-head"><b>Import preview</b><span>{importRows.length} rows · {importRows.filter(r=>r.error).length} errors</span></div><div className="sy-preview-wrap"><table className="sy-preview"><thead><tr><th>Row</th><th>Exam</th><th>Paper</th><th>Subject</th><th>Unit</th><th>Topic</th><th>Validation</th></tr></thead><tbody>{importRows.slice(0,100).map(r=><tr key={r.row}><td>{r.row}</td><td>{r.exam_name}</td><td>{r.paper_name}</td><td>{r.subject_name}</td><td>{r.unit_number}: {r.unit_name}</td><td>{r.topic_name||"—"}</td><td className={r.error?"bad":"good"}>{r.error||"Ready"}</td></tr>)}</tbody></table></div>{importRows.length>100&&<small>Showing first 100 rows in preview. All {importRows.length} rows will be processed.</small>}<button className="sy-primary" disabled={importing||importRows.some(r=>r.error)} onClick={()=>void importSyllabus()}>{importing?"Importing…":"Import "+importRows.length+" rows"}</button></>}{importSummary&&<div className="sy-message">{importSummary}</div>}</section>}
   <section className="sy-summary"><article><small>Total {LEVELS.find(x=>x.key===level)!.label}</small><b>{rows[level].length}</b></article><article><small>Active</small><b>{active}</b></article><article><small>Inactive</small><b>{rows[level].length-active}</b></article><article><small>Questions mapped</small><b>{level==="units"?counts.filter(x=>x.unit_id).length:level==="topics"?counts.filter(x=>x.topic_id).length:"—"}</b></article></section>
   <section className="sy-workspace">
    <nav className="sy-levels">{LEVELS.map((x,i)=><button key={x.key} className={level===x.key?"active":""} onClick={()=>{setLevel(x.key);setShowForm(false);setSearch("");setMessage("");setError("");}}><span>{String(i+1).padStart(2,"0")}</span>{x.label}<small>{rows[x.key].filter(r=>r.is_active).length}</small></button>)}</nav>
