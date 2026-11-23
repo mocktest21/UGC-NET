@@ -55,7 +55,7 @@ export default function FullLengthAdminPage(){
     if(r.paper_id===PAPER1_ID&&String(r.subject_id)!==PAPER1_SUBJECT_ID)problems.push("Row "+line+": Paper 1 subject mapping is incorrect.");
     if(r.paper_id===PAPER2_ID&&String(r.subject_id)!==subjectId)problems.push("Row "+line+": Paper 2 subject must match selected subject.");
     if(!String(r.question||"").trim())problems.push("Row "+line+": question is blank.");
-    if(!String(r.correct_answer||r.answer_key_json||"").trim())problems.push("Row "+line+": correct answer is missing.");
+    if(!/^[A-D]$/i.test(String(r.correct_answer||"").trim()))problems.push("Row "+line+": correct_answer must be one letter A, B, C or D.");
     ["option_a","option_b","option_c","option_d"].forEach(k=>{if(!String(r[k]||"").trim())problems.push("Row "+line+": "+k+" is blank.");});
     if(r.unit_id&&!/^[0-9a-f-]{36}$/i.test(String(r.unit_id)))problems.push("Row "+line+": invalid unit_id.");
     if(r.topic_id&&!/^[0-9a-f-]{36}$/i.test(String(r.topic_id)))problems.push("Row "+line+": invalid topic_id.");
@@ -102,7 +102,7 @@ export default function FullLengthAdminPage(){
    </section>
    {rows.length>0&&<section className="fl-panel">
     <div className="fl-preview-head"><div><h2>3. Question preview</h2><p>Questions are shown in final test order. Paper 1 first, then Paper 2.</p></div><span>{rows.length} questions</span></div>
-    <div className="fl-question-list">{rows.map((r,i)=><article key={i} className="fl-question"><div className="fl-qtop"><b>Q{i+1}</b><span>{r.paper_id===PAPER1_ID?"Paper 1":"Paper 2"} · {r.difficulty||"moderate"}</span></div><p>{r.question}</p>{r.stimulus&&<blockquote>{r.stimulus}</blockquote>}<ol type="A">{["option_a","option_b","option_c","option_d"].map(k=><li key={k}>{r[k]}</li>)}</ol><small>Correct answer: <b>{r.correct_answer||r.answer_key_json}</b> · Unit ID: {r.unit_id||"Not mapped"}</small>{r.explanation&&<details><summary>Explanation</summary><p>{r.explanation}</p></details>}</article>)}</div>
+    <div className="fl-question-list">{rows.map((r,i)=><article key={i} className="fl-question"><div className="fl-qtop"><b>Q{i+1}</b><span>{r.paper_id===PAPER1_ID?"Paper 1":"Paper 2"} · {r.difficulty||"moderate"}</span></div><p>{r.question}</p>{r.stimulus&&<blockquote>{r.stimulus}</blockquote>}{r.list_i&&<p><b>List I</b><br/>{r.list_i}</p>}{r.list_ii&&<p><b>List II</b><br/>{r.list_ii}</p>}<ol type="A">{["option_a","option_b","option_c","option_d"].map(k=><li key={k}>{r[k]}</li>)}</ol><small>Correct answer: <b>{r.correct_answer||r.answer_key_json}</b> · Unit ID: {r.unit_id||"Not mapped"}</small>{r.explanation&&<details><summary>Explanation</summary><p>{r.explanation}</p></details>}</article>)}</div>
     {draftId&&<div className="fl-publish"><p>Once published, this test is locked. The questions are added to the Question Bank; duplicate questions are reused, not added again.</p><button className="fl-primary" disabled={busy||published} onClick={()=>void publish()}>{busy?"Publishing…":published?"Published":"Publish Full-Length Test"}</button></div>}
    </section>}
   </div>
