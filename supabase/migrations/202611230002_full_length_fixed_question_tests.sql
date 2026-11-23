@@ -47,13 +47,13 @@ begin
  if (select count(*) from public.full_length_test_items where test_id=p_test_id and paper_id=(select id from public.papers where exam_id=v_test.exam_id and code='PAPER_1' limit 1))<>50 or (select count(*) from public.full_length_test_items where test_id=p_test_id and paper_id=(select id from public.papers where exam_id=v_test.exam_id and code='PAPER_2' limit 1))<>100 then raise exception 'Question split must be exactly 50 Paper 1 and 100 Paper 2'; end if;
  for v_item in select * from public.full_length_test_items where test_id=p_test_id order by position for update loop
   v_raw:=v_item.raw_row; v_stem:=trim(coalesce(v_raw->>'question',''));
-  v_opts:=case when jsonb_typeof(v_raw->'options_json')='array' then v_raw->'options_json' else (select coalesce(jsonb_agg(jsonb_build_object('id',x.k,'text',regexp_replace(trim(x.val),'^[A-D][.)-]\\s*','')) order by x.ord),'[]'::jsonb) from (values('A',v_raw->>'option_a',1),('B',v_raw->>'option_b',2),('C',v_raw->>'option_c',3),('D',v_raw->>'option_d',4)) x(k,val,ord) where nullif(trim(x.val),'') is not null) end;
+  v_opts:=case when jsonb_typeof(v_raw->'options_json')='array' then v_raw->'options_json' else (select coalesce(jsonb_agg(jsonb_build_object('id',x.k,'text',regexp_replace(trim(x.val),'^[A-D][.)-][[:space:]]*','')) order by x.ord),'[]'::jsonb) from (values('A',v_raw->>'option_a',1),('B',v_raw->>'option_b',2),('C',v_raw->>'option_c',3),('D',v_raw->>'option_d',4)) x(k,val,ord) where nullif(trim(x.val),'') is not null) end;
   v_correct:=upper(trim(coalesce(v_raw->>'correct_answer','')));
   if jsonb_typeof(v_raw->'answer_key_json')='object' then v_answer:=v_raw->'answer_key_json'; else v_answer:=jsonb_build_object('correct_option_id',v_correct); end if;
   if jsonb_array_length(v_opts)<2 or v_answer='{}'::jsonb or v_answer is null then raise exception 'Question row % has invalid options or answer key',v_item.position; end if;
   select q.id,qv.id as version_id into v_existing from public.questions q join lateral(select vv.id,vv.prompt from public.question_versions vv where vv.question_id=q.id order by vv.version_number desc limit 1) qv on true
   where q.exam_id=v_test.exam_id and q.paper_id=v_item.paper_id and q.subject_id=v_item.subject_id and q.unit_id is not distinct from nullif(v_raw->>'unit_id','')::uuid
-  and lower(regexp_replace(coalesce(qv.prompt->'stem'->>'text',''),'\\s+',' ','g'))=lower(regexp_replace(v_stem,'\\s+',' ','g')) order by q.created_at limit 1;
+  and lower(regexp_replace(coalesce(qv.prompt->'stem'->>'text',''),'[[:space:]]+',' ','g'))=lower(regexp_replace(v_stem,'[[:space:]]+',' ','g')) order by q.created_at limit 1;
   if v_existing.id is not null then v_q:=v_existing.id; v_ver:=v_existing.version_id; v_dupes:=v_dupes+1;
    if not exists(select 1 from public.question_version_answer_keys where question_version_id=v_ver) then raise exception 'Duplicate question at row % has no saved answer key',v_item.position; end if;
   else
