@@ -77,10 +77,10 @@ export default function StudentSectionPage({section}:{section:Section}){
  return <main className="mm-workspace-page">
   <StudentWorkspaceHeader name={name}/>
   <section className="mm-workspace-content">
-   {section!=="practice"&&<div className="mm-workspace-intro"><span>MOCKMASTER WORKSPACE</span><h1>{page.title}</h1><p>{page.subtitle}</p></div>}
+   {section!=="practice"&&<div className="mm-workspace-intro"><span>Mock Buddy WORKSPACE</span><h1>{page.title}</h1><p>{page.subtitle}</p></div>}
    {section==="practice"&&<div className="mm-practice-v2">
     <div className="mm-practice-v2-hero">
-     <div><span>MOCKMASTER WORKSPACE</span><h1>Practice Centre</h1><p>Build tests, revise mistakes, practise PYQs and prepare for the real exam.</p></div>
+     <div><span>Mock Buddy WORKSPACE</span><h1>Practice Centre</h1><p>Build tests, revise mistakes, practise PYQs and prepare for the real exam.</p></div>
      <div className="mm-practice-v2-art" aria-hidden="true"><FileQuestion size={42}/><Sparkles size={18}/></div>
     </div>
 
@@ -195,6 +195,6 @@ export default function StudentSectionPage({section}:{section:Section}){
     })()}
    </div>}
    {section==="personal-notebook"&&<div className="mm-workspace-empty"><span>✎</span><h2>Your notebook is ready</h2><p>Saved notes and bookmarked questions will appear here.</p></div>}
-  </section><footer className="mm-workspace-footer">© {new Date().getFullYear()} MockMaster <span>Practice. Improve. Achieve.</span></footer>
+  </section><footer className="mm-workspace-footer">© {new Date().getFullYear()} Mock Buddy <span>Practice. Improve. Achieve.</span></footer>
  </main>;
 }
