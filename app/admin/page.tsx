@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import MockMasterLoading from "@/app/components/ui/MockMasterLoading";
 import "./admin-workspace.css";
+import AdminNavigation from "./AdminNavigation";
 
 type Counts = { questions:number; approved:number; drafts:number; imports:number; tests:number; students:number };
 const modules = [
@@ -114,21 +115,8 @@ export default function AdminDashboardPage(){
   if(error && !counts.questions && !counts.students) { /* Show the workspace with a visible data warning. */ }
   return (
     <main className="aw-shell">
-      <aside className="aw-sidebar">
-        <a href="/admin" className="aw-brand"><span>M</span><b>MockMaster</b><small>ADMIN</small></a>
-        <div className="aw-nav-label">WORKSPACE</div>
-        <a className="aw-nav active" href="/admin"><i>⌂</i>Overview</a>
-        <div className="aw-nav-label">CONTENT</div>
-        <a className="aw-nav" href="/admin/questions"><i>▦</i>Question Bank</a>
-        <a className="aw-nav" href="/admin/questions?tab=import"><i>⇧</i>Excel Imports</a>
-        <a className="aw-nav" href="/admin/tests"><i>▤</i>Test Builder</a>
-        <div className="aw-nav-label">MANAGEMENT</div>
-        <a className="aw-nav disabled" aria-disabled="true"><i>♙</i>Students <em>Next</em></a>
-        <a className="aw-nav disabled" aria-disabled="true"><i>⌁</i>Analytics <em>Next</em></a>
-        <a className="aw-nav" href="/admin/syllabus"><i>☷</i>Syllabus Manager</a>
-        <div className="aw-sidebar-bottom"><div className="aw-secure"><span>✓</span><div><b>Secure workspace</b><small>Administrator access only</small></div></div><button onClick={signOut}>↪ <span>Sign out</span></button></div>
-      </aside>
       <section className="aw-main">
+        <AdminNavigation onSignOut={signOut}/>
         <header className="aw-topbar"><div><span className="aw-breadcrumb">MockMaster / Admin</span><h1>Admin overview</h1></div><div className="aw-user"><span>{adminName.slice(0,1).toUpperCase()}</span><div><b>{adminName}</b><small>Administrator</small></div></div></header>
         <div className="aw-content">
           <section className="aw-welcome"><div><span>CONTROL CENTRE</span><h2>Welcome back, {adminName}.</h2><p>Manage your question content, imports and examination operations from one place.</p></div><a href="/admin/questions" className="aw-cta">＋ Add question</a></section>
