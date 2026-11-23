@@ -6,6 +6,7 @@ import * as XLSX from "xlsx";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import MockMasterLoading from "@/app/components/ui/MockMasterLoading";
 import "./admin-questions.css";
+import AdminNavigation from "../AdminNavigation";
 
 type Taxonomy = { id: string; code?: string | null; name: string; paper_id?: string; subject_id?: string; unit_id?: string; unit_number?: number | null };
 type QuestionRow = { id: string; status: string; question_type: string; difficulty: string | null; created_at: string; paper_id:string; unit_id:string|null; subject_id:string; question_text:string; paper_name:string; unit_name:string };
@@ -437,17 +438,9 @@ export default function AdminQuestionsPage() {
 
   return (
     <main className="aq-shell">
-      <header className="aq-header">
-        <a className="aq-brand" href="/admin"><span>M</span> MockMaster <small>ADMIN</small></a>
-        <div className="aq-header-right"><a href="/admin">Admin overview</a><a href="/dashboard">Student site ↗</a><button onClick={async () => { await supabase.auth.signOut(); router.replace("/admin/login"); }}>Sign out</button></div>
-      </header>
+      <AdminNavigation onSignOut={async()=>{await supabase.auth.signOut();router.replace("/admin/login");}} />
       <div className="aq-layout">
-        <aside className="aq-sidebar">
-          <span className="aq-side-label">ADMINISTRATION</span>
-          <a className="active" href="/admin/questions">▦ <span>Question Bank</span></a>
-          <a href="/admin/questions?tab=import">⇧ <span>Excel Imports</span></a>
-          <div className="aq-side-note"><b>Content control</b><p>Questions remain in Draft until reviewed and approved by an administrator.</p></div>
-        </aside>
+
         <section className="aq-main">
           <div className="aq-title-row"><div><span className="aq-eyebrow">CONTENT MANAGEMENT</span><h1>Question Bank</h1><p>Create, organise and review your examination questions.</p></div><button className="aq-primary" onClick={() => setTab("create")}>＋ Add question</button></div>
           {message && <div className="aq-message" role="status">{message}<button onClick={() => setMessage("")}>×</button></div>}
