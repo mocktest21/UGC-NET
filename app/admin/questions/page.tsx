@@ -4,7 +4,7 @@ import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import * as XLSX from "xlsx";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
-import Mock BuddyLoading from "@/app/components/ui/Mock BuddyLoading";
+import MockMasterLoading from "@/app/components/ui/MockMasterLoading";
 import "./admin-questions.css";
 import AdminNavigation from "../AdminNavigation";
 
@@ -433,7 +433,7 @@ export default function AdminQuestionsPage() {
     setFileName("");
   }
 
-  if (checking) return <Mock BuddyLoading variant="table" title="Verifying administrator access"/>;
+  if (checking) return <MockMasterLoading variant="table" title="Verifying administrator access"/>;
   if (!admin) return <main className="aq-state"><div className="aq-denied"><span>403</span><h1>Administrator access required</h1><p>This area is restricted to authorised Mock Buddy administrators.</p><button onClick={async () => { await supabase.auth.signOut(); router.replace("/admin/login"); }}>Go to admin login</button><button onClick={() => router.replace("/dashboard")}>Return to dashboard</button></div></main>;
 
   return (
