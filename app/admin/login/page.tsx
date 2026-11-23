@@ -56,7 +56,7 @@ export default function AdminLoginPage() {
     <main className="auth-page">
       <section className="auth-shell">
         <div className="auth-aside">
-          <a className="brand auth-brand" href="/"><span className="brand-mark">M</span>MockMaster</a>
+          <a className="brand auth-brand" href="/"><span className="brand-mark">M</span>Mock Buddy</a>
           <div className="auth-aside-copy">
             <span className="auth-kicker">RESTRICTED ACCESS</span>
             <h1>Administrator<br /><span>control centre.</span></h1>
@@ -67,14 +67,14 @@ export default function AdminLoginPage() {
               <div><span>✓</span> Separate from student sign-in</div>
             </div>
           </div>
-          <p className="auth-aside-foot">MockMaster Administration</p>
+          <p className="auth-aside-foot">Mock Buddy Administration</p>
         </div>
         <div className="auth-form-side">
           <div className="auth-form-wrap">
             <a className="auth-back" href="/">← Back to homepage</a>
             <span className="auth-kicker">ADMINISTRATOR SIGN IN</span>
             <h2>Admin login</h2>
-            <p className="auth-intro">This login is only for authorised MockMaster administrators. Student accounts cannot enter the admin workspace.</p>
+            <p className="auth-intro">This login is only for authorised Mock Buddy administrators. Student accounts cannot enter the admin workspace.</p>
             <form className="auth-form" onSubmit={handleSubmit}>
               <label className="auth-field">
                 <span>Admin email address</span>
