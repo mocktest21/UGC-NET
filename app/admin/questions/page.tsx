@@ -323,7 +323,7 @@ export default function AdminQuestionsPage() {
     ws["!cols"] = columns.map((h) => ({ wch: Math.max(14, Math.min(30, h.length + 5)) }));
     XLSX.utils.book_append_sheet(wb, ws, "Questions");
     const guide = XLSX.utils.aoa_to_sheet([
-      ["MOCKMASTER SIMPLE QUESTION TEMPLATE"],
+      ["Mock Buddy SIMPLE QUESTION TEMPLATE"],
       ["One question per row. Delete the sample row before adding your own questions."],
       ["Required: exam_id, paper_id, subject_id, question, option_a to option_d, correct_answer."],
       ["Use taxonomy IDs from your existing Question Bank. unit_id and topic_id are optional."],
@@ -434,7 +434,7 @@ export default function AdminQuestionsPage() {
   }
 
   if (checking) return <MockMasterLoading variant="table" title="Verifying administrator access"/>;
-  if (!admin) return <main className="aq-state"><div className="aq-denied"><span>403</span><h1>Administrator access required</h1><p>This area is restricted to authorised MockMaster administrators.</p><button onClick={async () => { await supabase.auth.signOut(); router.replace("/admin/login"); }}>Go to admin login</button><button onClick={() => router.replace("/dashboard")}>Return to dashboard</button></div></main>;
+  if (!admin) return <main className="aq-state"><div className="aq-denied"><span>403</span><h1>Administrator access required</h1><p>This area is restricted to authorised Mock Buddy administrators.</p><button onClick={async () => { await supabase.auth.signOut(); router.replace("/admin/login"); }}>Go to admin login</button><button onClick={() => router.replace("/dashboard")}>Return to dashboard</button></div></main>;
 
   return (
     <main className="aq-shell">
@@ -490,7 +490,7 @@ export default function AdminQuestionsPage() {
             {importErrors.length > 0 && <div className="aq-errors"><b>Validation issues ({importErrors.length})</b><ul>{importErrors.slice(0, 12).map((e) => <li key={e}>{e}</li>)}</ul></div>}
             {importRows.length > 0 && <><div className="aq-preview-head"><b>Preview · {importRows.length} rows</b><span>{importErrors.length ? "Fix the workbook and upload again" : "Basic validation passed"}</span></div><div className="aq-table-wrap"><table className="aq-table"><thead><tr>{Object.keys(importRows[0]).slice(0, 5).map((h) => <th key={h}>{h}</th>)}</tr></thead><tbody>{importRows.slice(0, 5).map((row, i) => <tr key={i}>{Object.keys(importRows[0]).slice(0, 5).map((h) => <td key={h}>{String(row[h] ?? "").slice(0, 100)}</td>)}</tr>)}</tbody></table></div><div className="aq-form-footer"><p>Only new rows are created. Existing questions are not updated, deleted or automatically approved.</p><button className="aq-primary" disabled={!!importErrors.length || importing} onClick={() => void importMasterRows()}>{importing ? "Importing…" : "Import new questions"}</button></div></>}
           </section>}
-          <footer className="aq-footer">MockMaster Admin · Question content and answer keys are access-controlled.</footer>
+          <footer className="aq-footer">Mock Buddy Admin · Question content and answer keys are access-controlled.</footer>
         </section>
       </div>
     </main>
