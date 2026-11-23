@@ -4,8 +4,8 @@ import {ArrowUpRight,Headset} from "lucide-react";
 import "./contact.css";
 
 export const metadata:Metadata={
- title:"Contact MockMaster",
- description:"Connect with MockMaster through Instagram, Telegram, WhatsApp or email."
+ title:"Contact Mock Buddy",
+ description:"Connect with Mock Buddy through Instagram, Telegram, WhatsApp or email."
 };
 
 function BrandLogo({brand}:{brand:"instagram"|"telegram"|"whatsapp"|"gmail"}){
@@ -28,7 +28,7 @@ export default function Contact(){
    <div className="mm-contact-crumb"><Link href="/dashboard">Home</Link><span>/</span>Contact Us</div>
    <header className="mm-contact-heading">
     <span className="mm-contact-kicker"><Headset size={15}/> WE’RE HERE TO HELP</span>
-    <h1>Contact <span>MockMaster</span></h1>
+    <h1>Contact <span>Mock Buddy</span></h1>
     <p>Have a question, suggestion or need help? Reach out to us through any of the channels below.</p>
    </header>
    <section className="mm-contact-grid" aria-label="Contact channels">
