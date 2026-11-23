@@ -41,7 +41,7 @@ export default function StudentProfilePage(){
    const {data:subjectRows}=paper?await db.from("subjects").select("id,name").eq("paper_id",paper.id).eq("is_active",true).order("display_order"):{data:[]};
    setSubjects(subjectRows||[]);
    const emailName=(user.email||"").split("@")[0].replace(/[._-]+/g," ").replace(/\\b\\w/g,ch=>ch.toUpperCase());
-   const profileName=String(meta.full_name||meta.name||meta.fullName||user.email?.split("@")[0]||"Student").trim();
+   const profileName=String(meta.full_name||meta.name||meta.fullName||emailName||"Student").trim();
    const next:FormState={name:profileName||emailName||"Student",phone:meta.phone_number||meta.phone||"",subjectId:pref?.selected_subject_id||"",category:pref?.category||"",isPwd:Boolean(pref?.is_pwd),goal:pref?.qualification_goal||"Both",cycle:pref?.target_exam_cycle||"June 2027"};
    setForm(next);setSaved(next);
   }catch(e:any){setError(e?.message||"Profile could not be loaded.");}
