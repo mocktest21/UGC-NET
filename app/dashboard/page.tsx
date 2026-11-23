@@ -45,6 +45,15 @@ type HomeData = {
 
 const fmt = (value: number | null | undefined) =>
   value === null || value === undefined ? "—" : Number(value).toLocaleString("en-IN", { maximumFractionDigits: 1 });
+function provisionalExamDate(cycle: string | null | undefined): string | null {
+  if (!cycle) return null;
+  const match = cycle.trim().match(/^([A-Za-z]+)\\s+(\\d{4})$/);
+  if (!match) return null;
+  const months: Record<string,string> = { january:"01", february:"02", march:"03", april:"04", may:"05", june:"06", july:"07", august:"08", september:"09", october:"10", november:"11", december:"12" };
+  const month = months[match[1].toLowerCase()];
+  return month ? `${match[2]}-${month}-15` : null;
+}
+
 const duration = (seconds: number | null | undefined) => {
   if (seconds === null || seconds === undefined) return "—";
   return seconds < 60 ? Math.round(seconds) + " sec" : Math.floor(seconds / 60) + "m " + Math.round(seconds % 60) + "s";
@@ -110,7 +119,7 @@ export default function HomePage() {
         ? await db.from("subject_exam_schedules").select("exam_date").eq("exam_cycle",examCycle).eq("subject_id",selectedSubjectId).maybeSingle()
         : {data:null,error:null};
       if(scheduleError)throw scheduleError;
-      setExamScheduleDate(scheduleRow?.exam_date||null);
+      setExamScheduleDate(scheduleRow?.exam_date || provisionalExamDate(examCycle));
       const { data: targetRow } = await db.from("student_daily_targets").select("daily_mock_target,daily_question_target").eq("student_id", auth.user.id).maybeSingle();
       const loadedTargets = {mocks:Number(targetRow?.daily_mock_target ?? 1),questions:Number(targetRow?.daily_question_target ?? 50)};
       setDailyTargets(loadedTargets); setTargetDraft(loadedTargets);
@@ -218,7 +227,7 @@ export default function HomePage() {
         ? await db.from("subject_exam_schedules").select("exam_date").eq("exam_cycle",editProfile.cycle).eq("subject_id",editProfile.subjectId).maybeSingle()
         : {data:null,error:null};
       if(scheduleError)throw scheduleError;
-      setExamScheduleDate(scheduleRow?.exam_date||null);
+      setExamScheduleDate(scheduleRow?.exam_date || provisionalExamDate(editProfile.cycle));
 
       const { error: updateError } = await db.auth.updateUser({ data:{ full_name:editProfile.name.trim(), phone_number:editProfile.phone.trim(), paper2_subject_id:editProfile.subjectId, category:editProfile.category, is_pwd:editProfile.isPwd, qualification_goal:editProfile.goal, target_attempt:editProfile.cycle } });
       if (updateError) throw updateError;
