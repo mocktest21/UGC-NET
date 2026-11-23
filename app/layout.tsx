@@ -7,10 +7,10 @@ import StudentMobileNav from "@/components/navigation/StudentMobileNav";
 const poppins=Poppins({subsets:["latin"],weight:["400","500","600","700","800"],display:"swap",variable:"--font-poppins"});
 
 export const metadata: Metadata = {
-  title: "MockMaster — Practice. Improve. Achieve.",
+  title: "Mock Buddy — Practice. Improve. Achieve.",
   description:
     "A focused mock-test and previous-year-question practice platform for competitive examinations.",
-  applicationName: "MockMaster",
+  applicationName: "Mock Buddy",
 };
 
 export default function RootLayout({
