@@ -117,13 +117,13 @@ export default function AdminDashboardPage(){
   async function signOut(){await supabase.auth.signOut();router.replace("/login");}
 
   if(loading)return <MockMasterLoading variant="admin" title="Preparing your admin workspace"/>;
-  if(!isAdmin)return <main className="aw-state"><section style={{maxWidth:480,margin:"12vh auto",padding:32,background:"#fff",borderRadius:18,textAlign:"center"}}><h1>Administrator access required</h1><p>This workspace is restricted to authorised MockMaster administrators. Sign in with your administrator account to continue.</p><div style={{display:"flex",gap:10,justifyContent:"center",flexWrap:"wrap",marginTop:20}}><button onClick={async()=>{await supabase.auth.signOut();router.replace("/admin/login");}}>Go to admin login</button><button onClick={()=>router.replace("/dashboard")}>Return to student dashboard</button></div></section></main>;
+  if(!isAdmin)return <main className="aw-state"><section style={{maxWidth:480,margin:"12vh auto",padding:32,background:"#fff",borderRadius:18,textAlign:"center"}}><h1>Administrator access required</h1><p>This workspace is restricted to authorised Mock Buddy administrators. Sign in with your administrator account to continue.</p><div style={{display:"flex",gap:10,justifyContent:"center",flexWrap:"wrap",marginTop:20}}><button onClick={async()=>{await supabase.auth.signOut();router.replace("/admin/login");}}>Go to admin login</button><button onClick={()=>router.replace("/dashboard")}>Return to student dashboard</button></div></section></main>;
   if(error && !counts.questions && !counts.students) { /* Show the workspace with a visible data warning. */ }
   return (
     <main className="aw-shell">
       <section className="aw-main">
         <AdminNavigation onSignOut={signOut}/>
-        <header className="aw-topbar"><div><span className="aw-breadcrumb">MockMaster / Admin</span><h1>Admin overview</h1></div><div className="aw-user"><span>{adminName.slice(0,1).toUpperCase()}</span><div><b>{adminName}</b><small>Administrator</small></div></div></header>
+        <header className="aw-topbar"><div><span className="aw-breadcrumb">Mock Buddy / Admin</span><h1>Admin overview</h1></div><div className="aw-user"><span>{adminName.slice(0,1).toUpperCase()}</span><div><b>{adminName}</b><small>Administrator</small></div></div></header>
         <div className="aw-content">
           <section className="aw-welcome"><div><span>CONTROL CENTRE</span><h2>Welcome back, {adminName}.</h2><p>Manage your question content, imports and examination operations from one place.</p></div><a href="/admin/questions" className="aw-cta">＋ Add question</a></section>
           <section className="aw-exam-schedule">
@@ -140,7 +140,7 @@ export default function AdminDashboardPage(){
             {examSchedules.length>0&&<div className="aw-exam-schedule-list"><b>Saved Paper 2 dates</b>{examSchedules.map(row=><button type="button" key={row.exam_cycle+"-"+row.subject_id} onClick={()=>{setExamCycle(row.exam_cycle);setExamDate(row.exam_date);setScheduleSubjectId(row.subject_id);setScheduleMessage("");}}><span>{row.exam_cycle} · {row.subject_name}</span><strong>{new Date(row.exam_date+"T00:00:00").toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"})}</strong></button>)}</div>}
           </section>
           {error&&<div className="aw-warning">Some dashboard counts could not be loaded: {error}</div>}
-          <div className="aw-section-heading"><div><h2>Platform snapshot</h2><p>Live counts from your MockMaster database.</p></div><span>Updated just now</span></div>
+          <div className="aw-section-heading"><div><h2>Platform snapshot</h2><p>Live counts from your Mock Buddy database.</p></div><span>Updated just now</span></div>
           <section className="aw-stats">
             <article><span className="aw-stat-icon blue">▦</span><div><small>Total questions</small><b>{counts.questions.toLocaleString()}</b><em>Across all subjects</em></div></article>
             <article><span className="aw-stat-icon green">✓</span><div><small>Approved questions</small><b>{counts.approved.toLocaleString()}</b><em>Eligible for practice</em></div></article>
@@ -151,7 +151,7 @@ export default function AdminDashboardPage(){
           </section>
           <div className="aw-section-heading aw-modules-heading"><div><h2>Workspace modules</h2><p>Choose an area to manage. Additional modules will be enabled as they are built.</p></div></div>
           <section className="aw-modules">{modules.map((m)=> <article className={m.status==="Available"?"aw-module":"aw-module planned"} key={m.title}><div className="aw-module-top"><span>{m.icon}</span><small className={m.status==="Available"?"ready":""}>{m.status}</small></div><h3>{m.title}</h3><p>{m.description}</p>{m.status==="Available"?<a href={m.href}>Open module <b>→</b></a>:<span className="aw-planned-label">In development</span>}</article>)}</section>
-          <footer className="aw-footer">MockMaster Administration <span>Practice. Improve. Achieve.</span></footer>
+          <footer className="aw-footer">Mock Buddy Administration <span>Practice. Improve. Achieve.</span></footer>
         </div>
       </section>
     </main>
