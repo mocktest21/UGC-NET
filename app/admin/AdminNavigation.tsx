@@ -1,5 +1,6 @@
 "use client";
 import { usePathname } from "next/navigation";
+import "./admin-navigation.css";
 type Props = { onSignOut?: () => void };
 const links = [
  {label:"Overview",href:"/admin",key:"overview"},
