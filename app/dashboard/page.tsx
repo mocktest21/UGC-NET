@@ -360,7 +360,7 @@ export default function HomePage() {
             </article>
           </section>
 
-          <footer className="mm-home-footer"><span>© {new Date().getFullYear()} MockMaster</span><span>Practice. Improve. Achieve.</span></footer>
+          <footer className="mm-home-footer"><span>© {new Date().getFullYear()} Mock Buddy</span><span>Practice. Improve. Achieve.</span></footer>
         </main>
       </div>
 
