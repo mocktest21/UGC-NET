@@ -105,13 +105,12 @@ export default function HomePage() {
       if (readinessResult.error) throw readinessResult.error;
       const pref = prefResult.data as any;
       const examCycle = String(pref?.target_exam_cycle || "December 2026");
-      const { data: scheduleRow } = await db.from("exam_schedule_settings").select("exam_date").eq("exam_cycle", examCycle).maybeSingle();
-      const monthMatch = examCycle.match(/^([A-Za-z]+)\s+(\d{4})$/);
-      const monthIndex = monthMatch ? new Date(Date.parse(monthMatch[1] + " 1, " + monthMatch[2])).getMonth() : 11;
-      const yearNumber = monthMatch ? Number(monthMatch[2]) : 2026;
-      const fallbackDate = new Date(yearNumber, monthIndex, 15);
-      const fallbackIso = fallbackDate.getFullYear()+"-"+String(fallbackDate.getMonth()+1).padStart(2,"0")+"-"+String(fallbackDate.getDate()).padStart(2,"0");
-      setExamScheduleDate(scheduleRow?.exam_date || fallbackIso);
+      const selectedSubjectId=String(pref?.selected_subject_id||"");
+      const { data: scheduleRow, error: scheduleError } = selectedSubjectId
+        ? await db.from("subject_exam_schedules").select("exam_date").eq("exam_cycle",examCycle).eq("subject_id",selectedSubjectId).maybeSingle()
+        : {data:null,error:null};
+      if(scheduleError)throw scheduleError;
+      setExamScheduleDate(scheduleRow?.exam_date||null);
       const { data: targetRow } = await db.from("student_daily_targets").select("daily_mock_target,daily_question_target").eq("student_id", auth.user.id).maybeSingle();
       const loadedTargets = {mocks:Number(targetRow?.daily_mock_target ?? 1),questions:Number(targetRow?.daily_question_target ?? 50)};
       setDailyTargets(loadedTargets); setTargetDraft(loadedTargets);
@@ -214,16 +213,12 @@ export default function HomePage() {
       const { error: prefError } = await db.from("student_exam_preferences").upsert({ student_id:user.id, exam_id:exam.id, selected_subject_id:editProfile.subjectId || null, category:editProfile.category || null, is_pwd:editProfile.isPwd, qualification_goal:editProfile.goal || null, target_exam_cycle:editProfile.cycle || null }, { onConflict:"student_id,exam_id" });
       if (prefError) throw prefError;
 
-      // Keep the countdown in sync immediately when the student changes their target cycle.
-      const { data: scheduleRow, error: scheduleError } = await db.from("exam_schedule_settings")
-        .select("exam_date").eq("exam_cycle", editProfile.cycle).maybeSingle();
-      if (scheduleError) throw scheduleError;
-      const cycleMatch = editProfile.cycle.match(/^([A-Za-z]+)\s+(\d{4})$/);
-      const cycleMonth = cycleMatch ? new Date(Date.parse(cycleMatch[1] + " 1, " + cycleMatch[2])).getMonth() : 11;
-      const cycleYear = cycleMatch ? Number(cycleMatch[2]) : 2026;
-      const fallback = new Date(cycleYear, cycleMonth, 15);
-      const fallbackIso = fallback.getFullYear()+"-"+String(fallback.getMonth()+1).padStart(2,"0")+"-"+String(fallback.getDate()).padStart(2,"0");
-      setExamScheduleDate(scheduleRow?.exam_date || fallbackIso);
+      // Countdown is based only on the selected Paper 2 subject and target cycle.
+      const { data: scheduleRow, error: scheduleError } = editProfile.subjectId
+        ? await db.from("subject_exam_schedules").select("exam_date").eq("exam_cycle",editProfile.cycle).eq("subject_id",editProfile.subjectId).maybeSingle()
+        : {data:null,error:null};
+      if(scheduleError)throw scheduleError;
+      setExamScheduleDate(scheduleRow?.exam_date||null);
 
       const { error: updateError } = await db.auth.updateUser({ data:{ full_name:editProfile.name.trim(), phone_number:editProfile.phone.trim(), paper2_subject_id:editProfile.subjectId, category:editProfile.category, is_pwd:editProfile.isPwd, qualification_goal:editProfile.goal, target_attempt:editProfile.cycle } });
       if (updateError) throw updateError;
@@ -307,7 +302,7 @@ export default function HomePage() {
                 const rest = days !== null && days > 0 ? days%7 : 0;
                 return <>
                   <div className="mm-home-countdown-top"><div className="mm-home-countdown-label"><span>◷</span> EXAM COUNTDOWN</div>{days !== null && days <= 30 && days > 0 && <span className="mm-home-countdown-badge">Final stretch</span>}</div>
-                  <div className="mm-home-countdown-hero"><strong>{days===null?"—":days>0?days:days===0?"Today":Math.abs(days)}</strong><div><b>{days===0?"Exam day":days!==null&&days<0?"days overdue":"days to go"}</b><span>UGC-NET · {preferences?.target_exam_cycle || "December 2026"}</span></div></div>
+                  <div className="mm-home-countdown-hero"><strong>{days===null?"—":days>0?days:days===0?"Today":Math.abs(days)}</strong><div><b>{days===null?"Date not announced":days===0?"Exam day":days<0?"days overdue":"days to go"}</b><span>UGC-NET · {preferences?.subject_name || "Paper 2 subject"} · {preferences?.target_exam_cycle || "December 2026"}</span></div></div>
                   <div className="mm-home-urgency-grid">
                     <div className="mm-home-urgency-stat"><Flame size={18}/><strong>{dailyActivity.streak}</strong><span>Day streak</span></div>
                     <div className="mm-home-urgency-stat"><ClipboardCheck size={18}/><strong>{dailyActivity.mocks}/{dailyTargets.mocks}</strong><span>Daily mocks</span></div>
