@@ -4,7 +4,7 @@ import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import * as XLSX from "xlsx";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
-import MockMasterLoading from "@/app/components/ui/MockMasterLoading";
+import Mock BuddyLoading from "@/app/components/ui/Mock BuddyLoading";
 import "./admin-questions.css";
 import AdminNavigation from "../AdminNavigation";
 
@@ -335,7 +335,7 @@ export default function AdminQuestionsPage() {
       ["Supported difficulty values: easy, moderate, hard. Default marks: 2; negative marks: 0."]
     ]);
     XLSX.utils.book_append_sheet(wb, guide, "Read Me");
-    XLSX.writeFile(wb, "MockMaster_Simple_Question_Template.xlsx", { compression: true });
+    XLSX.writeFile(wb, "MockBuddy_Simple_Question_Template.xlsx", { compression: true });
     setMessage("Simple Excel template downloaded. Fill one question per row; no JSON formatting is needed.");
   }
 
@@ -433,7 +433,7 @@ export default function AdminQuestionsPage() {
     setFileName("");
   }
 
-  if (checking) return <MockMasterLoading variant="table" title="Verifying administrator access"/>;
+  if (checking) return <Mock BuddyLoading variant="table" title="Verifying administrator access"/>;
   if (!admin) return <main className="aq-state"><div className="aq-denied"><span>403</span><h1>Administrator access required</h1><p>This area is restricted to authorised Mock Buddy administrators.</p><button onClick={async () => { await supabase.auth.signOut(); router.replace("/admin/login"); }}>Go to admin login</button><button onClick={() => router.replace("/dashboard")}>Return to dashboard</button></div></main>;
 
   return (
