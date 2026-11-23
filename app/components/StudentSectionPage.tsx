@@ -11,6 +11,7 @@ import {createSupabaseBrowserClient} from "@/lib/supabase/client";
 type Section="practice"|"live-test"|"personal-notebook";
 type LiveTest={id:string;title:string;description:string|null;duration_seconds:number;total_marks:number;starts_at:string;ends_at:string;question_count:number};
 type LiveOverview={participant_count:number;my_score:number|null;my_rank:number|null;my_attempt_status:string|null};
+type FullLengthTest={id:string;title:string;description:string|null;duration_seconds:number;total_marks:number};
 
 const content={practice:{title:"Practice Centre",subtitle:"Build your own tests, revise challenging questions and prepare with exam-style mock tests."},"live-test":{title:"Live tests",subtitle:"Find your scheduled mock tests and attempt them within the test window."},"personal-notebook":{title:"Personal notebook",subtitle:"Keep your important learning points and revision notes in one place."}};
 function formatCountdown(target:number,now:number){
@@ -20,7 +21,7 @@ function formatCountdown(target:number,now:number){
 }
 export default function StudentSectionPage({section}:{section:Section}){
  const router=useRouter();
- const [name,setName]=useState("Student"),[loading,setLoading]=useState(true),[liveTests,setLiveTests]=useState<LiveTest[]>([]),[overview,setOverview]=useState<Record<string,LiveOverview>>({}),[startingTest,setStartingTest]=useState(""),[startingSmartQuiz,setStartingSmartQuiz]=useState(false),[smartQuizCount,setSmartQuizCount]=useState(0),[error,setError]=useState(""),[currentTime,setCurrentTime]=useState(()=>Date.now()),[quickDistribution,setQuickDistribution]=useState<any>(null),[quickPopup,setQuickPopup]=useState(false),[quickKind,setQuickKind]=useState(""),[quickCountdown,setQuickCountdown]=useState<number|null>(null),[quickBusy,setQuickBusy]=useState(false);
+ const [name,setName]=useState("Student"),[loading,setLoading]=useState(true),[liveTests,setLiveTests]=useState<LiveTest[]>([]),[overview,setOverview]=useState<Record<string,LiveOverview>>({}),[startingTest,setStartingTest]=useState(""),[startingSmartQuiz,setStartingSmartQuiz]=useState(false),[smartQuizCount,setSmartQuizCount]=useState(0),[error,setError]=useState(""),[currentTime,setCurrentTime]=useState(()=>Date.now()),[quickDistribution,setQuickDistribution]=useState<any>(null),[quickPopup,setQuickPopup]=useState(false),[quickKind,setQuickKind]=useState(""),[quickCountdown,setQuickCountdown]=useState<number|null>(null),[quickBusy,setQuickBusy]=useState(false),[fullLengthTests,setFullLengthTests]=useState<FullLengthTest[]>([]),[startingFullLength,setStartingFullLength]=useState("");
  useEffect(()=>{if(quickCountdown===null)return;if(quickCountdown>0){const timer=window.setTimeout(()=>setQuickCountdown(value=>value===null?null:value-1),1000);return()=>window.clearTimeout(timer);}if(quickCountdown===0&&quickKind){void(async()=>{setQuickBusy(true);setError("");const db=createSupabaseBrowserClient();const {data,error}=await db.rpc("student_start_quick_practice",{p_kind:quickKind});setQuickBusy(false);setQuickCountdown(null);setQuickPopup(false);if(error){setError(error.message);return;}const result=data as {test_id:string;attempt_id:string;duration_seconds:number};router.push("/practice/session?"+new URLSearchParams({test:result.test_id,attempt:result.attempt_id,minutes:String(Math.ceil(result.duration_seconds/60))}).toString());})();}},[quickCountdown,quickKind,router]);
  async function handleQuickPractice(kind:string){setError("");setQuickKind(kind);if(kind==="twenty"){setQuickBusy(true);const db=createSupabaseBrowserClient();const {data,error}=await db.rpc("student_get_quick_practice_distribution",{p_question_count:20});setQuickBusy(false);if(error){setError(error.message);return;}setQuickDistribution(data);setQuickPopup(true);return;}setQuickCountdown(0);}
  useEffect(()=>{if(section!=="live-test")return;const timer=window.setInterval(()=>setCurrentTime(Date.now()),1000);return()=>window.clearInterval(timer);},[section]);
@@ -123,11 +124,21 @@ export default function StudentSectionPage({section}:{section:Section}){
       </Link>
      </section>
     </section>
-    <section className="mm-practice-v2-premium">
-     <div><span>PREMIUM</span><small> Your next step after practice</small></div>
-     <h2>Full-Length Mock Tests</h2><p>Complete Paper 1 + Paper 2 exam simulations (150 questions · 180 min).</p>
-     <div className="mm-practice-v2-compare"><span>Smart Quiz <b>✓</b></span><span>Build Your Own Test <b>✓</b></span><span>Reattempt live tests <b>✓</b></span><span>Full-length mocks <b>🔒</b></span></div>
-     <button type="button" disabled>Unlock Premium · Coming soon</button>
+    <section className="mm-practice-v2-premium mm-full-length-section">
+     <div><span>UGC NET MOCK EXAMS</span><small> Paper 1 + Paper 2 · 180 minutes</small></div>
+     <h2>Full-Length Mock Tests</h2><p>Attempt the complete exam with 50 Paper 1 and 100 Paper 2 questions.</p>
+     {fullLengthTests.length===0?<div className="mm-live-empty-inline">No Full-Length Tests published yet.</div>:<div className="mm-completed-live-grid mm-full-length-grid">{fullLengthTests.map(test=><article className="mm-completed-live-card" key={test.id}>
+      <div className="mm-live-card-top"><span className="mm-live-status"><i/>AVAILABLE</span><span className="mm-live-card-mark">{Number(test.total_marks).toLocaleString("en-IN")} Marks</span></div>
+      <h3>{test.title}</h3>{test.description&&<p className="mm-live-card-description">{test.description}</p>}
+      <div className="mm-live-card-stats"><span><FileQuestion size={14}/>150 Questions</span><span><Clock3 size={14}/>180 min</span></div>
+      <button type="button" disabled={startingFullLength===test.id} onClick={async()=>{
+       setError("");setStartingFullLength(test.id);const db=createSupabaseBrowserClient();
+       const {data,error}=await db.rpc("student_start_full_length_test",{p_test_id:test.id});setStartingFullLength("");
+       if(error){setError(error.message);return;}
+       const result=data as {test_id:string;attempt_id:string;duration_seconds:number};
+       router.push("/practice/session?"+new URLSearchParams({test:result.test_id,attempt:result.attempt_id,minutes:String(Math.ceil(result.duration_seconds/60))}).toString());
+      }}>{startingFullLength===test.id?"Preparing…":"Start Full-Length Test"}</button>
+     </article>)}</div>}
     </section>
 
 
