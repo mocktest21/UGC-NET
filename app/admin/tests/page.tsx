@@ -188,7 +188,7 @@ export default function AdminTestBuilderPage() {
           <div className="tb-actions"><button disabled={saving} onClick={()=>void saveTest(false)}>{saving?"Saving…":"Save as draft"}</button><button className="tb-primary" disabled={saving} onClick={()=>void saveTest(true)}>{saving?"Publishing…":"Publish test"}</button></div>
         </section>
       </div>:<section className="tb-panel tb-saved"><div className="tb-panel-title"><div><h2>Saved tests</h2><p>Manage drafts and published tests.</p></div><button className="tb-secondary" onClick={()=>void loadTests()}>Refresh</button></div>{loadingTests?<div className="tb-empty">Loading tests…</div>:tests.length===0?<div className="tb-empty">No tests created yet. Start by creating your first test.</div>:<div className="tb-table-wrap"><table><thead><tr><th>Test</th><th>Mode</th><th>Duration</th><th>Marks</th><th>Status</th><th>Action</th></tr></thead><tbody>{tests.map(t=><tr key={t.id}><td><b>{t.title}</b><small>{new Date(t.created_at).toLocaleDateString()}</small></td><td>{t.mode}</td><td>{fmtDuration(t.duration_seconds)}</td><td>{Number(t.total_marks).toFixed(2)}</td><td><span className={t.status==="published"?"tb-status published":"tb-status"}>{t.status}</span></td><td>{t.status==="draft"?<button className="tb-publish" onClick={()=>void publishTest(t.id)}>Publish</button>:<span className="tb-muted">Live</span>}</td></tr>)}</tbody></table></div>}</section>}
-      <footer className="tb-footer">MockMaster · Test Builder <span>Practice. Improve. Achieve.</span></footer>
+      <footer className="tb-footer">Mock Buddy · Test Builder <span>Practice. Improve. Achieve.</span></footer>
     </div>
   </main>;
 }
