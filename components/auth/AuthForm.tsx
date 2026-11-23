@@ -68,7 +68,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
       <section className="auth-shell">
         <div className="auth-aside">
           <a className="brand auth-brand" href="/">
-            <span className="brand-mark">M</span>MockMaster
+            <span className="brand-mark">M</span>Mock Buddy
           </a>
           <div className="auth-aside-copy">
             <span className="auth-kicker">YOUR PREPARATION, YOUR PACE</span>
@@ -85,12 +85,12 @@ export default function AuthForm({ mode }: AuthFormProps) {
 
         <div className="auth-form-side">
           <div className="auth-mobile-brand">
-            <a className="brand" href="/"><span className="brand-mark">M</span>MockMaster</a>
+            <a className="brand" href="/"><span className="brand-mark">M</span>Mock Buddy</a>
           </div>
           <div className="auth-form-wrap">
             <a className="auth-back" href="/">← Back to homepage</a>
             <span className="auth-kicker">{isSignup ? "GET STARTED" : "WELCOME BACK"}</span>
-            <h2>{isSignup ? "Create your account" : "Log in to MockMaster"}</h2>
+            <h2>{isSignup ? "Create your account" : "Log in to Mock Buddy"}</h2>
             <p className="auth-intro">
               {isSignup
                 ? "Create your account to get started. You’ll add your exam details after your first login."
@@ -142,7 +142,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
             </form>
 
             <p className="auth-switch">
-              {isSignup ? "Already have an account?" : "New to MockMaster?"}{" "}
+              {isSignup ? "Already have an account?" : "New to Mock Buddy?"}{" "}
               <a href={isSignup ? "/login" : "/signup"}>{isSignup ? "Log in" : "Create an account"}</a>
             </p>
             <p className="auth-legal">By continuing, you agree to our <a href="/terms">Terms</a> and <a href="/privacy">Privacy Policy</a>.</p>
