@@ -147,9 +147,13 @@ export default function AdminSyllabusPage(){
   for(const r of importRows){
    try{
     const ex=await findOrCreate("exams",x=>x.code?.toLowerCase()===r.exam_code.toLowerCase(),{code:r.exam_code,name:r.exam_name,description:null,is_active:true,display_order:0});
+    if(ex.name.trim().toLowerCase()!==r.exam_name.toLowerCase())throw new Error("Exam code already exists with a different exam name.");
     const pa=await findOrCreate("papers",x=>x.exam_id===ex.id&&(x.code?.toLowerCase()===r.paper_code.toLowerCase()||x.name.toLowerCase()===r.paper_name.toLowerCase()),{exam_id:ex.id,code:r.paper_code,name:r.paper_name,description:null,is_compulsory:r.paper_code.toUpperCase()==="PAPER_1",is_active:true,display_order:0});
+    if(pa.code?.toLowerCase()!==r.paper_code.toLowerCase()||pa.name.toLowerCase()!==r.paper_name.toLowerCase())throw new Error("Paper code/name conflicts with an existing paper under this exam.");
     const su=await findOrCreate("subjects",x=>x.paper_id===pa.id&&((r.subject_code&&x.code?.toLowerCase()===r.subject_code.toLowerCase())||x.name.toLowerCase()===r.subject_name.toLowerCase()),{exam_id:ex.id,paper_id:pa.id,code:r.subject_code||null,name:r.subject_name,description:null,is_active:true,display_order:0});
+    if(su.name.toLowerCase()!==r.subject_name.toLowerCase()||(r.subject_code&&su.code?.toLowerCase()!==r.subject_code.toLowerCase()))throw new Error("Subject code/name conflicts with an existing subject under this paper.");
     const un=await findOrCreate("units",x=>x.subject_id===su.id&&(x.unit_number===Number(r.unit_number)||x.name.toLowerCase()===r.unit_name.toLowerCase()),{subject_id:su.id,unit_number:Number(r.unit_number),code:r.unit_code||null,name:r.unit_name,description:r.description||null,is_active:true,display_order:Number(r.display_order)||Number(r.unit_number)});
+    if(un.unit_number!==Number(r.unit_number)||un.name.toLowerCase()!==r.unit_name.toLowerCase())throw new Error("Unit number/name conflicts with an existing unit under this subject.");
     if(r.topic_name.trim())await findOrCreate("topics",x=>x.unit_id===un.id&&x.name.toLowerCase()===r.topic_name.toLowerCase(),{unit_id:un.id,name:r.topic_name,description:null,is_active:true,display_order:Number(r.display_order)||0});
    }catch(err:any){failed.push({row:r.row,message:err?.message||"Import failed"});}
   }
