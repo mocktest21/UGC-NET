@@ -112,7 +112,7 @@ export default function AdminSyllabusPage(){
    const missing=required.filter(x=>!headers.includes(x));
    if(missing.length)throw new Error("Missing required columns: "+missing.join(", "));
    const parsed:ImportRow[]=raw.map((r,i)=>{
-    const val=(key:string)=>String(r[Object.keys(r).find(k=>k.trim().toLowerCase()===key)]??"").trim();
+    const val=(key:string)=>{const column=Object.keys(r).find(k=>k.trim().toLowerCase()===key);return column===undefined?"":String(r[column]??"").trim();};
     return {exam_code:val("exam_code"),exam_name:val("exam_name"),paper_code:val("paper_code"),paper_name:val("paper_name"),subject_code:val("subject_code"),subject_name:val("subject_name"),unit_number:val("unit_number"),unit_code:val("unit_code"),unit_name:val("unit_name"),topic_name:val("topic_name"),description:val("description"),display_order:val("display_order"),row:i+2};
    });
    const seen=new Set<string>();
