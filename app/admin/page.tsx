@@ -76,12 +76,18 @@ export default function AdminDashboardPage(){
   },[router,supabase]);
 
   async function saveExamSchedule(){
-    if(!supabase||!examCycle.trim()||!examDate||!scheduleSubjectId)return;
+    if(!supabase||!examCycle.trim()||!scheduleSubjectId)return;
     setSavingSchedule(true);setScheduleMessage("");
     const {data:{user}}=await supabase.auth.getUser();
+    if(!examDate){
+      const {error:deleteError}=await supabase.from("subject_exam_schedules").delete().eq("exam_cycle",examCycle.trim()).eq("subject_id",scheduleSubjectId);
+      if(deleteError)setScheduleMessage("Could not mark exam date as unannounced: "+deleteError.message);
+      else {setScheduleMessage("Exam date marked as not announced. Students will see the provisional 15th of this exam month.");setExamSchedules(rows=>rows.filter(x=>!(x.exam_cycle===examCycle.trim()&&x.subject_id===scheduleSubjectId)));}
+      setSavingSchedule(false);return;
+    }
     const {error:saveError}=await supabase.from("subject_exam_schedules").upsert({exam_cycle:examCycle.trim(),subject_id:scheduleSubjectId,exam_date:examDate,updated_at:new Date().toISOString(),updated_by:user?.id||null},{onConflict:"exam_cycle,subject_id"});
     if(saveError)setScheduleMessage("Could not save subject exam date: "+saveError.message);
-    else {setScheduleMessage("Paper 2 subject date saved. Matching students' countdowns will use this date.");const subject=scheduleSubjects.find(x=>x.id===scheduleSubjectId);setExamSchedules(rows=>[...rows.filter(x=>!(x.exam_cycle===examCycle.trim()&&x.subject_id===scheduleSubjectId)),{exam_cycle:examCycle.trim(),exam_date:examDate,subject_id:scheduleSubjectId,subject_code:subject?.code||null,subject_name:subject?.name||"Subject"}].sort((x,y)=>x.exam_cycle.localeCompare(y.exam_cycle)||x.subject_name.localeCompare(y.subject_name)));}
+    else {setScheduleMessage("Announced Paper 2 subject date saved. Matching students' countdowns will use this exact date.");const subject=scheduleSubjects.find(x=>x.id===scheduleSubjectId);setExamSchedules(rows=>[...rows.filter(x=>!(x.exam_cycle===examCycle.trim()&&x.subject_id===scheduleSubjectId)),{exam_cycle:examCycle.trim(),exam_date:examDate,subject_id:scheduleSubjectId,subject_code:subject?.code||null,subject_name:subject?.name||"Subject"}].sort((x,y)=>x.exam_cycle.localeCompare(y.exam_cycle)||x.subject_name.localeCompare(y.subject_name)));}
     setSavingSchedule(false);
   }
   function downloadScheduleTemplate(){
@@ -125,8 +131,8 @@ export default function AdminDashboardPage(){
             <div className="aw-exam-schedule-form">
               <label>Exam cycle<input value={examCycle} onChange={e=>setExamCycle(e.target.value)} placeholder="December 2026"/></label>
               <label>Paper 2 subject<select value={scheduleSubjectId} onChange={e=>setScheduleSubjectId(e.target.value)}><option value="">Select subject</option>{scheduleSubjects.map(s=><option key={s.id} value={s.id}>{s.name} ({s.code||"No code"})</option>)}</select></label>
-              <label>Exam date<input type="date" value={examDate} onChange={e=>setExamDate(e.target.value)}/></label>
-              <button type="button" onClick={()=>void saveExamSchedule()} disabled={savingSchedule||!examCycle.trim()||!examDate||!scheduleSubjectId}>{savingSchedule?"Saving…":"Save subject date"}</button>
+              <label>Announced exam date (leave blank if not announced)<input type="date" value={examDate} onChange={e=>setExamDate(e.target.value)}/></label>
+              <button type="button" onClick={()=>void saveExamSchedule()} disabled={savingSchedule||!examCycle.trim()||!scheduleSubjectId}>{savingSchedule?"Saving…":examDate?"Save announced date":"Mark date unannounced"}</button>
             </div>
             <div className="aw-schedule-import"><div><b>Bulk upload subject dates</b><p>Required columns: <code>exam_cycle</code>, <code>subject_code</code>, <code>subject_name</code>, <code>exam_date</code>. One row per subject and date. Date format: YYYY-MM-DD.</p></div><div className="aw-schedule-import-actions"><button type="button" className="aw-schedule-secondary" onClick={downloadScheduleTemplate}>Download Excel template</button><label className="aw-schedule-upload">Choose Excel file<input ref={scheduleFileRef} type="file" accept=".xlsx,.xls" onChange={e=>void previewScheduleFile(e.target.files?.[0]||null)}/></label></div></div>
             {scheduleFile&&<div className="aw-schedule-preview"><b>Preview: {scheduleFile.name}</b><div className="aw-schedule-table-wrap"><table><thead><tr><th>Cycle</th><th>Subject code</th><th>Subject</th><th>Date</th><th>Validation</th></tr></thead><tbody>{schedulePreview.slice(0,100).map((r,i)=><tr key={i}><td>{r.exam_cycle}</td><td>{r.subject_code}</td><td>{r.subject_name}</td><td>{r.exam_date}</td><td className={r.error?"bad":"good"}>{r.error||"Valid"}</td></tr>)}</tbody></table></div><small>Showing up to 100 of {schedulePreview.length} rows.</small><button type="button" onClick={()=>void importScheduleWorkbook()} disabled={importingSchedule||!schedulePreview.length||schedulePreview.every(x=>x.error)}>{importingSchedule?"Importing…":"Import valid rows"}</button></div>}
