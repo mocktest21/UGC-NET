@@ -95,7 +95,7 @@ export default function AboutPage() {
       ) : (
         <header className="mm-about-nav">
           <div className="mm-about-nav-inner">
-            <Link className="mm-about-brand" href="/"><span>M</span>MockMaster</Link>
+            <Link className="mm-about-brand" href="/"><span>M</span>Mock Buddy</Link>
             <nav className="mm-about-guest-links" aria-label="Public navigation">
               <Link href="/">Home</Link>
               <Link href="/about" aria-current="page">About</Link>
@@ -105,7 +105,7 @@ export default function AboutPage() {
               <Link className="mm-about-btn mm-about-btn-primary" href="/signup"><UserPlus size={15}/>Sign up <ArrowRight size={15}/></Link>
             </div>
             <button className="mm-about-guest-toggle" type="button" aria-label={guestMenuOpen ? "Close menu" : "Open menu"} aria-expanded={guestMenuOpen} onClick={() => setGuestMenuOpen((v) => !v)}>{guestMenuOpen ? <X/> : <Menu/>}</button>
-            {guestMenuOpen && <nav className="mm-about-guest-panel"><Link href="/" onClick={() => setGuestMenuOpen(false)}>Home</Link><Link href="/about" onClick={() => setGuestMenuOpen(false)}>About MockMaster</Link><Link href="/login" onClick={() => setGuestMenuOpen(false)}>Log in</Link><Link className="mm-about-panel-cta" href="/signup" onClick={() => setGuestMenuOpen(false)}>Create free account →</Link></nav>}
+            {guestMenuOpen && <nav className="mm-about-guest-panel"><Link href="/" onClick={() => setGuestMenuOpen(false)}>Home</Link><Link href="/about" onClick={() => setGuestMenuOpen(false)}>About Mock Buddy</Link><Link href="/login" onClick={() => setGuestMenuOpen(false)}>Log in</Link><Link className="mm-about-panel-cta" href="/signup" onClick={() => setGuestMenuOpen(false)}>Create free account →</Link></nav>}
           </div>
         </header>
       )}
@@ -113,9 +113,9 @@ export default function AboutPage() {
       <main className="mm-about-page">
         <section className="mm-about-hero" id="hero">
           <div className="mm-about-wrap">
-            <span className="mm-about-pill"><i/>About MockMaster · UGC NET · Paper 1 &amp; Paper 2</span>
+            <span className="mm-about-pill"><i/>About Mock Buddy · UGC NET · Paper 1 &amp; Paper 2</span>
             <h1><span>Preparation deserves</span><span className="mm-about-gradient">clarity.</span></h1>
-            <p>MockMaster is an online exam-preparation platform. Mock tests, previous-year questions, topic-based practice and revision tools, all in one place.</p>
+            <p>Mock Buddy is an online exam-preparation platform. Mock tests, previous-year questions, topic-based practice and revision tools, all in one place.</p>
             {authView === "student" ? (
               <div className="mm-about-actions"><Link className="mm-about-btn mm-about-btn-primary" href="/practice">Continue practising <ArrowRight size={16}/></Link><Link className="mm-about-btn" href="/analytics">View my analytics <Activity size={16}/></Link></div>
             ) : authView === "guest" ? (
@@ -129,7 +129,7 @@ export default function AboutPage() {
             <div className="mm-about-tag">A note from us</div>
             <article className="mm-about-letter">
               <div className="mm-about-script">Hi, we're Manish &amp; Amrita.</div>
-              <p>We're building MockMaster to make exam practice more structured and measurable. We're starting with <b>UGC NET Paper 1</b> and <b>Commerce Paper 2</b>.</p>
+              <p>We're building Mock Buddy to make exam practice more structured and measurable. We're starting with <b>UGC NET Paper 1</b> and <b>Commerce Paper 2</b>.</p>
               <p>Amrita handles the academics. She has <b>qualified UGC-NET six times</b> and looks after question quality and exam strategy. Manish handles the technology and product.</p>
               <p>The question bank is still growing, unit by unit. If something is missing or wrong, tell us.</p>
               <div className="mm-about-sign">— Manish &amp; Amrita</div>
@@ -139,7 +139,7 @@ export default function AboutPage() {
 
         <section className="mm-about-founders">
           <div className="mm-about-wrap">
-            <div className="mm-about-tag">The people behind MockMaster</div>
+            <div className="mm-about-tag">The people behind Mock Buddy</div>
             <h2 className="mm-about-h2">Meet our <em>founders.</em></h2>
             <div className="mm-about-founder-grid">
               <article className="mm-about-admit">
@@ -151,7 +151,7 @@ export default function AboutPage() {
               <article className="mm-about-admit mm-about-admit-amber">
                 <div className="mm-about-admit-head"><span>ADMIT CARD</span><span>FOUNDER · 02</span></div>
                 <div className="mm-about-admit-mid"><div className="mm-about-photo">AM</div><div><h3>Amrita Mishra</h3><span className="mm-about-role">Co-Founder</span><dl><div><dt>Achievement</dt><dd>Six-time UGC-NET qualified</dd></div><div><dt>Currently</dt><dd>Research Scholar, University of Lucknow</dd></div><div><dt>Background</dt><dd>Academic background in Commerce</dd></div><div><dt>Focus</dt><dd>Academic planning, question quality and exam strategy</dd></div></dl></div></div>
-                <p className="mm-about-bio">Brings academic and research experience in Commerce and competitive-exam preparation. Guides MockMaster's academic direction, with an emphasis on question quality, exam patterns and student-centred learning.</p>
+                <p className="mm-about-bio">Brings academic and research experience in Commerce and competitive-exam preparation. Guides Mock Buddy's academic direction, with an emphasis on question quality, exam patterns and student-centred learning.</p>
                 <div className="mm-about-admit-foot"><span>Amrita Mishra<small>Signature</small></span><i/></div>
               </article>
             </div>
@@ -185,7 +185,7 @@ export default function AboutPage() {
           </div></div>
         </section>
       </main>
-      <footer className="mm-about-footer"><span>© {new Date().getFullYear()} MockMaster · Built for aspirants, with clarity.</span><div><Link href="/">Home</Link><Link href="/contact">Contact</Link><Link href="/privacy">Privacy</Link><Link href="/terms">Terms</Link></div></footer>
+      <footer className="mm-about-footer"><span>© {new Date().getFullYear()} Mock Buddy · Built for aspirants, with clarity.</span><div><Link href="/">Home</Link><Link href="/contact">Contact</Link><Link href="/privacy">Privacy</Link><Link href="/terms">Terms</Link></div></footer>
     </div>
   );
 }
