@@ -335,7 +335,7 @@ button, input { font: inherit; }
 }
 
 
-/* MockMaster student workspace — independent dashboard shell */
+/* Mock Buddy student workspace — independent dashboard shell */
 .mm-dashboard { min-height:100vh; background:var(--bg-page); color:#172033; }
 .mm-sidebar { position:fixed; inset:0 auto 0 0; z-index:50; width:252px; display:flex; flex-direction:column; padding:25px 17px 18px; background:var(--surface); border-right:1px solid var(--border); }
 .mm-brand { display:flex; align-items:center; gap:10px; padding:0 9px; color:#172033; font-size:20px; font-weight:800; letter-spacing:-.7px; }
@@ -595,7 +595,7 @@ button, input { font: inherit; }
 }
 
 
-/* MockMaster performance analytics dashboard */
+/* Mock Buddy performance analytics dashboard */
 .mm-analytics-content { padding-top:34px; }
 .mm-analytics-heading { display:flex; align-items:flex-end; justify-content:space-between; gap:24px; margin-bottom:22px; }
 .mm-analytics-heading h1 { margin:6px 0 5px; color:#172033; font-family:Georgia,"Times New Roman",serif; font-size:24px; font-weight:600; letter-spacing:-.35px; }
@@ -1083,7 +1083,7 @@ button, a, summary { touch-action: manipulation; }
 }
 
 
-/* Keep the MockMaster mark and wordmark on one horizontal line on phones */
+/* Keep the Mock Buddy mark and wordmark on one horizontal line on phones */
 @media screen and (max-width: 760px) {
   header.mm-topbar {
     min-height: 70px !important;
@@ -1517,7 +1517,7 @@ button, a, summary { touch-action: manipulation; }
 }
 
 
-/* MockMaster dashboard analytics refresh */
+/* Mock Buddy dashboard analytics refresh */
 .mm-analytics-filter-select {
   min-height:38px;
   max-width:190px;
@@ -1774,7 +1774,7 @@ button, a, summary { touch-action: manipulation; }
 
 
 /* =========================================================
-   MOCKMASTER DESIGN SYSTEM — site-wide foundation
+   MOCK BUDDY DESIGN SYSTEM — site-wide foundation
    Typography, spacing, surfaces, buttons and status colours
    ========================================================= */
 :root{
@@ -2091,7 +2091,7 @@ button{font-family:var(--mm-font);font-weight:600}
 @media(max-width:520px){.mm-live-lifecycle-card{grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto auto auto auto;gap:7px 8px}.mm-live-lifecycle-card .mm-live-card-top{grid-column:1 / -1;grid-row:1}.mm-live-lifecycle-card>h3{grid-column:1;grid-row:2}.mm-live-lifecycle-card .mm-live-participants{grid-column:2;grid-row:2;font-size:8px}.mm-live-lifecycle-card .mm-live-card-stats{grid-column:1 / -1;grid-row:3}.mm-live-lifecycle-card .mm-live-recent-summary{grid-column:1 / -1;grid-row:4;gap:6px}.mm-live-lifecycle-card>button{grid-column:1 / -1;grid-row:5;min-width:96px}}
 
 
-/* MockMaster student workspace visual system — aligned with the teal dashboard */
+/* Mock Buddy student workspace visual system — aligned with the teal dashboard */
 .mm-workspace-page,.mn-shell,.mr-shell,.sb-page,.ps-shell{background:var(--bg-page);color:var(--ink)}
 .mm-workspace-header{min-height:66px;height:auto;display:flex;align-items:center;gap:18px;padding:10px clamp(14px,4vw,38px);border-bottom:1px solid var(--border);background:rgba(255,255,255,.94);backdrop-filter:blur(12px)}
 .mm-workspace-header .mm-brand{display:flex;align-items:center;gap:9px;color:var(--ink);font:800 15px var(--font-poppins),Arial,sans-serif;white-space:nowrap}
@@ -2343,7 +2343,7 @@ button{font-family:var(--mm-font);font-weight:600}
 @media(max-width:600px){.mm-practice-quick-actions .mm-practice-action-arrow{font-size:14px}}
 
 
-/* MockMaster shared skeleton loading system */
+/* Mock Buddy shared skeleton loading system */
 .mm-loading-screen{min-height:100vh;background:var(--bg-page,#fff9ee);color:var(--ink,#172b3a);font-family:var(--font-poppins),Arial,sans-serif}
 .mm-loading-topbar{height:64px;padding:0 clamp(18px,5vw,64px);display:flex;align-items:center;gap:28px;background:#fff;border-bottom:1px solid var(--border,#eee5d8)}
 .mm-loading-brand{display:flex;align-items:center;gap:9px}
@@ -2401,7 +2401,7 @@ button{font-family:var(--mm-font);font-weight:600}
 @media(prefers-reduced-motion:reduce){.mm-loading-screen *{animation-duration:.01ms!important;animation-iteration-count:1!important}}
 
 
-/* Loading states follow the current MockMaster design; never show the legacy workspace chrome on test loading. */
+/* Loading states follow the current Mock Buddy design; never show the legacy workspace chrome on test loading. */
 .mm-loading-screen{box-sizing:border-box;min-height:100svh;background:var(--bg-page,#fff9ee)!important;color:var(--ink,#172b3a)}
 .mm-loading-screen *{box-sizing:border-box}
 .mm-loading-screen .mm-loading-topbar{background:var(--bg-page,#fff9ee);border-bottom-color:var(--border,#eee5d8)}
