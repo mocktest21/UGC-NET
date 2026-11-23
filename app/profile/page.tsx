@@ -40,7 +40,9 @@ export default function StudentProfilePage(){
    const {data:paper}=exam?await db.from("papers").select("id").eq("exam_id",exam.id).eq("code","PAPER_2").maybeSingle():{data:null};
    const {data:subjectRows}=paper?await db.from("subjects").select("id,name").eq("paper_id",paper.id).eq("is_active",true).order("display_order"):{data:[]};
    setSubjects(subjectRows||[]);
-   const next:FormState={name:meta.full_name||"",phone:meta.phone_number||"",subjectId:pref?.selected_subject_id||"",category:pref?.category||"",isPwd:Boolean(pref?.is_pwd),goal:pref?.qualification_goal||"Both",cycle:pref?.target_exam_cycle||"June 2027"};
+   const emailName=(user.email||"").split("@")[0].replace(/[._-]+/g," ").replace(/\\b\\w/g,ch=>ch.toUpperCase());
+   const profileName=String(meta.full_name||meta.name||meta.fullName||user.email?.split("@")[0]||"Student").trim();
+   const next:FormState={name:profileName||emailName||"Student",phone:meta.phone_number||meta.phone||"",subjectId:pref?.selected_subject_id||"",category:pref?.category||"",isPwd:Boolean(pref?.is_pwd),goal:pref?.qualification_goal||"Both",cycle:pref?.target_exam_cycle||"June 2027"};
    setForm(next);setSaved(next);
   }catch(e:any){setError(e?.message||"Profile could not be loaded.");}
   finally{setLoading(false);}
