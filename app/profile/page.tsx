@@ -62,7 +62,6 @@ export default function StudentProfilePage(){
   finally{setSaving(false);}
  }
  if(loading)return <MockMasterLoading variant="workspace" title="Loading your profile" message="Fetching your account and exam details."/>;
- const field=(label:string,value:React.ReactNode,icon:React.ReactNode)=><div className="mm-profile-field"><span>{icon}</span><div><small>{label}</small><strong>{value||"Not provided"}</strong></div></div>;
  const subjectName=subjects.find(s=>s.id===saved.subjectId)?.name||"Not selected";
  const initials=saved.name.trim().split(/\\s+/).slice(0,2).map(x=>x[0]).join("").toUpperCase()||"S";
  const cycleLabel=saved.cycle.replace(/^([A-Za-z]+) (\\d{4})$/,"$1 $2");
