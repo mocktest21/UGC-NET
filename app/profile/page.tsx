@@ -107,3 +107,4 @@ export default function StudentProfilePage(){
   </main>
   {!editing&&<button className="mm-profile-edit-fixed" type="button" onClick={()=>{setForm(saved);setEditing(true);setError("");setSuccess("");}}><Edit3 size={17}/>Edit profile</button>}
  </div>;
+}
