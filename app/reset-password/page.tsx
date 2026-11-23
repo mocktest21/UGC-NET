@@ -35,7 +35,7 @@ export default function ResetPasswordPage() {
             <Link className="auth-back" href="/login">← Back to login</Link>
             <span className="auth-kicker">ACCOUNT SUPPORT</span>
             <h2>Choose a new password</h2>
-            <p className="auth-intro">Enter a new password for your MockMaster account.</p>
+            <p className="auth-intro">Enter a new password for your Mock Buddy account.</p>
             <form className="auth-form" onSubmit={handleSubmit}>
               <label className="auth-field">
                 <span>New password</span>
