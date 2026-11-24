@@ -51,3 +51,18 @@
  .mm-profile-contact-card{min-height:33px}.mm-profile-road{padding:6px 8px}.mm-profile-jump-grid a{min-height:39px}
  .mm-profile-edit-fixed{bottom:66px;height:38px}
 }
+
+
+/* Compact profile name card / hero height */
+.mm-profile-hero{min-height:0;padding:14px 20px}
+.mm-profile-identity{min-height:0;align-items:center}
+@media(max-width:699px){
+ .mm-profile-hero{min-height:0;padding:7px 14px;border-radius:0 0 16px 16px}
+ .mm-profile-avatar{width:48px;height:48px;flex-basis:48px;border-radius:14px;font-size:20px}
+ .mm-profile-identity{gap:10px}
+ .mm-profile-identity h1{font-size:18px;line-height:1.1}
+}
+@media(min-width:700px){
+ .mm-profile-hero{min-height:0;padding:16px 22px}
+ .mm-profile-avatar{width:60px;height:60px;flex-basis:60px}
+}
