@@ -2623,3 +2623,41 @@ button{font-family:var(--mm-font);font-weight:600}
  .mm-practice-v2-feature-status{padding:6px 8px;font-size:10px}
  .mm-practice-v2-feature-arrow{font-size:26px}
 }
+
+/* Practice Centre desktop typography — keep mobile sizing unchanged */
+@media (min-width: 701px) {
+  .mm-practice-v2-hero h1 { font-size: 29px; }
+  .mm-practice-v2-hero p { font-size: 12px; }
+  .mm-practice-v2-heading h2 { font-size: 15px; }
+  .mm-practice-v2-feature-card {
+    min-height: 104px;
+    gap: 17px;
+    padding: 16px 20px;
+    border-radius: 20px;
+  }
+  .mm-practice-v2-feature-icon {
+    flex-basis: 72px;
+    width: 72px;
+    height: 72px;
+    border-radius: 19px;
+  }
+  .mm-practice-v2-feature-icon svg { width: 24px; height: 24px; }
+  .mm-practice-v2-feature-copy { gap: 4px; }
+  .mm-practice-v2-feature-copy strong {
+    font-size: 18px;
+    line-height: 1.2;
+    letter-spacing: -0.25px;
+  }
+  .mm-practice-v2-feature-copy small {
+    font-size: 13px;
+    line-height: 1.4;
+  }
+  .mm-practice-v2-feature-status {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+  .mm-practice-v2-feature-status.smart-count { font-size: 13px; }
+  .mm-practice-v2-feature-arrow { font-size: 30px; }
+  .mm-practice-v2-more { gap: 11px; }
+  .mm-practice-v2-more > h2 { font-size: 16px; }
+}
