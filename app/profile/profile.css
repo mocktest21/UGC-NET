@@ -117,3 +117,9 @@
  .mm-profile-form-actions{grid-column:1;display:grid;grid-template-columns:1fr 1fr;gap:9px}
  .mm-profile-form-actions button{min-height:44px;padding:9px 8px;font-size:13px}
 }
+
+
+/* Keep the student's name readable on the profile hero */
+.mm-profile-hero .mm-profile-identity h1{
+ color:#172b2b!important;
+}
